@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "build:example": "jscad jscadExample.js"
+  },
+  "dependencies": {
+    "@jscad/cli": "^2.2.5",
+    "@jscad/modeling": "^2.5.0"
+  }
+}
