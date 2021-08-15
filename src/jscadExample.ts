@@ -12,4 +12,4 @@ export const main = () => {
   const container = subtract(outerBox, innerBox);
 
   return container;
-}
+};
