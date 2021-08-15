@@ -1,9 +1,14 @@
 {
   "scripts": {
-    "build:example": "jscad jscadExample.js"
+    "build:stl:example": "jscad build/src/jscadExample.js",
+    "compile": "tsc"
   },
   "dependencies": {
     "@jscad/cli": "^2.2.5",
     "@jscad/modeling": "^2.5.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node14": "^1.0.1",
+    "typescript": "^4.3.5"
   }
 }
