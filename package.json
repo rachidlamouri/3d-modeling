@@ -2,11 +2,14 @@
   "scripts": {
     "build:stl:example": "jscad build/src/jscadExample.js",
     "compile": "tsc",
+    "install:antlr": "wget https://www.antlr.org/download/antlr-4.9.2-complete.jar",
     "lint": "eslint --ext .js,.ts ."
   },
   "dependencies": {
     "@jscad/cli": "^2.2.5",
-    "@jscad/modeling": "^2.5.0"
+    "@jscad/modeling": "^2.5.0",
+    "@types/lodash": "^4.14.172",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@tsconfig/node14": "^1.0.1",

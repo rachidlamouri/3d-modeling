@@ -10,5 +10,6 @@ module.exports = {
   rules: {
     'import/prefer-default-export': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
+    'max-classes-per-file': 'off',
   },
 };
