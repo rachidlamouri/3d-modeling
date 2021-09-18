@@ -8,8 +8,17 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
-    'import/prefer-default-export': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
+    'import/extensions': [
+      'error',
+      'ignorePackages',
+      {
+        js: 'never',
+        ts: 'never',
+      },
+    ],
+    'import/prefer-default-export': 'off',
+    'lines-between-class-members': ['error', 'always', { exceptAfterSingleLine: true }],
     'max-classes-per-file': 'off',
     'max-len': [
       'error',
@@ -23,5 +32,16 @@ module.exports = {
         ignoreTemplateLiterals: true,
       },
     ],
+  },
+  settings: {
+    'import/extensions': [
+      '.js',
+      '.ts',
+    ],
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.ts'],
+      },
+    },
   },
 };

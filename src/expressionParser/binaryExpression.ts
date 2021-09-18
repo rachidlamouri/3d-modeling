@@ -1,14 +1,38 @@
-import { Expression } from './expression.js';
-import { UnaryExpression } from './unaryExpression.js';
-import { ConstantExpression } from './constantExpression.js';
+import { Expression, ExpressionParams, VariablesMap } from './expression';
+import { UnaryExpression } from './unaryExpression';
+import { ConstantExpression } from './constantExpression';
+
+export type BinaryOperator = '*' | '/' | '+' | '-';
+
+type BinaryExpressionParams = ExpressionParams & {
+  leftExpression: Expression;
+  operator: BinaryOperator;
+  rightExpression: Expression;
+}
 
 export class BinaryExpression extends Expression {
-  constructor(properties) {
-    const { leftExpression, operator, rightExpression } = properties;
-    super(properties);
+  leftExpression: Expression;
+  operator: BinaryOperator;
+  rightExpression: Expression;
+
+  constructor(params: BinaryExpressionParams) {
+    const { leftExpression, operator, rightExpression } = params;
+    super(params);
     this.leftExpression = leftExpression;
     this.operator = operator;
     this.rightExpression = rightExpression;
+  }
+
+  compute(variables: VariablesMap) {
+    const leftValue = this.leftExpression.compute(variables);
+    const rightValue = this.rightExpression.compute(variables);
+
+    switch (this.operator) {
+      case '+': return leftValue + rightValue;
+      case '-': return leftValue - rightValue;
+      case '/': return leftValue / rightValue;
+      default: return leftValue * rightValue;
+    }
   }
 
   getVariableNames() {
@@ -18,7 +42,11 @@ export class BinaryExpression extends Expression {
     ];
   }
 
-  simplify() {
+  serialize() {
+    return `(${this.leftExpression.serialize()} ${this.operator} ${this.rightExpression.serialize()})`;
+  }
+
+  simplify(): Expression {
     const isAddition = this.operator === '+';
     const isSubtraction = this.operator === '-';
     const isMultiplication = this.operator === '*';
@@ -36,8 +64,9 @@ export class BinaryExpression extends Expression {
     const isLeftNegative = (simplifiedLeftExpression instanceof UnaryExpression) && simplifiedLeftExpression.isNegative(); // eslint-disable-line max-len
     const isRightNegative = (simplifiedRightExpression instanceof UnaryExpression) && simplifiedRightExpression.isNegative(); // eslint-disable-line max-len
 
-    if ((isAddition || isSubtraction) && isLeftZero) {
+    if ((this.operator === '+' || this.operator === '-') && isLeftZero) {
       return new UnaryExpression({
+        input: `${this.operator}(${simplifiedRightExpression})`,
         operator: this.operator,
         expression: simplifiedRightExpression,
       })
@@ -50,6 +79,7 @@ export class BinaryExpression extends Expression {
 
     if (isSubtraction && isRightNegative) {
       return new BinaryExpression({
+        input: `${simplifiedLeftExpression.input}+${simplifiedRightExpression.input}`,
         leftExpression: simplifiedLeftExpression,
         operator: '+',
         rightExpression: simplifiedRightExpression.expression,
@@ -58,19 +88,28 @@ export class BinaryExpression extends Expression {
     }
 
     if ((isMultiplication || isDivision) && isLeftNegative && isRightNegative) {
+      const invertedSimplifiedLeftExpression = simplifiedLeftExpression.invert().simplify();
+      const invertedSimplifiedRightExpression = simplifiedRightExpression.invert().simplify();
+
       return new BinaryExpression({
-        leftExpression: simplifiedLeftExpression.invert().simplify(),
+        input: `${invertedSimplifiedLeftExpression.input}${this.operator}${invertedSimplifiedRightExpression.input}`,
+        leftExpression: invertedSimplifiedLeftExpression,
         operator: this.operator,
-        rightExpression: simplifiedRightExpression.invert().simplify(),
+        rightExpression: invertedSimplifiedRightExpression,
       })
         .simplify();
     }
 
     if ((isMultiplication || isDivision) && isLeftNegative) {
+      const invertedSimplifiedLeftExpression = simplifiedLeftExpression.invert().simplify();
+      const newInput = `${invertedSimplifiedLeftExpression.input}${this.operator}${simplifiedRightExpression.input}`;
+
       return new UnaryExpression({
+        input: `-(${newInput})`,
         operator: '-',
         expression: new BinaryExpression({
-          leftExpression: simplifiedLeftExpression.invert().simplify(),
+          input: newInput,
+          leftExpression: invertedSimplifiedLeftExpression,
           operator: this.operator,
           rightExpression: simplifiedRightExpression,
         })
@@ -79,12 +118,17 @@ export class BinaryExpression extends Expression {
     }
 
     if ((isMultiplication || isDivision) && isRightNegative) {
+      const invertedSimplifiedRightExpression = simplifiedRightExpression.invert().simplify();
+      const newInput = `${simplifiedLeftExpression.input}${this.operator}${invertedSimplifiedRightExpression.input}`;
+
       return new UnaryExpression({
+        input: `-(${newInput})`,
         operator: '-',
         expression: new BinaryExpression({
+          input: newInput,
           leftExpression: simplifiedLeftExpression,
           operator: this.operator,
-          rightExpression: simplifiedRightExpression.invert().simplify(),
+          rightExpression: invertedSimplifiedRightExpression,
         })
           .simplify(),
       });
@@ -99,25 +143,10 @@ export class BinaryExpression extends Expression {
     }
 
     return new BinaryExpression({
+      input: this.input,
       leftExpression: simplifiedLeftExpression,
       operator: this.operator,
       rightExpression: simplifiedRightExpression,
     });
-  }
-
-  serialize() {
-    return `(${this.leftExpression.serialize()} ${this.operator} ${this.rightExpression.serialize()})`;
-  }
-
-  compute(variables) {
-    const leftValue = this.leftExpression.compute(variables);
-    const rightValue = this.rightExpression.compute(variables);
-
-    switch (this.operator) {
-      case '+': return leftValue + rightValue;
-      case '-': return leftValue - rightValue;
-      case '/': return leftValue / rightValue;
-      default: return leftValue * rightValue;
-    }
   }
 }
