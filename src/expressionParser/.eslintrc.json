@@ -1,0 +1,6 @@
+{
+  "extends": "../../.eslintrc.js",
+  "rules": {
+    "import/extensions": "off"
+  }
+}

@@ -1,12 +1,17 @@
 {
   "scripts": {
     "build:stl:example": "jscad build/src/jscadExample.js",
-    "compile": "tsc",
-    "lint": "eslint --ext .js,.ts ."
+    "compile:ts": "tsc",
+    "compile:grammar": "java -jar antlr-4.9.2-complete.jar -o ./src/expressionParser/compiled -Dlanguage=JavaScript ./src/expressionParser/dimensionScript.g4",
+    "install:antlr": "wget -O antlr-4.9.2-complete.jar https://www.antlr.org/download/antlr-4.9.2-complete.jar",
+    "lint": "eslint --ext .js,.ts .",
+    "postinstall": "npm run install:antlr"
   },
   "dependencies": {
     "@jscad/cli": "^2.2.5",
-    "@jscad/modeling": "^2.5.0"
+    "@jscad/modeling": "^2.5.0",
+    "antlr4": "^4.9.2",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@tsconfig/node14": "^1.0.1",
