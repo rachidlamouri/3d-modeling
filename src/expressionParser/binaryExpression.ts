@@ -47,6 +47,15 @@ export class BinaryExpression extends Expression {
     }
   }
 
+  getInverseOperator(): BinaryOperator {
+    return {
+      '*': '/',
+      '/': '*',
+      '+': '-',
+      '-': '+',
+    }[this.operator] as BinaryOperator;
+  }
+
   getVariableNames() {
     return [
       ...this.leftExpression.getVariableNames(),

@@ -1,5 +1,5 @@
 import { Equation } from './equation';
-import { VariableExpression } from './variableExpression';
+import { VariableExpression, VariableLiteral } from './variableExpression';
 import { VariablesMap } from './statement';
 
 export class VariableEquation extends Equation {
@@ -18,4 +18,16 @@ export class VariableEquation extends Equation {
   compute(variables: VariablesMap) {
     return this.rightExpression.compute(variables);
   }
+
+  splitLeftVariableExpression(): Equation {
+    const [equation] = super.splitLeftExpression();
+    return equation;
+  }
+
+  get variableName() {
+    const [variableName] = this.leftExpression.getVariableNames();
+    return variableName;
+  }
 }
+
+export type VariableEquationSystem = Record<VariableLiteral, VariableEquation>;

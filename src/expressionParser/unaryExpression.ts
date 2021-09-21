@@ -26,11 +26,11 @@ export class UnaryExpression extends Expression {
   }
 
   compute(variables: VariablesMap) {
-    const value = this.expression.compute(variables);
+    return this.getUnit() * this.expression.compute(variables);
+  }
 
-    return this.operator === '+'
-      ? value
-      : -value;
+  getUnit() {
+    return this.operator === '+' ? 1 : -1;
   }
 
   getVariableNames() {
