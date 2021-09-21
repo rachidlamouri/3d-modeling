@@ -1,6 +1,7 @@
-import { Expression, ExpressionParams, VariablesMap } from './expression';
+import { Expression, ExpressionParams } from './expression';
 import { UnaryExpression } from './unaryExpression';
 import { ConstantExpression } from './constantExpression';
+import { VariablesMap } from './statement';
 
 export type BinaryOperator = '*' | '/' | '+' | '-';
 

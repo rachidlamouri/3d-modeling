@@ -1,4 +1,5 @@
-import { Expression, ExpressionParams, VariablesMap } from './expression';
+import { Expression, ExpressionParams } from './expression';
+import { VariablesMap } from './statement';
 
 export type UnaryOperator = '+' | '-';
 

@@ -1,23 +1,18 @@
+import { Statement, VariablesMap } from './statement';
+
 export type ExpressionParams = {
   input: string;
 }
 
-export type VariablesMap = Record<string, number>;
-
-export abstract class Expression {
-  type: string;
+export abstract class Expression implements Statement {
   input: string;
 
   constructor({ input }: ExpressionParams) {
-    this.type = this.constructor.name;
     this.input = input;
   }
 
   abstract compute(variables: VariablesMap): number;
-
-  abstract getVariableNames(): string[]
-
+  abstract getVariableNames(): string[];
   abstract serialize(): string;
-
-  abstract simplify(): Expression
+  abstract simplify(): Expression;
 }
