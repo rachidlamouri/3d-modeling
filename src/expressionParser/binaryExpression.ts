@@ -4,7 +4,8 @@ import { ConstantExpression } from './constantExpression';
 
 export type BinaryOperator = '*' | '/' | '+' | '-';
 
-type BinaryExpressionParams = ExpressionParams & {
+type BinaryExpressionParams = Omit<ExpressionParams, 'input'> & {
+  input?: string;
   leftExpression: Expression;
   operator: BinaryOperator;
   rightExpression: Expression;
@@ -16,8 +17,18 @@ export class BinaryExpression extends Expression {
   rightExpression: Expression;
 
   constructor(params: BinaryExpressionParams) {
-    const { leftExpression, operator, rightExpression } = params;
-    super(params);
+    const {
+      input,
+      leftExpression,
+      operator,
+      rightExpression,
+    } = params;
+
+    super({
+      input: input !== undefined
+        ? input
+        : `(${leftExpression.input}) - (${rightExpression.input})`,
+    });
     this.leftExpression = leftExpression;
     this.operator = operator;
     this.rightExpression = rightExpression;
@@ -66,7 +77,6 @@ export class BinaryExpression extends Expression {
 
     if ((this.operator === '+' || this.operator === '-') && isLeftZero) {
       return new UnaryExpression({
-        input: `${this.operator}(${simplifiedRightExpression})`,
         operator: this.operator,
         expression: simplifiedRightExpression,
       })
@@ -79,7 +89,6 @@ export class BinaryExpression extends Expression {
 
     if (isSubtraction && isRightNegative) {
       return new BinaryExpression({
-        input: `${simplifiedLeftExpression.input}+${simplifiedRightExpression.input}`,
         leftExpression: simplifiedLeftExpression,
         operator: '+',
         rightExpression: simplifiedRightExpression.expression,
@@ -92,7 +101,6 @@ export class BinaryExpression extends Expression {
       const invertedSimplifiedRightExpression = simplifiedRightExpression.invert().simplify();
 
       return new BinaryExpression({
-        input: `${invertedSimplifiedLeftExpression.input}${this.operator}${invertedSimplifiedRightExpression.input}`,
         leftExpression: invertedSimplifiedLeftExpression,
         operator: this.operator,
         rightExpression: invertedSimplifiedRightExpression,
@@ -102,13 +110,9 @@ export class BinaryExpression extends Expression {
 
     if ((isMultiplication || isDivision) && isLeftNegative) {
       const invertedSimplifiedLeftExpression = simplifiedLeftExpression.invert().simplify();
-      const newInput = `${invertedSimplifiedLeftExpression.input}${this.operator}${simplifiedRightExpression.input}`;
-
       return new UnaryExpression({
-        input: `-(${newInput})`,
         operator: '-',
         expression: new BinaryExpression({
-          input: newInput,
           leftExpression: invertedSimplifiedLeftExpression,
           operator: this.operator,
           rightExpression: simplifiedRightExpression,
@@ -119,13 +123,9 @@ export class BinaryExpression extends Expression {
 
     if ((isMultiplication || isDivision) && isRightNegative) {
       const invertedSimplifiedRightExpression = simplifiedRightExpression.invert().simplify();
-      const newInput = `${simplifiedLeftExpression.input}${this.operator}${invertedSimplifiedRightExpression.input}`;
-
       return new UnaryExpression({
-        input: `-(${newInput})`,
         operator: '-',
         expression: new BinaryExpression({
-          input: newInput,
           leftExpression: simplifiedLeftExpression,
           operator: this.operator,
           rightExpression: invertedSimplifiedRightExpression,

@@ -2,7 +2,8 @@ import { Expression, ExpressionParams, VariablesMap } from './expression';
 
 export type VariableLiteral = string;
 
-type VariableExpressionParams = ExpressionParams & {
+type VariableExpressionParams = Omit<ExpressionParams, 'input'> & {
+  input?: string;
   variableLiteral: VariableLiteral;
 };
 
@@ -10,8 +11,12 @@ export class VariableExpression extends Expression {
   name: VariableLiteral;
 
   constructor(params: VariableExpressionParams) {
-    const { variableLiteral } = params;
-    super(params);
+    const { input, variableLiteral } = params;
+    super({
+      input: input !== undefined
+        ? input
+        : variableLiteral,
+    });
     this.name = variableLiteral;
   }
 

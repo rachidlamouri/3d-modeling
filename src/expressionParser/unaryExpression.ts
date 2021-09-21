@@ -2,7 +2,8 @@ import { Expression, ExpressionParams, VariablesMap } from './expression';
 
 export type UnaryOperator = '+' | '-';
 
-type UnaryExpressionParams = ExpressionParams & {
+type UnaryExpressionParams = Omit<ExpressionParams, 'input'> & {
+  input?: string;
   operator: UnaryOperator;
   expression: Expression;
 }
@@ -12,9 +13,13 @@ export class UnaryExpression extends Expression {
   expression: Expression;
 
   constructor(params: UnaryExpressionParams) {
-    const { operator, expression } = params;
+    const { input, operator, expression } = params;
 
-    super(params);
+    super({
+      input: input !== undefined
+        ? input
+        : `${operator}(${expression.input})`,
+    });
     this.operator = operator;
     this.expression = expression;
   }
@@ -35,7 +40,6 @@ export class UnaryExpression extends Expression {
     const operator = this.operator === '+' ? '-' : '+';
 
     return new UnaryExpression({
-      input: `${operator}${this.expression.input}`,
       operator,
       expression: this.expression,
     });
@@ -59,7 +63,6 @@ export class UnaryExpression extends Expression {
     }
 
     return new UnaryExpression({
-      input: this.input,
       operator: this.operator,
       expression: this.expression.simplify(),
     });
