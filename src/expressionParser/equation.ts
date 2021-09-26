@@ -1,4 +1,4 @@
-import { Statement, VariablesMap } from './statement';
+import { Statement, VariableLiterals, VariablesMap } from './statement';
 import { Expression } from './expression';
 import { BinaryExpression } from './binaryExpression';
 import { ConstantExpression } from './constantExpression';
@@ -6,22 +6,22 @@ import { parseExpression } from './parseExpression';
 import { UnaryExpression } from './unaryExpression';
 import { VariableExpression } from './variableExpression';
 
-type EquationParams = {
-  leftExpression: Expression;
-  rightExpression: Expression;
+type EquationParams<VariableNames extends VariableLiterals> = {
+  leftExpression: Expression<VariableNames>;
+  rightExpression: Expression<VariableNames>;
 }
 
-export class Equation implements Statement {
-  leftExpression: Expression;
-  rightExpression: Expression;
+export class Equation<VariableNames extends VariableLiterals> implements Statement<VariableNames> {
+  leftExpression: Expression<VariableNames>;
+  rightExpression: Expression<VariableNames>;
 
-  constructor({ leftExpression, rightExpression }: EquationParams) {
+  constructor({ leftExpression, rightExpression }: EquationParams<VariableNames>) {
     this.leftExpression = leftExpression;
     this.rightExpression = rightExpression;
   }
 
   // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
-  compute(variables: VariablesMap): number {
+  compute(variables: VariablesMap<VariableNames>): number {
     throw Error('Not implemented. Did you mean to convert to a VariableEquation first?');
   }
 
@@ -46,7 +46,7 @@ export class Equation implements Statement {
   splitLeftExpression() {
     if (this.leftExpression instanceof ConstantExpression || this.leftExpression instanceof VariableExpression) {
       return [new Equation({
-        leftExpression: parseExpression('0'),
+        leftExpression: parseExpression('0', []),
         rightExpression: new BinaryExpression({
           leftExpression: this.rightExpression,
           operator: '-',
@@ -61,7 +61,7 @@ export class Equation implements Statement {
         rightExpression: new BinaryExpression({
           leftExpression: this.rightExpression,
           operator: '/',
-          rightExpression: parseExpression(`${this.leftExpression.getUnit()}`),
+          rightExpression: parseExpression(`${this.leftExpression.getUnit()}`, []),
         }),
       })];
     }

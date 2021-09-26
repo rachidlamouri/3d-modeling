@@ -1,8 +1,12 @@
-export type VariablesMap = Record<string, number>;
+export type VariableLiteral = string;
 
-export interface Statement {
-  compute(variables: VariablesMap): number;
-  getVariableNames(): string[];
+export type VariableLiterals = readonly VariableLiteral[];
+
+export type VariablesMap<VariableNames extends VariableLiterals> = Record<VariableNames[number], number>;
+
+export interface Statement<VariableNames extends VariableLiterals> {
+  compute(variables: VariablesMap<VariableNames>): number;
+  getVariableNames(): VariableNames[number][];
   serialize(): string;
-  simplify(): Statement;
+  simplify(): Statement<VariableNames>;
 }

@@ -6,7 +6,7 @@ type ConstantExpressionParams = ExpressionParams & {
   constantLiteral: ConstantLiteral;
 }
 
-export class ConstantExpression extends Expression {
+export class ConstantExpression extends Expression<never> {
   value: number;
 
   constructor(params: ConstantExpressionParams) {

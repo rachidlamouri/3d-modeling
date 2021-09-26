@@ -1,18 +1,18 @@
-import { Statement, VariablesMap } from './statement';
+import { Statement, VariableLiterals, VariablesMap } from './statement';
 
 export type ExpressionParams = {
   input: string;
 }
 
-export abstract class Expression implements Statement {
+export abstract class Expression<VariableNames extends VariableLiterals> implements Statement<VariableNames> {
   input: string;
 
   constructor({ input }: ExpressionParams) {
     this.input = input;
   }
 
-  abstract compute(variables: VariablesMap): number;
-  abstract getVariableNames(): string[];
+  abstract compute(variables: VariablesMap<VariableNames>): number;
+  abstract getVariableNames(): VariableNames[number][];
   abstract serialize(): string;
-  abstract simplify(): Expression;
+  abstract simplify(): Expression<VariableNames>;
 }
