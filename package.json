@@ -1,6 +1,7 @@
 {
   "scripts": {
     "build:stl:example": "jscad build/src/jscadExample.js",
+    "build:widget:example": "jscad build/src/widgetExample.js",
     "compile:ts": "tsc",
     "compile:grammar": "rm -rf src/expressionParser/compiled/ && antlr4ts -visitor -o src/expressionParser/compiled/ src/expressionParser/DimensionScript.g4",
     "lint": "eslint --ext .js,.ts .",
