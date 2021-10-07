@@ -1,17 +1,15 @@
 import { Expression, ExpressionParams } from './expression';
-import { VariablesMap } from './statement';
+import { VariablesMap, VariableLiterals } from './statement';
 
-export type VariableLiteral = string;
-
-type VariableExpressionParams = Omit<ExpressionParams, 'input'> & {
+type VariableExpressionParams<VariableNames extends VariableLiterals> = Omit<ExpressionParams, 'input'> & {
   input?: string;
-  variableLiteral: VariableLiteral;
+  variableLiteral: VariableNames[number];
 };
 
-export class VariableExpression extends Expression {
-  name: VariableLiteral;
+export class VariableExpression<VariableNames extends VariableLiterals> extends Expression<VariableNames> {
+  name: VariableNames[number];
 
-  constructor(params: VariableExpressionParams) {
+  constructor(params: VariableExpressionParams<VariableNames>) {
     const { input, variableLiteral } = params;
     super({
       input: input !== undefined
@@ -21,7 +19,7 @@ export class VariableExpression extends Expression {
     this.name = variableLiteral;
   }
 
-  compute(variables: VariablesMap) {
+  compute(variables: VariablesMap<VariableNames>) {
     return variables[this.name];
   }
 

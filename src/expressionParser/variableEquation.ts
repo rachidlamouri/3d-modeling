@@ -1,11 +1,11 @@
 import { Equation } from './equation';
-import { VariableExpression, VariableLiteral } from './variableExpression';
-import { VariablesMap } from './statement';
+import { VariableExpression } from './variableExpression';
+import { VariableLiterals, VariablesMap } from './statement';
 
-export class VariableEquation extends Equation {
-  leftExpression: VariableExpression;
+export class VariableEquation<VariableNames extends VariableLiterals> extends Equation<VariableNames> {
+  leftExpression: VariableExpression<VariableNames>;
 
-  constructor(equation: Equation) {
+  constructor(equation: Equation<VariableNames>) {
     if (!(equation.leftExpression instanceof VariableExpression)) {
       throw Error('leftExpression must be VariableExpression');
     }
@@ -15,11 +15,11 @@ export class VariableEquation extends Equation {
     this.leftExpression = equation.leftExpression;
   }
 
-  compute(variables: VariablesMap) {
+  compute(variables: VariablesMap<VariableNames>) {
     return this.rightExpression.compute(variables);
   }
 
-  splitLeftVariableExpression(): Equation {
+  splitLeftVariableExpression(): Equation<VariableNames> {
     const [equation] = super.splitLeftExpression();
     return equation;
   }
@@ -30,4 +30,8 @@ export class VariableEquation extends Equation {
   }
 }
 
-export type VariableEquationSystem = Record<VariableLiteral, VariableEquation>;
+export type VariableEquationSystem<VariableNames extends VariableLiterals> =
+  Partial<Record<VariableNames[number], VariableEquation<VariableNames>>>;
+
+export type VariableEquationSystems<VariableNames extends VariableLiterals> =
+  Partial<Record<VariableNames[number], VariableEquation<VariableNames>[]>>;

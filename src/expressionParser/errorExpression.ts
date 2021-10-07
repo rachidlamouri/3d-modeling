@@ -1,14 +1,15 @@
 import { Expression, ExpressionParams } from './expression';
+import { VariableLiterals } from './statement';
 
-type NullableExpression = Expression | null;
-type ErrorExpressionParams = ExpressionParams & {
-  expression: NullableExpression;
+type NullableExpression<VariableNames extends VariableLiterals> = Expression<VariableNames> | null;
+type ErrorExpressionParams<VariableNames extends VariableLiterals> = ExpressionParams & {
+  expression: NullableExpression<VariableNames>;
 }
 
-export class ErrorExpression extends Expression {
-  expression: NullableExpression;
+export class ErrorExpression<VariableNames extends VariableLiterals> extends Expression<VariableNames> {
+  expression: NullableExpression<VariableNames>;
 
-  constructor(params: ErrorExpressionParams) {
+  constructor(params: ErrorExpressionParams<VariableNames>) {
     super(params);
 
     this.expression = params.expression;

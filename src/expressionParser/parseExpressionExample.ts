@@ -1,5 +1,7 @@
 import { parseExpression } from './parseExpression';
 
+const variableNames = ['a', 'b', 'c', 'd', 'g'];
+
 [
   '',
   '++',
@@ -14,7 +16,7 @@ import { parseExpression } from './parseExpression';
   '(a + b) * g',
   'a + b - c / d * g',
 ]
-  .map((input) => parseExpression(input))
+  .map((input) => parseExpression(input, variableNames))
   .map((parsedExpression) => {
     const simplifiedExpression = parsedExpression.simplify();
 

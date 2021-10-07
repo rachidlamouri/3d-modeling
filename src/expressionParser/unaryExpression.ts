@@ -1,19 +1,19 @@
 import { Expression, ExpressionParams } from './expression';
-import { VariablesMap } from './statement';
+import { VariableLiterals, VariablesMap } from './statement';
 
 export type UnaryOperator = '+' | '-';
 
-type UnaryExpressionParams = Omit<ExpressionParams, 'input'> & {
+type UnaryExpressionParams<VariableNames extends VariableLiterals> = Omit<ExpressionParams, 'input'> & {
   input?: string;
   operator: UnaryOperator;
-  expression: Expression;
+  expression: Expression<VariableNames>;
 }
 
-export class UnaryExpression extends Expression {
+export class UnaryExpression<VariableNames extends VariableLiterals> extends Expression<VariableNames> {
   operator: UnaryOperator;
-  expression: Expression;
+  expression: Expression<VariableNames>;
 
-  constructor(params: UnaryExpressionParams) {
+  constructor(params: UnaryExpressionParams<VariableNames>) {
     const { input, operator, expression } = params;
 
     super({
@@ -25,7 +25,7 @@ export class UnaryExpression extends Expression {
     this.expression = expression;
   }
 
-  compute(variables: VariablesMap) {
+  compute(variables: VariablesMap<VariableNames>) {
     return this.getUnit() * this.expression.compute(variables);
   }
 
@@ -54,7 +54,7 @@ export class UnaryExpression extends Expression {
     return `(${this.operator}${this.expression.serialize()})`;
   }
 
-  simplify(): Expression {
+  simplify(): Expression<VariableNames> {
     if (this.operator === '+') {
       return this.expression.simplify();
     }

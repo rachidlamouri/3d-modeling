@@ -1,23 +1,23 @@
 import { Expression, ExpressionParams } from './expression';
 import { UnaryExpression } from './unaryExpression';
 import { ConstantExpression } from './constantExpression';
-import { VariablesMap } from './statement';
+import { VariableLiterals, VariablesMap } from './statement';
 
 export type BinaryOperator = '*' | '/' | '+' | '-';
 
-type BinaryExpressionParams = Omit<ExpressionParams, 'input'> & {
+type BinaryExpressionParams<VariableNames extends VariableLiterals> = Omit<ExpressionParams, 'input'> & {
   input?: string;
-  leftExpression: Expression;
+  leftExpression: Expression<VariableNames>;
   operator: BinaryOperator;
-  rightExpression: Expression;
+  rightExpression: Expression<VariableNames>;
 }
 
-export class BinaryExpression extends Expression {
-  leftExpression: Expression;
+export class BinaryExpression<VariableNames extends VariableLiterals> extends Expression<VariableNames> {
+  leftExpression: Expression<VariableNames>;
   operator: BinaryOperator;
-  rightExpression: Expression;
+  rightExpression: Expression<VariableNames>;
 
-  constructor(params: BinaryExpressionParams) {
+  constructor(params: BinaryExpressionParams<VariableNames>) {
     const {
       input,
       leftExpression,
@@ -35,7 +35,7 @@ export class BinaryExpression extends Expression {
     this.rightExpression = rightExpression;
   }
 
-  compute(variables: VariablesMap) {
+  compute(variables: VariablesMap<VariableNames>) {
     const leftValue = this.leftExpression.compute(variables);
     const rightValue = this.rightExpression.compute(variables);
 
@@ -67,7 +67,7 @@ export class BinaryExpression extends Expression {
     return `(${this.leftExpression.serialize()} ${this.operator} ${this.rightExpression.serialize()})`;
   }
 
-  simplify(): Expression {
+  simplify(): Expression<VariableNames> {
     const isAddition = this.operator === '+';
     const isSubtraction = this.operator === '-';
     const isMultiplication = this.operator === '*';

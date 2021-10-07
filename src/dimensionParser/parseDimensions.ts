@@ -1,46 +1,62 @@
 import { Equation } from '../expressionParser/equation';
-import { parseExpression } from '../expressionParser/parseExpression';
-import { VariableEquation } from '../expressionParser/variableEquation';
-import { VariableExpression, VariableLiteral } from '../expressionParser/variableExpression';
+import { DimensionScript, parseExpression } from '../expressionParser/parseExpression';
+import { VariableEquation, VariableEquationSystems } from '../expressionParser/variableEquation';
+import { VariableExpression } from '../expressionParser/variableExpression';
+import { VariableLiterals } from '../expressionParser/statement';
 import { isolateVariables } from './isolateVariables';
-
-type DimensionScript = string;
+import { entries } from './utils';
 
 type DimensionDefinition = DimensionScript;
 
-type DimensionDefinitions = {
-  [dimensionName: string]: DimensionDefinition;
+export type DimensionDefinitions<DimensionNames extends VariableLiterals> = {
+  [Name in DimensionNames[number]]: DimensionDefinition;
 };
 
-export const parseDimensions = (definitions: DimensionDefinitions) => (
-  Object.entries(definitions)
-    .map(([variableName, dimensionScript]) => ({
-      variableName,
-      expression: parseExpression(dimensionScript),
-    }))
-    .map(({ variableName, expression }) => (
-      new Equation({
-        leftExpression: new VariableExpression({
-          variableLiteral: variableName,
-        }),
-        rightExpression: expression,
-      })
-    ))
-    .map((equation) => new VariableEquation(equation))
-    .map((variableEquation) => isolateVariables(variableEquation))
-    .reduce(
-      (equationSets: Record<VariableLiteral, VariableEquation[]>, equationSystem) => {
-        Object.entries(equationSystem)
-          .forEach(([variableName, variableEquation]) => {
-            if (!(variableName in equationSets)) {
-              equationSets[variableName] = []; // eslint-disable-line no-param-reassign
-            }
+export type PartialDimensionDefinitions<DimensionNames extends VariableLiterals>
+  = Partial<DimensionDefinitions<DimensionNames>>;
 
-            equationSets[variableName].push(variableEquation);
-          });
+export const buildDimensionDefinitions = <DimensionNames extends VariableLiterals>
+  (
+    dimensionNames: readonly DimensionNames[number][],
+    partialDefinitions: PartialDimensionDefinitions<DimensionNames>,
+  ): DimensionDefinitions<DimensionNames> => {
+  const definitionEntries = dimensionNames.map((name) => [name, partialDefinitions[name] ?? name]);
+  return Object.fromEntries(definitionEntries);
+};
 
-        return equationSets;
-      },
-      {},
-    )
-);
+export const parseDimensions = <
+  DimensionNames extends VariableLiterals,
+  DimensionNamesSubset extends DimensionNames[number],
+>(
+    dimensionNames: DimensionNames,
+    definitions: Pick<DimensionDefinitions<DimensionNames>, DimensionNamesSubset>,
+  ) => (
+    entries<DimensionNamesSubset, DimensionDefinition>(definitions)
+      .map(([variableName, dimensionScript]) => ({
+        variableName,
+        expression: parseExpression(dimensionScript, dimensionNames),
+      }))
+      .map(({ variableName, expression }) => (
+        new Equation({
+          leftExpression: new VariableExpression({
+            variableLiteral: variableName,
+          }),
+          rightExpression: expression,
+        })
+      ))
+      .map((equation) => new VariableEquation(equation))
+      .map((variableEquation) => isolateVariables<DimensionNames>(variableEquation))
+      .reduce(
+        (variableEquationSystems, variableEquationSystem) => {
+          entries<DimensionNames[number], VariableEquation<DimensionNames>>(variableEquationSystem)
+            .forEach(([variableName, variableEquation]) => {
+              const equations = variableEquationSystems[variableName] ?? [] as VariableEquation<DimensionNames>[];
+              equations.push(variableEquation);
+              variableEquationSystems[variableName] = equations; // eslint-disable-line no-param-reassign
+            });
+
+          return variableEquationSystems;
+        },
+        {} as VariableEquationSystems<DimensionNames>,
+      )
+  );
