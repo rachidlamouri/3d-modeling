@@ -2,9 +2,9 @@
 
 import { CommonTokenStream, CharStreams } from 'antlr4ts';
 import { AbstractParseTreeVisitor } from 'antlr4ts/tree/AbstractParseTreeVisitor';
-import { DimensionScriptLexer } from './compiled/src/expressionParser/DimensionScriptLexer';
-import { DimensionScriptParser, ExpressionContext, InputContext } from './compiled/src/expressionParser/DimensionScriptParser';
-import { DimensionScriptVisitor } from './compiled/src/expressionParser/DimensionScriptVisitor';
+import { DimensionScriptLexer } from './compiled/DimensionScriptLexer';
+import { DimensionScriptParser, ExpressionContext, InputContext } from './compiled/DimensionScriptParser';
+import { DimensionScriptVisitor } from './compiled/DimensionScriptVisitor';
 import { Expression } from './expression';
 import { BinaryExpression, BinaryOperator } from './binaryExpression';
 import { UnaryExpression, UnaryOperator } from './unaryExpression';
