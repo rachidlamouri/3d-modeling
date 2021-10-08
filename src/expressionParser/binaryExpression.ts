@@ -1,5 +1,5 @@
 import { Expression, ExpressionParams } from './expression';
-import { UnaryExpression } from './unaryExpression';
+import { UnaryExpression, UnaryOperator } from './unaryExpression';
 import { ConstantExpression } from './constantExpression';
 import { VariableLiterals, VariablesMap } from './statement';
 
@@ -11,6 +11,12 @@ type BinaryExpressionParams<VariableNames extends VariableLiterals> = Omit<Expre
   operator: BinaryOperator;
   rightExpression: Expression<VariableNames>;
 }
+
+const isAdditionOrSubtraction = (operator: BinaryOperator): operator is UnaryOperator => operator === '+' || operator === '-';
+const isExpressionNegative = <VariableNames extends VariableLiterals>
+  (expression: Expression<VariableNames>): expression is UnaryExpression<VariableNames> => (
+    (expression instanceof UnaryExpression) && expression.isNegative()
+  );
 
 export class BinaryExpression<VariableNames extends VariableLiterals> extends Expression<VariableNames> {
   leftExpression: Expression<VariableNames>;
@@ -28,7 +34,7 @@ export class BinaryExpression<VariableNames extends VariableLiterals> extends Ex
     super({
       input: input !== undefined
         ? input
-        : `(${leftExpression.input}) - (${rightExpression.input})`,
+        : `(${leftExpression.input}) ${operator} (${rightExpression.input})`,
     });
     this.leftExpression = leftExpression;
     this.operator = operator;
@@ -63,100 +69,97 @@ export class BinaryExpression<VariableNames extends VariableLiterals> extends Ex
     ];
   }
 
-  serialize() {
-    return `(${this.leftExpression.serialize()} ${this.operator} ${this.rightExpression.serialize()})`;
-  }
-
   simplify(): Expression<VariableNames> {
-    const isAddition = this.operator === '+';
     const isSubtraction = this.operator === '-';
     const isMultiplication = this.operator === '*';
     const isDivision = this.operator === '/';
 
-    const simplifiedLeftExpression = this.leftExpression.simplify();
-    const simplifiedRightExpression = this.rightExpression.simplify();
+    const isLeftZero = (this.leftExpression instanceof ConstantExpression) && this.leftExpression.isZero();
+    const isRightZero = (this.rightExpression instanceof ConstantExpression) && this.rightExpression.isZero();
 
-    const isLeftZero = (simplifiedLeftExpression instanceof ConstantExpression) && simplifiedLeftExpression.isZero();
-    const isRightZero = (simplifiedRightExpression instanceof ConstantExpression) && simplifiedRightExpression.isZero();
+    const isLeftOne = (this.leftExpression instanceof ConstantExpression) && this.leftExpression.isOne();
+    const isRightOne = (this.rightExpression instanceof ConstantExpression) && this.rightExpression.isOne();
 
-    const isLeftOne = (simplifiedLeftExpression instanceof ConstantExpression) && simplifiedLeftExpression.isOne();
-    const isRightOne = (simplifiedRightExpression instanceof ConstantExpression) && simplifiedRightExpression.isOne();
-
-    const isLeftNegative = (simplifiedLeftExpression instanceof UnaryExpression) && simplifiedLeftExpression.isNegative(); // eslint-disable-line max-len
-    const isRightNegative = (simplifiedRightExpression instanceof UnaryExpression) && simplifiedRightExpression.isNegative(); // eslint-disable-line max-len
-
-    if ((this.operator === '+' || this.operator === '-') && isLeftZero) {
+    if (isAdditionOrSubtraction(this.operator) && isLeftZero) {
       return new UnaryExpression({
+        input: this.input,
         operator: this.operator,
-        expression: simplifiedRightExpression,
+        expression: this.rightExpression,
       })
         .simplify();
     }
 
-    if ((isAddition || isSubtraction) && isRightZero) {
-      return simplifiedLeftExpression;
+    if (isAdditionOrSubtraction(this.operator) && isRightZero) {
+      return this.leftExpression.simplify();
     }
 
-    if (isSubtraction && isRightNegative) {
+    if (isSubtraction && isExpressionNegative(this.rightExpression)) {
       return new BinaryExpression({
-        leftExpression: simplifiedLeftExpression,
+        input: this.input,
+        leftExpression: this.leftExpression,
         operator: '+',
-        rightExpression: simplifiedRightExpression.expression,
+        rightExpression: this.rightExpression.expression,
       })
         .simplify();
     }
 
-    if ((isMultiplication || isDivision) && isLeftNegative && isRightNegative) {
-      const invertedSimplifiedLeftExpression = simplifiedLeftExpression.invert().simplify();
-      const invertedSimplifiedRightExpression = simplifiedRightExpression.invert().simplify();
-
+    if (
+      (isMultiplication || isDivision)
+      && isExpressionNegative(this.leftExpression)
+      && isExpressionNegative(this.rightExpression)
+    ) {
       return new BinaryExpression({
-        leftExpression: invertedSimplifiedLeftExpression,
+        input: this.input,
+        leftExpression: this.leftExpression.invert(),
         operator: this.operator,
-        rightExpression: invertedSimplifiedRightExpression,
+        rightExpression: this.rightExpression.invert(),
       })
         .simplify();
     }
 
-    if ((isMultiplication || isDivision) && isLeftNegative) {
-      const invertedSimplifiedLeftExpression = simplifiedLeftExpression.invert().simplify();
+    if ((isMultiplication || isDivision) && isExpressionNegative(this.leftExpression)) {
       return new UnaryExpression({
+        input: this.input,
         operator: '-',
         expression: new BinaryExpression({
-          leftExpression: invertedSimplifiedLeftExpression,
+          leftExpression: this.leftExpression.invert(),
           operator: this.operator,
-          rightExpression: simplifiedRightExpression,
-        })
-          .simplify(),
-      });
+          rightExpression: this.rightExpression,
+        }),
+      })
+        .simplify();
     }
 
-    if ((isMultiplication || isDivision) && isRightNegative) {
-      const invertedSimplifiedRightExpression = simplifiedRightExpression.invert().simplify();
+    if ((isMultiplication || isDivision) && isExpressionNegative(this.rightExpression)) {
       return new UnaryExpression({
+        input: this.input,
         operator: '-',
         expression: new BinaryExpression({
-          leftExpression: simplifiedLeftExpression,
+          leftExpression: this.leftExpression,
           operator: this.operator,
-          rightExpression: invertedSimplifiedRightExpression,
-        })
-          .simplify(),
-      });
+          rightExpression: this.rightExpression.invert(),
+        }),
+      })
+        .simplify();
     }
 
     if ((isMultiplication || isDivision) && isRightOne) {
-      return simplifiedLeftExpression;
+      return this.leftExpression.simplify();
     }
 
     if (isMultiplication && isLeftOne) {
-      return simplifiedRightExpression;
+      return this.rightExpression.simplify();
     }
 
     return new BinaryExpression({
       input: this.input,
-      leftExpression: simplifiedLeftExpression,
+      leftExpression: this.leftExpression.simplify(),
       operator: this.operator,
-      rightExpression: simplifiedRightExpression,
+      rightExpression: this.rightExpression.simplify(),
     });
+  }
+
+  toString() {
+    return `(${this.leftExpression.toString()} ${this.operator} ${this.rightExpression.toString()})`;
   }
 }

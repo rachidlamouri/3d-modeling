@@ -24,9 +24,9 @@ export class ErrorExpression<VariableNames extends VariableLiterals> extends Exp
     return [];
   }
 
-  serialize() {
-    const serializedExpression = this.expression === null ? this.input : this.expression.serialize();
-    return `(ErrorExpression: "${serializedExpression}")`;
+  toString() {
+    const toStringdExpression = this.expression === null ? this.input : this.expression.toString();
+    return `(ErrorExpression: "${toStringdExpression}")`;
   }
 
   simplify() {

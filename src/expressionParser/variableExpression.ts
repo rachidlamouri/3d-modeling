@@ -27,11 +27,11 @@ export class VariableExpression<VariableNames extends VariableLiterals> extends 
     return [this.name];
   }
 
-  serialize() {
-    return `${this.name}`;
-  }
-
   simplify() {
     return this;
+  }
+
+  toString() {
+    return `${this.name}`;
   }
 }

@@ -2,9 +2,9 @@
 
 import { CommonTokenStream, CharStreams } from 'antlr4ts';
 import { AbstractParseTreeVisitor } from 'antlr4ts/tree/AbstractParseTreeVisitor';
-import { DimensionScriptLexer } from './compiled/DimensionScriptLexer';
-import { DimensionScriptParser, ExpressionContext, InputContext } from './compiled/DimensionScriptParser';
-import { DimensionScriptVisitor } from './compiled/DimensionScriptVisitor';
+import { DimensionScriptLexer } from './compiled/src/expressionParser/DimensionScriptLexer';
+import { DimensionScriptParser, ExpressionContext, InputContext } from './compiled/src/expressionParser/DimensionScriptParser';
+import { DimensionScriptVisitor } from './compiled/src/expressionParser/DimensionScriptVisitor';
 import { VariableLiteral, VariableLiterals } from './statement';
 import { Expression } from './expression';
 import { BinaryExpression, BinaryOperator } from './binaryExpression';
@@ -92,11 +92,14 @@ class ExpressionVisitor<VariableNames extends VariableLiterals>
         ];
       }
       case '_constantLiteral' in context: {
+        const constantLiteral = context._constantLiteral.text as ConstantLiteral;
+
         return [
           false,
           new ConstantExpression({
             input,
-            constantLiteral: context._constantLiteral.text as ConstantLiteral,
+            constantLiteral,
+            value: parseFloat(constantLiteral),
           }),
         ];
       }

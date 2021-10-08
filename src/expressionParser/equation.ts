@@ -32,8 +32,8 @@ export class Equation<VariableNames extends VariableLiterals> implements Stateme
     ];
   }
 
-  serialize() {
-    return `${this.leftExpression.serialize()} = ${this.rightExpression.serialize()}`;
+  toString() {
+    return `${this.leftExpression.toString()} = ${this.rightExpression.toString()}`;
   }
 
   simplify() {

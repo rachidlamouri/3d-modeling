@@ -22,23 +22,23 @@ const variableNames = ['a', 'b', 'c', 'd', 'g'];
 
     return {
       parsedExpression,
-      serialized: parsedExpression.serialize(),
+      toStringd: parsedExpression.toString(),
       simplifiedExpression,
-      simplifiedSerialized: simplifiedExpression.serialize(),
+      simplifiedtoStringd: simplifiedExpression.toString(),
     };
   })
   .forEach(({
     parsedExpression,
-    serialized,
+    toStringd,
     simplifiedExpression,
-    simplifiedSerialized,
+    simplifiedtoStringd,
   }) => {
     /* eslint-disable no-console */
     console.log(`"${parsedExpression.input}"`);
     console.log('PARSED', JSON.stringify(parsedExpression, null, 2));
     console.log('SIMPLIFIED', JSON.stringify(simplifiedExpression, null, 2));
-    console.log('SERIALIZED', serialized);
-    console.log('SIMPLIFIED_SERIALIZED', simplifiedSerialized);
+    console.log('toStringD', toStringd);
+    console.log('SIMPLIFIED_toStringD', simplifiedtoStringd);
     console.log();
     /* eslint-enable no-console */
   });
