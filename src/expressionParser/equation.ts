@@ -32,10 +32,6 @@ export class Equation<VariableNames extends VariableLiterals> implements Stateme
     ];
   }
 
-  serialize() {
-    return `${this.leftExpression.serialize()} = ${this.rightExpression.serialize()}`;
-  }
-
   simplify() {
     return new Equation({
       leftExpression: this.leftExpression.simplify(),
@@ -121,6 +117,10 @@ export class Equation<VariableNames extends VariableLiterals> implements Stateme
     }
 
     throw Error(`Unhandled leftExpression "${this.leftExpression.constructor.name}"`);
+  }
+
+  toString() {
+    return `${this.leftExpression.toString()} = ${this.rightExpression.toString()}`;
   }
 
   swap() {

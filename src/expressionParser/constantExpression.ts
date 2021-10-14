@@ -4,15 +4,23 @@ export type ConstantLiteral = string;
 
 type ConstantExpressionParams = ExpressionParams & {
   constantLiteral: ConstantLiteral;
+  value: number;
 }
 
 export class ConstantExpression extends Expression<never> {
+  constantLiteral: ConstantLiteral;
   value: number;
 
   constructor(params: ConstantExpressionParams) {
-    const { constantLiteral } = params;
+    const { constantLiteral, value } = params;
     super(params);
-    this.value = parseFloat(constantLiteral);
+
+    this.constantLiteral = constantLiteral;
+    this.value = value;
+  }
+
+  compute() {
+    return this.value;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -32,11 +40,7 @@ export class ConstantExpression extends Expression<never> {
     return this;
   }
 
-  serialize() {
-    return `${this.value}`;
-  }
-
-  compute() {
-    return this.value;
+  toString() {
+    return `${this.constantLiteral}`;
   }
 }

@@ -11,7 +11,7 @@ import { BinaryExpression, BinaryOperator } from './binaryExpression';
 import { UnaryExpression, UnaryOperator } from './unaryExpression';
 import { VariableExpression } from './variableExpression';
 import { ConstantExpression, ConstantLiteral } from './constantExpression';
-import { ErrorExpression } from './errorExpression';
+import { ErrorExpression, ErrorVariableExpression } from './errorExpression';
 
 export type DimensionScript = string;
 
@@ -79,24 +79,30 @@ class ExpressionVisitor<VariableNames extends VariableLiterals>
       case '_variableLiteral' in context: {
         const variableLiteral = context._variableLiteral.text as VariableLiteral;
 
-        if (!this.#variableNames.includes(variableLiteral)) {
-          throw Error(`${variableLiteral} is not in variable names: ${this.#variableNames.join(', ')}`);
-        }
+        const variableExpression = new VariableExpression({
+          input,
+          variableLiteral,
+        });
 
-        return [
-          false,
-          new VariableExpression({
+        const hasError = !this.#variableNames.includes(variableLiteral);
+        const expression = hasError
+          ? new ErrorVariableExpression({
             input,
-            variableLiteral,
-          }),
-        ];
+            expression: variableExpression,
+          })
+          : variableExpression;
+
+        return [hasError, expression];
       }
       case '_constantLiteral' in context: {
+        const constantLiteral = context._constantLiteral.text as ConstantLiteral;
+
         return [
           false,
           new ConstantExpression({
             input,
-            constantLiteral: context._constantLiteral.text as ConstantLiteral,
+            constantLiteral,
+            value: parseFloat(constantLiteral),
           }),
         ];
       }

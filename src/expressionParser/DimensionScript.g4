@@ -11,7 +11,7 @@ expression:
   | constantLiteral=NUMBER
   ;
 
-LABEL: [a-z]+ ([A-z]|[0-9])* ;
+LABEL: [a-z] [a-zA-Z0-9]* ;
 
 NUMBER:
   DIGIT* '.' DIGIT+

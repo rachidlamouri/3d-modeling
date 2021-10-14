@@ -50,10 +50,6 @@ export class UnaryExpression<VariableNames extends VariableLiterals> extends Exp
     return this.operator === '-';
   }
 
-  serialize() {
-    return `(${this.operator}${this.expression.serialize()})`;
-  }
-
   simplify(): Expression<VariableNames> {
     if (this.operator === '+') {
       return this.expression.simplify();
@@ -64,8 +60,13 @@ export class UnaryExpression<VariableNames extends VariableLiterals> extends Exp
     }
 
     return new UnaryExpression({
+      input: this.input,
       operator: this.operator,
       expression: this.expression.simplify(),
     });
+  }
+
+  toString() {
+    return `(${this.operator}${this.expression.toString()})`;
   }
 }

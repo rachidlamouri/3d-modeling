@@ -13,6 +13,6 @@ export abstract class Expression<VariableNames extends VariableLiterals> impleme
 
   abstract compute(variables: VariablesMap<VariableNames>): number;
   abstract getVariableNames(): VariableNames[number][];
-  abstract serialize(): string;
+  abstract toString(): string;
   abstract simplify(): Expression<VariableNames>;
 }

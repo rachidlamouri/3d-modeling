@@ -17,6 +17,7 @@ module.exports = {
         ts: 'never',
       },
     ],
+    'import/no-extraneous-dependencies': ['error', { devDependencies: ['**/*.test.ts'] }],
     'import/prefer-default-export': 'off',
     'lines-between-class-members': ['error', 'always', { exceptAfterSingleLine: true }],
     'max-classes-per-file': 'off',
