@@ -1,21 +1,21 @@
-import { VariableLiterals, VariableLiteral } from '../expressionParser/statement';
+import { VariableLiterals } from '../expressionParser/statement';
 import { parseDimensions, DimensionDefinitions } from './parseDimensions';
 import { entries, fromEntries } from './utils';
 
-type Dimensions<DimensionName extends VariableLiteral> = { [Name in DimensionName]: number };
+export type Dimensions<DimensionNames extends VariableLiterals> = { [Name in DimensionNames[number]]: number };
 
-export type InputDimensions<DimensionNames extends VariableLiterals> = Partial<Dimensions<DimensionNames[number]>>;
+export type InputDimensions<DimensionNames extends VariableLiterals> = Partial<Dimensions<DimensionNames>>;
 
-type WorkingDimensions<DimensionName extends VariableLiteral> =
-  { [Name in keyof Dimensions<DimensionName>]: number | null}
+type WorkingDimensions<DimensionNames extends VariableLiterals> =
+  { [Name in keyof Dimensions<DimensionNames>]: number | null}
 
 type InputDimensionParser<DimensionNames extends VariableLiterals> =
-  (inputDimensions: InputDimensions<DimensionNames>) => Dimensions<DimensionNames[number]>;
+  (inputDimensions: InputDimensions<DimensionNames>) => Dimensions<DimensionNames>;
 
 const initializeAllDimensions = <DimensionNames extends VariableLiterals>(
   dimensionNames: DimensionNames,
   inputDimensions: InputDimensions<DimensionNames>,
-): WorkingDimensions<DimensionNames[number]> => {
+): WorkingDimensions<DimensionNames> => {
   const defaultEntries = dimensionNames.map((name) => [name, null]);
   const defaultDimensions = Object.fromEntries(defaultEntries);
 
@@ -25,13 +25,13 @@ const initializeAllDimensions = <DimensionNames extends VariableLiterals>(
   };
 };
 
-const hasUnknownDimensions = <DimensionName extends VariableLiteral>(
-  dimensions: WorkingDimensions<DimensionName>,
+const hasUnknownDimensions = <DimensionNames extends VariableLiterals>(
+  dimensions: WorkingDimensions<DimensionNames>,
 ) => Object.values(dimensions).some((value) => value === null);
 
-const hasDimension = <DimensionName extends VariableLiteral>(
-  dimensions: WorkingDimensions<DimensionName>,
-  dimensionName: DimensionName,
+const hasDimension = <DimensionNames extends VariableLiterals>(
+  dimensions: WorkingDimensions<DimensionNames>,
+  dimensionName: DimensionNames[number],
 ) => (dimensions[dimensionName] !== null);
 
 export const buildParseInputDimensions = <
@@ -41,7 +41,6 @@ export const buildParseInputDimensions = <
     dimensionNames: DimensionNames,
     definitions: Pick<DimensionDefinitions<DimensionNames>, DimensionNamesSubset>,
   ): InputDimensionParser<DimensionNames> => {
-  type DimensionName = DimensionNames[number];
   const equationSystems = parseDimensions<DimensionNames, DimensionNamesSubset>(dimensionNames, definitions);
 
   const parseOptions = (inputDimensions: InputDimensions<DimensionNames>) => {
@@ -50,7 +49,7 @@ export const buildParseInputDimensions = <
     while (hasUnknownDimensions(dimensions)) {
       entries(equationSystems)
         .forEach(([dimensionName, equations]) => {
-          const hasValue = hasDimension<DimensionName>(dimensions, dimensionName);
+          const hasValue = hasDimension<DimensionNames>(dimensions, dimensionName);
 
           equations.forEach((equation) => {
             const requiredDimensionsNames = equation.rightExpression.getVariableNames();
@@ -68,7 +67,7 @@ export const buildParseInputDimensions = <
         });
     }
 
-    return dimensions as Dimensions<DimensionName>;
+    return dimensions as Dimensions<DimensionNames>;
   };
 
   return parseOptions;

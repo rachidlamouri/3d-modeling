@@ -1,5 +1,6 @@
 import * as jscad from '@jscad/modeling';
 import { Widget } from './widget';
+import { parseModel } from './modelParser/jscad';
 
 const {
   transforms: { translate },
@@ -14,22 +15,26 @@ export const main = () => {
       lengthY: 12,
       lengthZ: 2,
       circleDiameter: 5,
-    }).model,
+    }),
     new Widget({
       // circle should be computed
       lengthX: 10,
       xMargin: 1,
       lengthY: 12,
       lengthZ: 2,
-    }).model,
+    }),
     new Widget({
       // circle should be computed
       lengthX: 10,
       yMargin: 2,
       lengthY: 20,
       lengthZ: 5,
-    }).model,
+    }),
   ];
 
-  return union(...widgets.map((model, index) => translate([20 * index, 0, 0], model)));
+  return union(
+    ...widgets
+      .map((model) => parseModel(model))
+      .map((geometry, index) => translate([20 * index, 0, 0], geometry)),
+  );
 };

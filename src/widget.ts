@@ -1,12 +1,11 @@
-import * as jscad from '@jscad/modeling';
-import { Geom3 } from '@jscad/modeling/src/geometries/geom3';
 import { buildDimensionDefinitions } from './dimensionParser/parseDimensions';
 import { buildParseInputDimensions, InputDimensions } from './dimensionParser/buildParseInputDimensions';
-
-const {
-  booleans: { subtract },
-  primitives: { cuboid, cylinder },
-} = jscad;
+import {
+  CompoundModel3D,
+  RectangularPrism,
+  Subtraction,
+  Cylinder,
+} from './modeling';
 
 const dimensionNames = [
   'lengthX',
@@ -38,9 +37,7 @@ const dimensionDefinitions = buildDimensionDefinitions<typeof dimensionNames>(
   },
 );
 
-export class Widget {
-  #model: Geom3
-
+export class Widget extends CompoundModel3D {
   static parseInputDimensions = buildParseInputDimensions<
     typeof dimensionNames,
     keyof typeof dimensionDefinitions
@@ -54,13 +51,22 @@ export class Widget {
       circleRadius,
     } = Widget.parseInputDimensions(inputDimensions);
 
-    this.#model = subtract(
-      cuboid({ size: [lengthX, lengthY, lengthZ] }),
-      cylinder({ height: lengthZ, radius: circleRadius }),
+    super(
+      new Subtraction({
+        minuend: new RectangularPrism({
+          origin: ['center', 'center', 'bottom'],
+          lengthX,
+          lengthY,
+          lengthZ,
+        }),
+        subtrahends: [
+          new Cylinder({
+            origin: 'bottom',
+            lengthZ,
+            radius: circleRadius,
+          }),
+        ],
+      }),
     );
-  }
-
-  get model() {
-    return this.#model;
   }
 }
