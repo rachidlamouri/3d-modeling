@@ -15,14 +15,11 @@ export type DimensionDefinitions<DimensionNames extends VariableLiterals> = {
 export type PartialDimensionDefinitions<DimensionNames extends VariableLiterals>
   = Partial<DimensionDefinitions<DimensionNames>>;
 
-export const parseDimensions = <
-  DimensionNames extends VariableLiterals,
-  DimensionNamesSubset extends DimensionNames[number],
->(
-    dimensionNames: DimensionNames,
-    definitions: Pick<DimensionDefinitions<DimensionNames>, DimensionNamesSubset>,
-  ) => (
-    entries<DimensionNamesSubset, DimensionDefinition>(definitions)
+export const parseDimensions = <DimensionNames extends VariableLiterals>(
+  dimensionNames: DimensionNames,
+  definitions: DimensionDefinitions<DimensionNames>,
+): VariableEquationSystems<DimensionNames> => (
+    entries<DimensionNames[number], DimensionDefinition>(definitions)
       .map(([variableName, dimensionScript]) => ({
         variableName,
         expression: parseExpression(dimensionScript, dimensionNames),
@@ -48,6 +45,6 @@ export const parseDimensions = <
 
           return variableEquationSystems;
         },
-        {} as VariableEquationSystems<DimensionNames>,
-      )
+        {} as Partial<VariableEquationSystems<DimensionNames>>,
+      ) as VariableEquationSystems<DimensionNames>
   );

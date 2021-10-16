@@ -1,3 +1,4 @@
+import { buildDimensionDefinitions } from './buildDimensionDefinitions';
 import { VariableLiterals } from '../expressionParser/statement';
 import { parseDimensions, DimensionDefinitions } from './parseDimensions';
 import { entries, fromEntries } from './utils';
@@ -34,14 +35,12 @@ const hasDimension = <DimensionNames extends VariableLiterals>(
   dimensionName: DimensionNames[number],
 ) => (dimensions[dimensionName] !== null);
 
-export const buildParseInputDimensions = <
-  DimensionNames extends VariableLiterals,
-  DimensionNamesSubset extends DimensionNames[number],
->(
-    dimensionNames: DimensionNames,
-    definitions: Pick<DimensionDefinitions<DimensionNames>, DimensionNamesSubset>,
-  ): InputDimensionParser<DimensionNames> => {
-  const equationSystems = parseDimensions<DimensionNames, DimensionNamesSubset>(dimensionNames, definitions);
+export const buildParseInputDimensions = <DimensionNames extends VariableLiterals>(
+  dimensionNames: DimensionNames,
+  partialDefinitions: Partial<DimensionDefinitions<DimensionNames>>,
+): InputDimensionParser<DimensionNames> => {
+  const allDefinitions = buildDimensionDefinitions(dimensionNames, partialDefinitions);
+  const equationSystems = parseDimensions<DimensionNames>(dimensionNames, allDefinitions);
 
   const parseOptions = (inputDimensions: InputDimensions<DimensionNames>) => {
     const dimensions = initializeAllDimensions(dimensionNames, inputDimensions);

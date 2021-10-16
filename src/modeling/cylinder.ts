@@ -1,9 +1,8 @@
 import {
   buildParseInputDimensions,
-  buildDimensionDefinitions,
   InputDimensions,
   Dimensions,
-} from '../dimensionParser';
+} from '../dimensionParser/buildParseInputDimensions';
 import { PrimitiveModel3D } from './primitiveModel3D';
 import { Vector3DTuple } from './vector';
 
@@ -13,22 +12,17 @@ const dimensionNames = [
   'lengthZ',
 ] as const;
 
-const dimensionDefinitions = buildDimensionDefinitions<typeof dimensionNames>(
-  dimensionNames,
-  {
-    diameter: '2 * radius',
-  },
-);
-
 type CylinderParams = InputDimensions<typeof dimensionNames> & {
   origin: 'bottom' | 'center' | 'top';
 };
 
 export class Cylinder extends PrimitiveModel3D {
-  static parseInputDimensions = buildParseInputDimensions<
-    typeof dimensionNames,
-    keyof typeof dimensionDefinitions
-  >(dimensionNames, dimensionDefinitions)
+  static parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
+    dimensionNames,
+    {
+      diameter: '2 * radius',
+    },
+  )
 
   private params: Dimensions<typeof dimensionNames>;
 

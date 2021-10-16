@@ -34,4 +34,4 @@ export type VariableEquationSystem<VariableNames extends VariableLiterals> =
   Partial<Record<VariableNames[number], VariableEquation<VariableNames>>>;
 
 export type VariableEquationSystems<VariableNames extends VariableLiterals> =
-  Partial<Record<VariableNames[number], VariableEquation<VariableNames>[]>>;
+  Record<VariableNames[number], VariableEquation<VariableNames>[]>;

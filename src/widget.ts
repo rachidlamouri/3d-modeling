@@ -1,4 +1,4 @@
-import { buildDimensionDefinitions, buildParseInputDimensions, InputDimensions } from './dimensionParser';
+import { buildParseInputDimensions, InputDimensions } from './dimensionParser/buildParseInputDimensions';
 import {
   CompoundModel3D,
   RectangularPrism,
@@ -20,27 +20,22 @@ const dimensionNames = [
   'frontYMargin',
 ] as const;
 
-const dimensionDefinitions = buildDimensionDefinitions<typeof dimensionNames>(
-  dimensionNames,
-  {
-    leftXMargin: 'xMargin',
-    rightXMargin: 'xMargin',
-    backYMargin: 'yMargin',
-    frontYMargin: 'yMargin',
-    lengthX:
-      'circleDiameter + 2 * xMargin',
-    lengthY:
-      'circleDiameter + 2 * yMargin',
-    circleDiameter:
-      '2 * circleRadius',
-  },
-);
-
 export class Widget extends CompoundModel3D {
-  static parseInputDimensions = buildParseInputDimensions<
-    typeof dimensionNames,
-    keyof typeof dimensionDefinitions
-  >(dimensionNames, dimensionDefinitions)
+  static parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
+    dimensionNames,
+    {
+      leftXMargin: 'xMargin',
+      rightXMargin: 'xMargin',
+      backYMargin: 'yMargin',
+      frontYMargin: 'yMargin',
+      lengthX:
+        'circleDiameter + 2 * xMargin',
+      lengthY:
+        'circleDiameter + 2 * yMargin',
+      circleDiameter:
+        '2 * circleRadius',
+    },
+  )
 
   constructor(inputDimensions: InputDimensions<typeof dimensionNames>) {
     const {
