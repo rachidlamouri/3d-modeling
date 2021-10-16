@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Statement, VariableLiterals, VariablesMap } from './statement';
 import { Expression } from './expression';
 import { BinaryExpression } from './binaryExpression';
@@ -5,6 +6,7 @@ import { ConstantExpression } from './constantExpression';
 import { parseExpression } from './parseExpression';
 import { UnaryExpression } from './unaryExpression';
 import { VariableExpression } from './variableExpression';
+import { ErrorExpression } from './errorExpression';
 
 type EquationParams<VariableNames extends VariableLiterals> = {
   leftExpression: Expression<VariableNames>;
@@ -25,11 +27,31 @@ export class Equation<VariableNames extends VariableLiterals> implements Stateme
     throw Error('Not implemented. Did you mean to convert to a VariableEquation first?');
   }
 
+  getDuplicateVariableNames() {
+    return _(this.getVariableNames())
+      .countBy(_.identity)
+      .toPairs()
+      .filter(([, count]) => count > 1)
+      .map(([variableName]) => variableName)
+      .value();
+  }
+
   getVariableNames() {
     return [
       ...this.leftExpression.getVariableNames(),
       ...this.rightExpression.getVariableNames(),
     ];
+  }
+
+  hasDuplicateVariables() {
+    return this.getDuplicateVariableNames().length > 0;
+  }
+
+  hasErrorExpression() {
+    return (
+      this.leftExpression instanceof ErrorExpression
+      || this.rightExpression instanceof ErrorExpression
+    );
   }
 
   simplify() {
@@ -117,6 +139,10 @@ export class Equation<VariableNames extends VariableLiterals> implements Stateme
     }
 
     throw Error(`Unhandled leftExpression "${this.leftExpression.constructor.name}"`);
+  }
+
+  toInputString() {
+    return `${this.leftExpression.input} = ${this.rightExpression.input}`;
   }
 
   toString() {

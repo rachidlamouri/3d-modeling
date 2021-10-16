@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Equation } from '../expressionParser/equation';
 import { DimensionScript, parseExpression } from '../expressionParser/parseExpression';
 import { VariableEquation, VariableEquationSystems } from '../expressionParser/variableEquation';
@@ -5,6 +6,7 @@ import { VariableExpression } from '../expressionParser/variableExpression';
 import { VariableLiterals } from '../expressionParser/statement';
 import { isolateVariables } from './isolateVariables';
 import { entries } from './utils';
+import { AggregateError } from '../utils/error';
 
 type DimensionDefinition = DimensionScript;
 
@@ -19,7 +21,7 @@ export const parseDimensions = <DimensionNames extends VariableLiterals>(
   dimensionNames: DimensionNames,
   definitions: DimensionDefinitions<DimensionNames>,
 ): VariableEquationSystems<DimensionNames> => (
-    entries<DimensionNames[number], DimensionDefinition>(definitions)
+    _(entries<DimensionNames[number], DimensionDefinition>(definitions))
       .map(([variableName, dimensionScript]) => ({
         variableName,
         expression: parseExpression(dimensionScript, dimensionNames),
@@ -33,6 +35,23 @@ export const parseDimensions = <DimensionNames extends VariableLiterals>(
         })
       ))
       .map((equation) => new VariableEquation(equation))
+      .tap((equations) => {
+        const errors: Error[] = [];
+        equations.forEach((equation) => {
+          if (equation.hasDuplicateVariables()) {
+            const duplicateVariableNames = equation.getDuplicateVariableNames().join(', ');
+            errors.push(new Error(`Definition \`${equation.toInputString()}\` has duplicate variable(s) "${duplicateVariableNames}"`));
+          }
+
+          if (equation.hasErrorExpression()) {
+            errors.push(Error(`Definition \`${equation.toInputString()}\` has a parse error \`${equation.toString()}\``));
+          }
+        });
+
+        if (errors.length > 0) {
+          throw new AggregateError(errors);
+        }
+      })
       .map((variableEquation) => isolateVariables<DimensionNames>(variableEquation))
       .reduce(
         (variableEquationSystems, variableEquationSystem) => {

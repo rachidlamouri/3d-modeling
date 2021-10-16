@@ -1,14 +1,100 @@
+import _ from 'lodash';
 import { buildDimensionDefinitions } from './buildDimensionDefinitions';
 import { VariableLiterals } from '../expressionParser/statement';
 import { parseDimensions, DimensionDefinitions } from './parseDimensions';
 import { entries, fromEntries } from './utils';
+import { AggregateError } from '../utils/error';
+import { VariableEquation } from '../expressionParser/variableEquation';
 
 export type Dimensions<DimensionNames extends VariableLiterals> = { [Name in DimensionNames[number]]: number };
 
 export type InputDimensions<DimensionNames extends VariableLiterals> = Partial<Dimensions<DimensionNames>>;
 
-type WorkingDimensions<DimensionNames extends VariableLiterals> =
-  { [Name in keyof Dimensions<DimensionNames>]: number | null}
+type WorkingValue = number | null;
+
+type SerializedWorkingDimension = {
+  input: WorkingValue;
+  computed: WorkingValue;
+}
+
+class WorkingDimension {
+  #dimensionName: string;
+  #inputValue: WorkingValue;
+  #computedValue: WorkingValue = null;
+
+  constructor(dimensionName: string, inputValue: WorkingValue) {
+    this.#dimensionName = dimensionName;
+    this.#inputValue = inputValue;
+  }
+
+  get computedValue() {
+    return this.#computedValue;
+  }
+
+  set computedValue(computedValue: WorkingValue) {
+    const hasInputConflict = this.#inputValue !== null && this.#inputValue !== computedValue;
+    const hasComputedConflict = this.#computedValue !== null && this.#computedValue !== computedValue;
+
+    let error = null;
+    if (hasInputConflict && !hasComputedConflict) {
+      error = new Error(`"${this.#dimensionName}" has mismatched input value "${this.#inputValue}" and computed value "${computedValue}"`);
+    }
+
+    if (!hasInputConflict && hasComputedConflict) {
+      error = new Error(`"${this.#dimensionName}" has mismatched computed values "${this.#computedValue}" and "${computedValue}"`);
+    }
+
+    if (hasInputConflict && hasComputedConflict) {
+      error = new Error(`"${this.#dimensionName}" has mismatched input value "${this.#inputValue}" and computed values "${this.#computedValue}" and "${computedValue}"`);
+    }
+
+    this.#computedValue = error !== null ? null : computedValue;
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  hasValue() {
+    return this.value !== null;
+  }
+
+  get inputValue() {
+    return this.#inputValue;
+  }
+
+  get value() {
+    return this.#inputValue ?? this.#computedValue ?? null;
+  }
+
+  serialize(): SerializedWorkingDimension {
+    return {
+      input: this.#inputValue,
+      computed: this.#computedValue,
+    };
+  }
+}
+
+type WorkingDimensions<DimensionNames extends VariableLiterals> = {
+  [Name in keyof Dimensions<DimensionNames>]: WorkingDimension
+}
+
+type SerializedWorkingDimensions<DimensionNames extends VariableLiterals> = {
+  [Name in keyof Dimensions<DimensionNames>]: SerializedWorkingDimension
+}
+
+export class AggregateParseInputDimensionError<DimensionNames extends VariableLiterals> extends AggregateError {
+  workingDimensions: SerializedWorkingDimensions<DimensionNames>
+
+  constructor(
+    workingDimensions: WorkingDimensions<DimensionNames>,
+    errors: Error[],
+  ) {
+    super(errors);
+
+    this.workingDimensions = _.mapValues(workingDimensions, (workingDimension) => workingDimension.serialize());
+  }
+}
 
 type InputDimensionParser<DimensionNames extends VariableLiterals> =
   (inputDimensions: InputDimensions<DimensionNames>) => Dimensions<DimensionNames>;
@@ -17,23 +103,13 @@ const initializeAllDimensions = <DimensionNames extends VariableLiterals>(
   dimensionNames: DimensionNames,
   inputDimensions: InputDimensions<DimensionNames>,
 ): WorkingDimensions<DimensionNames> => {
-  const defaultEntries = dimensionNames.map((name) => [name, null]);
-  const defaultDimensions = Object.fromEntries(defaultEntries);
+  const allEntries = dimensionNames.map((name: DimensionNames[number]) => [
+    name,
+    new WorkingDimension(name, inputDimensions[name] ?? null),
+  ]);
 
-  return {
-    ...defaultDimensions,
-    ...inputDimensions,
-  };
+  return Object.fromEntries(allEntries);
 };
-
-const hasUnknownDimensions = <DimensionNames extends VariableLiterals>(
-  dimensions: WorkingDimensions<DimensionNames>,
-) => Object.values(dimensions).some((value) => value === null);
-
-const hasDimension = <DimensionNames extends VariableLiterals>(
-  dimensions: WorkingDimensions<DimensionNames>,
-  dimensionName: DimensionNames[number],
-) => (dimensions[dimensionName] !== null);
 
 export const buildParseInputDimensions = <DimensionNames extends VariableLiterals>(
   dimensionNames: DimensionNames,
@@ -41,33 +117,73 @@ export const buildParseInputDimensions = <DimensionNames extends VariableLiteral
 ): InputDimensionParser<DimensionNames> => {
   const allDefinitions = buildDimensionDefinitions(dimensionNames, partialDefinitions);
   const equationSystems = parseDimensions<DimensionNames>(dimensionNames, allDefinitions);
+  const allEquations = entries(equationSystems).flatMap(([dimensionName, equations]) => (
+    equations.map((equation) => [dimensionName, equation] as [DimensionNames[number], VariableEquation<DimensionNames>])
+  ));
 
-  const parseOptions = (inputDimensions: InputDimensions<DimensionNames>) => {
-    const dimensions = initializeAllDimensions(dimensionNames, inputDimensions);
+  const parseInputDimensions = (inputDimensions: InputDimensions<DimensionNames>) => {
+    const workingDimensions = initializeAllDimensions(dimensionNames, inputDimensions);
 
-    while (hasUnknownDimensions(dimensions)) {
-      entries(equationSystems)
-        .forEach(([dimensionName, equations]) => {
-          const hasValue = hasDimension<DimensionNames>(dimensions, dimensionName);
+    let nextEquations = allEquations.map(([dimensionName, equation]) => ({
+      dimensionName,
+      equation,
+      value: null as WorkingValue,
+    }));
 
-          equations.forEach((equation) => {
-            const requiredDimensionsNames = equation.rightExpression.getVariableNames();
-            const hasRequiredDimensions = requiredDimensionsNames.every((name) => hasDimension(dimensions, name));
+    let unsolvedCount = nextEquations.length;
+    do {
+      nextEquations = nextEquations.map(({ dimensionName, equation }) => {
+        const requiredDimensionsNames = equation.rightExpression.getVariableNames();
+        const hasRequiredDimensions = requiredDimensionsNames.every(
+          (name) => workingDimensions[name].hasValue(),
+        );
 
-            if (!hasValue && hasRequiredDimensions) {
-              const variables = fromEntries(
-                requiredDimensionsNames.map((name) => [name, dimensions[name] as number]),
-              );
+        let value = null;
+        if (hasRequiredDimensions) {
+          const variables = fromEntries(
+            requiredDimensionsNames.map((name) => [name, workingDimensions[name].value as number]),
+          );
 
-              const value = equation.rightExpression.compute(variables);
-              dimensions[dimensionName] = value;
-            }
-          });
-        });
-    }
+          value = equation.rightExpression.compute(variables);
+        }
 
-    return dimensions as Dimensions<DimensionNames>;
+        return { dimensionName, equation, value };
+      });
+
+      nextEquations.forEach(({ dimensionName, value }) => {
+        if (value !== null) {
+          workingDimensions[dimensionName].computedValue = value;
+        }
+      });
+
+      nextEquations = nextEquations.filter(({ value }) => value === null);
+
+      if (nextEquations.length === unsolvedCount) {
+        const unsolvedVariableNames = entries(workingDimensions)
+          .filter(([, workingDimension]) => !workingDimension.hasValue())
+          .map(([variableName]) => variableName);
+
+        const errors = unsolvedVariableNames.flatMap((variableName) => (
+
+          equationSystems[variableName]
+            .filter((equation, index, equations) => !equation.isTautology() || equations.length === 1)
+            // TODO: Fix "simplify"
+            .map((equation) => new Error(`Unable to solve \`${equation.simplify().simplify().simplify().toString()}\``))
+        ));
+
+        throw new AggregateParseInputDimensionError(workingDimensions, errors);
+      }
+
+      unsolvedCount = nextEquations.length;
+    } while (unsolvedCount > 0);
+
+    const dimensions = fromEntries(
+      entries(workingDimensions)
+        .map(([name, workingDimension]) => [name, workingDimension.value as number]),
+    );
+
+    return dimensions;
   };
 
-  return parseOptions;
+  return parseInputDimensions;
 };

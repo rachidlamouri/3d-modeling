@@ -19,6 +19,15 @@ export class VariableEquation<VariableNames extends VariableLiterals> extends Eq
     return this.rightExpression.compute(variables);
   }
 
+  hasDuplicateVariables() {
+    return !this.isTautology() && super.hasDuplicateVariables();
+  }
+
+  isTautology() {
+    const rightVariableNames = this.rightExpression.getVariableNames();
+    return rightVariableNames.length === 1 && rightVariableNames[0] === this.variableName;
+  }
+
   splitLeftVariableExpression(): Equation<VariableNames> {
     const [equation] = super.splitLeftExpression();
     return equation;
