@@ -5,7 +5,7 @@ export abstract class CompoundModel3D extends Model3D {
   operation: Operation3D;
 
   constructor(operation: Operation3D) {
-    super({ position: operation.position });
+    super(operation);
     this.operation = operation;
   }
 }

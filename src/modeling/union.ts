@@ -2,30 +2,30 @@ import { Model3D } from './model3D';
 import { Vector3DObject } from './vector';
 import { Operation3D } from './operation3D';
 
-type SubtractionParams = {
-  minuend: Model3D;
-  subtrahends: Model3D[];
+type UnionParams = {
+  models: Model3D[];
   rotation?: Partial<Vector3DObject>;
   translation?: Partial<Vector3DObject>;
 }
 
-export class Subtraction extends Operation3D {
-  minuend: Model3D;
-  subtrahends: Model3D[];
+export class Union extends Operation3D {
+  models: Model3D[];
 
   constructor({
-    minuend,
-    subtrahends,
+    models,
     rotation = {},
     translation = {},
-  }: SubtractionParams) {
+  }: UnionParams) {
+    if (models.length === 0) {
+      throw Error('At least 1 model must be provided');
+    }
+
     super({
-      position: minuend.position,
+      position: models[0].position,
       rotation,
       translation,
     });
 
-    this.minuend = minuend;
-    this.subtrahends = subtrahends;
+    this.models = models;
   }
 }

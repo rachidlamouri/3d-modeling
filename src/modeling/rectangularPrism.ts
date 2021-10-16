@@ -1,29 +1,43 @@
+import { buildParseInputDimensions, InputDimensions, Dimensions } from '../dimensionParser';
 import { PrimitiveModel3D } from './primitiveModel3D';
-import { Vector3DTuple } from './vector';
+import { Vector3DObject, Vector3DTuple } from './vector';
 
 type OriginX = 'left' | 'center' | 'right';
 type OriginY = 'back' | 'center' | 'front';
 type OriginZ = 'bottom' | 'center' | 'top';
 type OriginTuple = [OriginX, OriginY, OriginZ];
 
-type RectangularPrismParams = {
-  lengthX: number;
-  lengthY: number;
-  lengthZ: number;
+const dimensionNames = [
+  'lengthX',
+  'lengthY',
+  'lengthZ',
+] as const;
+
+type RectangularPrismParams = InputDimensions<typeof dimensionNames> & {
   origin: OriginTuple;
+  rotation?: Partial<Vector3DObject>;
+  translation?: Partial<Vector3DObject>;
 }
 
 export class RectangularPrism extends PrimitiveModel3D {
-  params: RectangularPrismParams;
+  private dimensions: Dimensions<typeof dimensionNames>;
 
-  constructor(inputParams: RectangularPrismParams) {
+  static parseInputDimensions = buildParseInputDimensions(dimensionNames, {})
+
+  constructor({
+    origin,
+    rotation = {},
+    translation = {},
+    ...inputDimensions
+  }: RectangularPrismParams) {
+    const dimensions = RectangularPrism.parseInputDimensions(inputDimensions);
+
+    const [originX, originY, originZ] = origin;
     const {
       lengthX,
       lengthY,
       lengthZ,
-      origin,
-    } = inputParams;
-    const [originX, originY, originZ] = origin;
+    } = dimensions;
 
     const positionX = {
       left: lengthX / 2,
@@ -45,21 +59,23 @@ export class RectangularPrism extends PrimitiveModel3D {
 
     super({
       position: [positionX, positionY, positionZ],
+      rotation,
+      translation,
     });
 
-    this.params = inputParams;
+    this.dimensions = dimensions;
   }
 
   get lengthX() {
-    return this.params.lengthX;
+    return this.dimensions.lengthX;
   }
 
   get lengthY() {
-    return this.params.lengthY;
+    return this.dimensions.lengthY;
   }
 
   get lengthZ() {
-    return this.params.lengthZ;
+    return this.dimensions.lengthZ;
   }
 
   get sizeTuple(): Vector3DTuple {

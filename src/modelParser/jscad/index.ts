@@ -1,5 +1,6 @@
 import * as jscad from '@jscad/modeling';
 import type { Geom3 } from '@jscad/modeling/src/geometries/geom3';
+
 import {
   PrimitiveModel3D,
   Model3D,
@@ -8,11 +9,14 @@ import {
   Cylinder,
   Subtraction,
   Operation3D,
+  NoOp3D,
+  Union,
 } from '../../modeling';
 
 const {
   primitives: { cuboid, cylinder },
-  booleans: { subtract },
+  booleans: { subtract, union },
+  transforms: { translate, rotate },
 } = jscad;
 
 const parsePrimitiveModel = (model: PrimitiveModel3D) => {
@@ -34,25 +38,61 @@ const parsePrimitiveModel = (model: PrimitiveModel3D) => {
   throw Error(`Unhandled ${PrimitiveModel3D.name}: ${model.constructor.name}`);
 };
 
-const parseCompoundModel = (model: CompoundModel3D) => {
-  if (model.operation instanceof Subtraction) {
+const parseOperation = (operation: Operation3D) => {
+  if (operation instanceof Subtraction) {
     return subtract(
-      parseModel(model.operation.minuend), // eslint-disable-line no-use-before-define
-      ...model.operation.subtrahends.map(parseModel), // eslint-disable-line no-use-before-define
+      parseModel(operation.minuend), // eslint-disable-line no-use-before-define
+      ...operation.subtrahends.map(parseModel), // eslint-disable-line no-use-before-define
     );
   }
 
-  throw Error(`Unhandled ${Operation3D.name}: ${model.operation.constructor.name}`);
+  if (operation instanceof Union) {
+    return union(
+      ...operation.models.map(parseModel), // eslint-disable-line no-use-before-define
+    );
+  }
+
+  if (operation instanceof NoOp3D) {
+    return parseModel(operation.model); // eslint-disable-line no-use-before-define
+  }
+
+  throw Error(`Unhandled ${Operation3D.name}: ${operation.constructor.name}`);
 };
 
 export const parseModel = (model: Model3D): Geom3 => {
+  let parsedModel;
   if (model instanceof PrimitiveModel3D) {
-    return parsePrimitiveModel(model);
+    parsedModel = parsePrimitiveModel(model);
   }
 
   if (model instanceof CompoundModel3D) {
-    return parseCompoundModel(model);
+    parsedModel = parseOperation(model.operation);
   }
 
-  throw Error(`Unhandled ${Model3D.name}: ${model.constructor.name}`);
+  if (model instanceof Operation3D) {
+    parsedModel = parseOperation(model);
+  }
+
+  if (!parsedModel) {
+    throw Error(`Unhandled ${Model3D.name}: ${model.constructor.name}`);
+  }
+
+  if (model.hasRotation()) {
+    parsedModel = translate(
+      [
+        -model.position.x,
+        -model.position.y,
+        -model.position.z,
+      ],
+      parsedModel,
+    );
+    parsedModel = rotate(model.rotationTupleRadians, parsedModel);
+    parsedModel = translate(model.positionTuple, parsedModel);
+  }
+
+  if (model.hasTranslation()) {
+    parsedModel = translate(model.translationTuple, parsedModel);
+  }
+
+  return parsedModel;
 };
