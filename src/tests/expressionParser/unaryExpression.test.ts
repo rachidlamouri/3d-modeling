@@ -104,7 +104,7 @@ describe('expressionParser/unaryExpression', () => {
         expression: new MockExpression(),
       });
 
-      expect(expression.isNegative()).to.eq(false);
+      expect(expression.isNegative()).to.be.false;
     });
 
     it('returns true for a negative unary expression', () => {
@@ -113,7 +113,7 @@ describe('expressionParser/unaryExpression', () => {
         expression: new MockExpression(),
       });
 
-      expect(expression.isNegative()).to.eq(true);
+      expect(expression.isNegative()).to.be.true;
     });
   });
 

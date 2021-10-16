@@ -6,6 +6,7 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: [
     '@typescript-eslint',
+    'chai-friendly',
   ],
   rules: {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -33,6 +34,8 @@ module.exports = {
         ignoreTemplateLiterals: true,
       },
     ],
+    'no-unused-expressions': 'off',
+    'chai-friendly/no-unused-expressions': 'error',
   },
   settings: {
     'import/extensions': [

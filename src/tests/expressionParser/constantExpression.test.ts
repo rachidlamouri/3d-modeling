@@ -31,7 +31,7 @@ describe('expressionParser/constantExpression', () => {
         constantLiteral: '',
         value: 0,
       });
-      expect(expression.isZero()).to.eq(true);
+      expect(expression.isZero()).to.be.true;
     });
 
     it('returns false when the value is not zero', () => {
@@ -40,7 +40,7 @@ describe('expressionParser/constantExpression', () => {
         constantLiteral: '',
         value: 1,
       });
-      expect(expression.isZero()).to.eq(false);
+      expect(expression.isZero()).to.be.false;
     });
   });
 
@@ -51,7 +51,7 @@ describe('expressionParser/constantExpression', () => {
         constantLiteral: '',
         value: 1,
       });
-      expect(expression.isOne()).to.eq(true);
+      expect(expression.isOne()).to.be.true;
     });
 
     it('returns false when the value is not one', () => {
@@ -60,7 +60,7 @@ describe('expressionParser/constantExpression', () => {
         constantLiteral: '',
         value: 0,
       });
-      expect(expression.isOne()).to.eq(false);
+      expect(expression.isOne()).to.be.false;
     });
   });
 
