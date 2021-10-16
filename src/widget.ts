@@ -1,5 +1,4 @@
-import { buildDimensionDefinitions } from './dimensionParser/parseDimensions';
-import { buildParseInputDimensions, InputDimensions } from './dimensionParser/buildParseInputDimensions';
+import { buildDimensionDefinitions, buildParseInputDimensions, InputDimensions } from './dimensionParser';
 import {
   CompoundModel3D,
   RectangularPrism,
