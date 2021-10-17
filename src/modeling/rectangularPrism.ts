@@ -1,5 +1,6 @@
 import { buildParseInputDimensions, InputDimensions, Dimensions } from '../dimensionParser';
 import { PrimitiveModel3D } from './primitiveModel3D';
+import { RotationInput } from './model3D';
 import { Vector3DObject, Vector3DTuple } from './vector';
 
 type OriginX = 'left' | 'center' | 'right';
@@ -15,7 +16,7 @@ const dimensionNames = [
 
 type RectangularPrismParams = InputDimensions<typeof dimensionNames> & {
   origin: OriginTuple;
-  rotation?: Partial<Vector3DObject>;
+  rotations?: RotationInput[];
   translation?: Partial<Vector3DObject>;
 }
 
@@ -26,7 +27,7 @@ export class RectangularPrism extends PrimitiveModel3D {
 
   constructor({
     origin,
-    rotation = {},
+    rotations = [],
     translation = {},
     ...inputDimensions
   }: RectangularPrismParams) {
@@ -59,7 +60,7 @@ export class RectangularPrism extends PrimitiveModel3D {
 
     super({
       position: [positionX, positionY, positionZ],
-      rotation,
+      rotations,
       translation,
     });
 

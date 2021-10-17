@@ -1,10 +1,10 @@
-import { Model3D } from './model3D';
+import { Model3D, RotationInput } from './model3D';
 import { Vector3DObject } from './vector';
 import { Operation3D } from './operation3D';
 
 type UnionParams = {
   models: Model3D[];
-  rotation?: Partial<Vector3DObject>;
+  rotations?: RotationInput[];
   translation?: Partial<Vector3DObject>;
 }
 
@@ -13,7 +13,7 @@ export class Union extends Operation3D {
 
   constructor({
     models,
-    rotation = {},
+    rotations = [],
     translation = {},
   }: UnionParams) {
     if (models.length === 0) {
@@ -22,7 +22,7 @@ export class Union extends Operation3D {
 
     super({
       position: models[0].position,
-      rotation,
+      rotations,
       translation,
     });
 

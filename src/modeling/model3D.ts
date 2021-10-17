@@ -1,10 +1,15 @@
 import { Vector3D, Vector3DObject, Vector3DTuple } from './vector';
 
-const degreesToRadian = (degrees: number) => (degrees * Math.PI) / 180;
+export type RotationInput = [Partial<Vector3DObject>, 'self' | 'origin'];
+
+type Rotation = {
+  angles: Vector3DTuple;
+  offset: Vector3DTuple;
+}
 
 export type Model3DParams = {
   position: Vector3D;
-  rotation: Partial<Vector3DObject>;
+  rotations: RotationInput[];
   translation: Partial<Vector3DObject>;
 }
 
@@ -12,14 +17,13 @@ export abstract class Model3D {
   #positionX: number;
   #positionY: number;
   #positionZ: number;
-  #rotationX: number;
-  #rotationY: number;
-  #rotationZ: number;
-  #translationX: number;
-  #translationY: number;
-  #translationZ: number;
+  #rotations: Rotation[];
 
-  constructor({ position, rotation = {}, translation = {} }: Model3DParams) {
+  constructor({
+    position,
+    rotations: rotationInputs,
+    translation,
+  }: Model3DParams) {
     if (Array.isArray(position)) {
       ([
         this.#positionX,
@@ -35,32 +39,24 @@ export abstract class Model3D {
     }
 
     const {
-      x: rotationX = 0,
-      y: rotationY = 0,
-      z: rotationZ = 0,
-    } = rotation;
-
-    this.#rotationX = rotationX;
-    this.#rotationY = rotationY;
-    this.#rotationZ = rotationZ;
-
-    const {
       x: translationX = 0,
       y: translationY = 0,
       z: translationZ = 0,
     } = translation;
 
-    this.#translationX = translationX;
-    this.#translationY = translationY;
-    this.#translationZ = translationZ;
-  }
+    this.#positionX += translationX;
+    this.#positionY += translationY;
+    this.#positionZ += translationZ;
 
-  hasRotation() {
-    return this.rotationTuple.some((value) => value !== 0);
-  }
-
-  hasTranslation() {
-    return this.translationTuple.some((value) => value !== 0);
+    this.#rotations = rotationInputs.map(([angles, type]) => {
+      const { x = 0, y = 0, z = 0 } = angles;
+      return {
+        angles: [x, y, z],
+        offset: type === 'self'
+          ? (this.positionTuple.map((value) => -value) as Vector3DTuple)
+          : [0, 0, 0],
+      };
+    });
   }
 
   get position(): Vector3DObject {
@@ -75,43 +71,7 @@ export abstract class Model3D {
     return [this.#positionX, this.#positionY, this.#positionZ];
   }
 
-  get rotation(): Vector3DObject {
-    return {
-      x: this.#rotationX,
-      y: this.#rotationY,
-      z: this.#rotationZ,
-    };
-  }
-
-  get rotationTuple(): Vector3DTuple {
-    return [
-      this.#rotationX,
-      this.#rotationY,
-      this.#rotationZ,
-    ];
-  }
-
-  get rotationTupleRadians(): Vector3DTuple {
-    return [
-      degreesToRadian(this.#rotationX),
-      degreesToRadian(this.#rotationY),
-      degreesToRadian(this.#rotationZ),
-    ];
-  }
-
-  get translation(): Vector3DObject {
-    return {
-      x: this.#translationX,
-      y: this.#translationY,
-      z: this.#translationZ,
-    };
-  }
-
-  get translationTuple(): Vector3DTuple {
-    return [
-      this.#translationX,
-      this.#translationY,
-      this.#translationZ,
-    ];
+  get rotations() {
+    return this.#rotations;
   }
 }

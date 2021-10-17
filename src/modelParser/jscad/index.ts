@@ -12,11 +12,13 @@ import {
   NoOp3D,
   Union,
 } from '../../modeling';
+import { Vector3DTuple } from '../../modeling/vector';
 
 const {
   primitives: { cuboid, cylinder },
   booleans: { subtract, union },
   transforms: { translate, rotate },
+  utils: { degToRad },
 } = jscad;
 
 const parsePrimitiveModel = (model: PrimitiveModel3D) => {
@@ -60,7 +62,7 @@ const parseOperation = (operation: Operation3D) => {
 };
 
 export const parseModel = (model: Model3D): Geom3 => {
-  let parsedModel;
+  let parsedModel: Geom3 | null = null;
   if (model instanceof PrimitiveModel3D) {
     parsedModel = parsePrimitiveModel(model);
   }
@@ -73,26 +75,21 @@ export const parseModel = (model: Model3D): Geom3 => {
     parsedModel = parseOperation(model);
   }
 
-  if (!parsedModel) {
+  if (parsedModel === null) {
     throw Error(`Unhandled ${Model3D.name}: ${model.constructor.name}`);
   }
 
-  if (model.hasRotation()) {
-    parsedModel = translate(
-      [
-        -model.position.x,
-        -model.position.y,
-        -model.position.z,
-      ],
+  return model.rotations
+    .flatMap((rotation) => [
+      (nextParsedModel: Geom3) => translate(rotation.offset, nextParsedModel),
+      (nextParsedModel: Geom3) => rotate(rotation.angles.map((degToRad)) as Vector3DTuple, nextParsedModel),
+      (nextParsedModel: Geom3) => translate(
+        rotation.offset.map((value) => -value) as Vector3DTuple,
+        nextParsedModel,
+      ),
+    ])
+    .reduce(
+      (nextParsedModel, transformation) => transformation(nextParsedModel),
       parsedModel,
     );
-    parsedModel = rotate(model.rotationTupleRadians, parsedModel);
-    parsedModel = translate(model.positionTuple, parsedModel);
-  }
-
-  if (model.hasTranslation()) {
-    parsedModel = translate(model.translationTuple, parsedModel);
-  }
-
-  return parsedModel;
 };

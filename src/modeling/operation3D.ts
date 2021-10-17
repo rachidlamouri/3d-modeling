@@ -6,7 +6,11 @@ export class NoOp3D extends Operation3D {
   model: Model3D;
 
   constructor(model: Model3D) {
-    super(model);
+    super({
+      position: [0, 0, 0],
+      rotations: [],
+      translation: { x: 0, y: 0, z: 0 },
+    });
     this.model = model;
   }
 }

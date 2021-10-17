@@ -4,6 +4,7 @@ import {
   Dimensions,
 } from '../dimensionParser/buildParseInputDimensions';
 import { PrimitiveModel3D } from './primitiveModel3D';
+import { RotationInput } from './model3D';
 import { Vector3DObject, Vector3DTuple } from './vector';
 
 const dimensionNames = [
@@ -15,7 +16,7 @@ const dimensionNames = [
 
 type CylinderParams = InputDimensions<typeof dimensionNames> & {
   origin: 'bottom' | 'center' | 'top';
-  rotation?: Partial<Vector3DObject>;
+  rotations?: RotationInput[];
   translation?: Partial<Vector3DObject>;
 };
 
@@ -32,7 +33,7 @@ export class Cylinder extends PrimitiveModel3D {
 
   constructor({
     origin,
-    rotation = {},
+    rotations = [],
     translation = {},
     ...inputParams
   }: CylinderParams) {
@@ -46,7 +47,7 @@ export class Cylinder extends PrimitiveModel3D {
 
     super({
       position,
-      rotation,
+      rotations,
       translation,
     });
 
