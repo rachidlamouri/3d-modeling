@@ -26,13 +26,15 @@ const dimensionNames = [
   'reelOuterDiameter',
   'reelHeight',
   'frameCount',
-  'frameAllowance',
-  'frameRadius',
-  'frameDiameter',
-  'frameLengthZ',
   'firstFrameAngle',
   'lastFrameAngle',
   'frameAngleZ',
+  'frameDiameter',
+  'frameRadius',
+  'frameAllowance',
+  'frameHoleRadius',
+  'frameHoleDiameter',
+  'frameHoleLengthY',
   'frameSlotLengthX',
   'frameSlotLengthY',
   'frameSlotLengthZ',
@@ -59,7 +61,7 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     shadeOuterRadius: 'shadeInnerRadius + 2',
     shadeOuterDiameter: '2 * shadeOuterRadius',
     shadeHeight: 'thingHeight',
-    shadeOutletDiameter: 'frameDiameter + 2', // widening to permit more light
+    shadeOutletDiameter: 'frameHoleDiameter + 2', // widening to permit more light
     shadeOutletLengthY: '2 * shadeThickness', // doubling to force a hole
     reelAllowance: '.1',
     reelInnerRadius: 'shadeOuterRadius + reelAllowance',
@@ -69,14 +71,16 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     reelOuterDiameter: '2 * reelOuterRadius',
     reelHeight: 'thingHeight',
     frameCount: '4',
-    frameAllowance: '.1',
-    frameDiameter: '16 + frameAllowance',
-    frameRadius: 'frameDiameter / 2',
-    frameLengthZ: '2 * reelThickness', // doubling to force a hole
     firstFrameAngle: '90',
     lastFrameAngle: '-90',
     frameAngleZ: '(lastFrameAngle - firstFrameAngle) / (frameCount - 1)',
-    frameSlotLengthX: 'frameDiameter',
+    frameDiameter: '16',
+    frameRadius: 'frameDiameter / 2',
+    frameAllowance: '.1',
+    frameHoleDiameter: 'frameDiameter + frameAllowance',
+    frameHoleRadius: 'frameHoleDiameter / 2',
+    frameHoleLengthY: '2 * reelThickness', // doubling to force a hole
+    frameSlotLengthX: 'frameHoleDiameter',
     frameSlotLengthY: '2',
     frameSlotLengthZ: 'reelHeight / 2',
     wingLengthX: '4',
@@ -84,7 +88,7 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     wingLengthZ: '1',
     wingAllowance: '.2',
     wingDeflectionAngle: '3',
-    wingChannelRadius: 'frameRadius + wingLengthX + wingAllowance',
+    wingChannelRadius: 'frameHoleRadius + wingLengthX + wingAllowance',
     wingChannelDiameter: '2 * wingChannelRadius',
     wingChannelLengthY: 'wingLengthZ + wingAllowance',
     wingCatchLengthX: 'wingChannelDiameter',
@@ -136,16 +140,16 @@ class Shade extends CompoundModel3D {
   }
 }
 
-type FrameParams = {
+type FrameHoleAssemblyParams = {
   originAngleZ: number;
   thingParams: Dimensions<typeof dimensionNames>;
 };
 
-class Frame extends CompoundModel3D {
-  constructor({ originAngleZ, thingParams }: FrameParams) {
+class FrameHoleAssembly extends CompoundModel3D {
+  constructor({ originAngleZ, thingParams }: FrameHoleAssemblyParams) {
     const {
-      frameDiameter,
-      frameLengthZ,
+      frameHoleDiameter,
+      frameHoleLengthY,
       reelOuterRadius,
       reelThickness,
       reelHeight,
@@ -165,8 +169,8 @@ class Frame extends CompoundModel3D {
         models: [
           new Cylinder({
             origin: 'center',
-            diameter: frameDiameter,
-            lengthZ: frameLengthZ,
+            diameter: frameHoleDiameter,
+            lengthZ: frameHoleLengthY,
             rotations: [
               [{ x: 90 }, 'self'],
             ],
@@ -237,7 +241,7 @@ class Reel extends CompoundModel3D {
             height: reelHeight,
           }),
           ..._.range(frameCount).map((index) => (
-            new Frame({
+            new FrameHoleAssembly({
               originAngleZ: firstFrameAngle + index * frameAngleZ,
               thingParams,
             })
