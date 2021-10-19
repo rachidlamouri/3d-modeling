@@ -152,7 +152,7 @@ export const buildParseInputDimensions = <DimensionNames extends VariableLiteral
 
       nextEquations.forEach(({ dimensionName, value }) => {
         if (value !== null) {
-          workingDimensions[dimensionName].computedValue = value;
+          workingDimensions[dimensionName].computedValue = _.round(value, 10);
         }
       });
 
