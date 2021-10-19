@@ -68,11 +68,12 @@ export const parseModel = (model: Model3D): Geom3 => {
   }
 
   if (model instanceof CompoundModel3D) {
-    parsedModel = parseOperation(model.operation);
+    parsedModel = parseModel(model.operation);
   }
 
   if (model instanceof Operation3D) {
     parsedModel = parseOperation(model);
+    parsedModel = translate(model.translationTuple, parsedModel);
   }
 
   if (parsedModel === null) {

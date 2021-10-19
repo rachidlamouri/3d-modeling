@@ -18,6 +18,9 @@ export abstract class Model3D {
   #positionY: number;
   #positionZ: number;
   #rotations: Rotation[];
+  #translationX: number;
+  #translationY: number;
+  #translationZ: number;
 
   constructor({
     position,
@@ -43,6 +46,10 @@ export abstract class Model3D {
       y: translationY = 0,
       z: translationZ = 0,
     } = translation;
+
+    this.#translationX = translationX;
+    this.#translationY = translationY;
+    this.#translationZ = translationZ;
 
     this.#positionX += translationX;
     this.#positionY += translationY;
@@ -73,5 +80,17 @@ export abstract class Model3D {
 
   get rotations() {
     return this.#rotations;
+  }
+
+  get translation(): Vector3DObject {
+    return {
+      x: this.#translationX,
+      y: this.#translationY,
+      z: this.#translationZ,
+    };
+  }
+
+  get translationTuple(): Vector3DTuple {
+    return [this.#translationX, this.#translationY, this.#translationZ];
   }
 }
