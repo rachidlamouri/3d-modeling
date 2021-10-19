@@ -10,12 +10,21 @@ import {
 
 const dimensionNames = [
   'thingHeight',
+  'shadeInnerRadius',
+  'shadeInnerDiameter',
+  'shadeOuterRadius',
+  'shadeOuterDiameter',
+  'shadeThickness',
+  'shadeHeight',
+  'shadeOutletDiameter',
+  'shadeOutletLengthY',
+  'reelAllowance',
+  'reelInnerRadius',
+  'reelInnerDiameter',
   'reelThickness',
-  'reelRadius',
-  'reelDiameter',
+  'reelOuterRadius',
+  'reelOuterDiameter',
   'reelHeight',
-  'reelHoleDiameter',
-  'reelHoleRadius',
   'frameCount',
   'frameAllowance',
   'frameRadius',
@@ -44,12 +53,21 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
   dimensionNames,
   {
     thingHeight: 'wingChannelDiameter + 2',
-    reelRadius: '40',
-    reelDiameter: '2 * reelRadius',
-    reelHeight: 'thingHeight',
+    shadeInnerDiameter: '76',
+    shadeInnerRadius: 'shadeInnerDiameter / 2',
+    shadeThickness: '2',
+    shadeOuterRadius: 'shadeInnerRadius + 2',
+    shadeOuterDiameter: '2 * shadeOuterRadius',
+    shadeHeight: 'thingHeight',
+    shadeOutletDiameter: 'frameDiameter + 2', // widening to permit more light
+    shadeOutletLengthY: '2 * shadeThickness', // doubling to force a hole
+    reelAllowance: '.1',
+    reelInnerRadius: 'shadeOuterRadius + reelAllowance',
+    reelInnerDiameter: '2 * reelInnerRadius',
     reelThickness: '6',
-    reelHoleDiameter: '2 * reelHoleRadius',
-    reelHoleRadius: 'reelRadius - reelThickness',
+    reelOuterRadius: 'reelInnerRadius + reelThickness',
+    reelOuterDiameter: '2 * reelOuterRadius',
+    reelHeight: 'thingHeight',
     frameCount: '4',
     frameAllowance: '.1',
     frameDiameter: '16 + frameAllowance',
@@ -75,6 +93,49 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
   },
 );
 
+class Shade extends CompoundModel3D {
+  constructor(thingParams: Dimensions<typeof dimensionNames>) {
+    const {
+      shadeInnerRadius,
+      shadeInnerDiameter,
+      shadeThickness,
+      shadeOuterDiameter,
+      shadeHeight,
+      shadeOutletDiameter,
+      shadeOutletLengthY,
+    } = thingParams;
+
+    super(
+      new Subtraction({
+        minuend: new Cylinder({
+          origin: 'bottom',
+          diameter: shadeOuterDiameter,
+          height: shadeHeight,
+        }),
+        subtrahends: [
+          new Cylinder({
+            origin: 'bottom',
+            diameter: shadeInnerDiameter,
+            height: shadeHeight,
+          }),
+          new Cylinder({
+            origin: 'center',
+            diameter: shadeOutletDiameter,
+            height: shadeOutletLengthY,
+            translation: {
+              y: shadeInnerRadius + shadeThickness / 2,
+              z: shadeHeight / 2,
+            },
+            rotations: [
+              [{ x: 90 }, 'self'],
+            ],
+          }),
+        ],
+      }),
+    );
+  }
+}
+
 type FrameParams = {
   originAngleZ: number;
   thingParams: Dimensions<typeof dimensionNames>;
@@ -85,7 +146,7 @@ class Frame extends CompoundModel3D {
     const {
       frameDiameter,
       frameLengthZ,
-      reelRadius,
+      reelOuterRadius,
       reelThickness,
       reelHeight,
       frameSlotLengthX,
@@ -140,7 +201,7 @@ class Frame extends CompoundModel3D {
           }),
         ],
         translation: {
-          y: reelRadius - reelThickness / 2,
+          y: reelOuterRadius - reelThickness / 2,
           z: reelHeight / 2,
         },
         rotations: [
@@ -154,9 +215,9 @@ class Frame extends CompoundModel3D {
 class Reel extends CompoundModel3D {
   constructor(thingParams: Dimensions<typeof dimensionNames>) {
     const {
-      reelDiameter,
+      reelOuterDiameter,
       reelHeight,
-      reelHoleDiameter,
+      reelInnerDiameter,
       frameCount,
       firstFrameAngle,
       frameAngleZ,
@@ -166,13 +227,13 @@ class Reel extends CompoundModel3D {
       new Subtraction({
         minuend: new Cylinder({
           origin: 'bottom',
-          diameter: reelDiameter,
+          diameter: reelOuterDiameter,
           height: reelHeight,
         }),
         subtrahends: [
           new Cylinder({
             origin: 'bottom',
-            diameter: reelHoleDiameter,
+            diameter: reelInnerDiameter,
             height: reelHeight,
           }),
           ..._.range(frameCount).map((index) => (
@@ -194,6 +255,7 @@ export class Thing extends CompoundModel3D {
     super(
       new Union({
         models: [
+          new Shade(params),
           new Reel(params),
         ],
       }),
