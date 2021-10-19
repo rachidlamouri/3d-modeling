@@ -9,6 +9,7 @@ import {
 } from '../modeling';
 
 const dimensionNames = [
+  'thingHeight',
   'reelThickness',
   'reelRadius',
   'reelDiameter',
@@ -38,6 +39,41 @@ const dimensionNames = [
   'wingCatchLengthY',
   'wingCatchLengthZ',
 ] as const;
+
+const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
+  dimensionNames,
+  {
+    thingHeight: 'wingChannelDiameter + 2',
+    reelRadius: '40',
+    reelDiameter: '2 * reelRadius',
+    reelHeight: 'thingHeight',
+    reelThickness: '6',
+    reelHoleDiameter: '2 * reelHoleRadius',
+    reelHoleRadius: 'reelRadius - reelThickness',
+    frameCount: '4',
+    frameAllowance: '.1',
+    frameDiameter: '16 + frameAllowance',
+    frameRadius: 'frameDiameter / 2',
+    frameLengthZ: '2 * reelThickness', // doubling to force a hole
+    firstFrameAngle: '90',
+    lastFrameAngle: '-90',
+    frameAngleZ: '(lastFrameAngle - firstFrameAngle) / (frameCount - 1)',
+    frameSlotLengthX: 'frameDiameter',
+    frameSlotLengthY: '2',
+    frameSlotLengthZ: 'reelHeight / 2',
+    wingLengthX: '4',
+    wingLengthY: '6',
+    wingLengthZ: '1',
+    wingAllowance: '.2',
+    wingDeflectionAngle: '3',
+    wingChannelRadius: 'frameRadius + wingLengthX + wingAllowance',
+    wingChannelDiameter: '2 * wingChannelRadius',
+    wingChannelLengthY: 'wingLengthZ + wingAllowance',
+    wingCatchLengthX: 'wingChannelDiameter',
+    wingCatchLengthY: 'wingChannelLengthY',
+    wingCatchLengthZ: 'wingLengthY + wingAllowance',
+  },
+);
 
 type FrameParams = {
   originAngleZ: number;
@@ -115,43 +151,8 @@ class Frame extends CompoundModel3D {
   }
 }
 
-export class Thing extends CompoundModel3D {
-  static parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
-    dimensionNames,
-    {
-      reelRadius: '40',
-      reelDiameter: '2 * reelRadius',
-      reelHeight: 'wingChannelDiameter + 2',
-      reelThickness: '6',
-      reelHoleDiameter: '2 * reelHoleRadius',
-      reelHoleRadius: 'reelRadius - reelThickness',
-      frameCount: '4',
-      frameAllowance: '.1',
-      frameDiameter: '16 + frameAllowance',
-      frameRadius: 'frameDiameter / 2',
-      frameLengthZ: '2 * reelThickness', // doubling to force a hole
-      firstFrameAngle: '90',
-      lastFrameAngle: '-90',
-      frameAngleZ: '(lastFrameAngle - firstFrameAngle) / (frameCount - 1)',
-      frameSlotLengthX: 'frameDiameter',
-      frameSlotLengthY: '2',
-      frameSlotLengthZ: 'reelHeight / 2',
-      wingLengthX: '4',
-      wingLengthY: '6',
-      wingLengthZ: '1',
-      wingAllowance: '.2',
-      wingDeflectionAngle: '3',
-      wingChannelRadius: 'frameRadius + wingLengthX + wingAllowance',
-      wingChannelDiameter: '2 * wingChannelRadius',
-      wingChannelLengthY: 'wingLengthZ + wingAllowance',
-      wingCatchLengthX: 'wingChannelDiameter',
-      wingCatchLengthY: 'wingChannelLengthY',
-      wingCatchLengthZ: 'wingLengthY + wingAllowance',
-    },
-  )
-
-  constructor(inputParams: InputDimensions<typeof dimensionNames>) {
-    const params = Thing.parseInputDimensions(inputParams);
+class Reel extends CompoundModel3D {
+  constructor(thingParams: Dimensions<typeof dimensionNames>) {
     const {
       reelDiameter,
       reelHeight,
@@ -159,7 +160,7 @@ export class Thing extends CompoundModel3D {
       frameCount,
       firstFrameAngle,
       frameAngleZ,
-    } = params;
+    } = thingParams;
 
     super(
       new Subtraction({
@@ -177,9 +178,23 @@ export class Thing extends CompoundModel3D {
           ..._.range(frameCount).map((index) => (
             new Frame({
               originAngleZ: firstFrameAngle + index * frameAngleZ,
-              thingParams: params,
+              thingParams,
             })
           )),
+        ],
+      }),
+    );
+  }
+}
+
+export class Thing extends CompoundModel3D {
+  constructor(inputParams: InputDimensions<typeof dimensionNames>) {
+    const params = parseInputDimensions(inputParams);
+
+    super(
+      new Union({
+        models: [
+          new Reel(params),
         ],
       }),
     );
