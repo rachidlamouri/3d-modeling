@@ -31,6 +31,7 @@ const dimensionNames = [
   'frameAngleZ',
   'frameDiameter',
   'frameRadius',
+  'frameLengthY',
   'frameAllowance',
   'frameHoleRadius',
   'frameHoleDiameter',
@@ -41,6 +42,7 @@ const dimensionNames = [
   'wingLengthX',
   'wingLengthY',
   'wingLengthZ',
+  'frameWingspan',
   'wingAllowance',
   'wingChannelRadius',
   'wingChannelDiameter',
@@ -76,16 +78,18 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     frameAngleZ: '(lastFrameAngle - firstFrameAngle) / (frameCount - 1)',
     frameDiameter: '16',
     frameRadius: 'frameDiameter / 2',
+    frameLengthY: '2',
     frameAllowance: '.1',
     frameHoleDiameter: 'frameDiameter + frameAllowance',
     frameHoleRadius: 'frameHoleDiameter / 2',
     frameHoleLengthY: '2 * reelThickness', // doubling to force a hole
     frameSlotLengthX: 'frameHoleDiameter',
-    frameSlotLengthY: '2',
+    frameSlotLengthY: 'frameLengthY + frameAllowance',
     frameSlotLengthZ: 'reelHeight / 2',
     wingLengthX: '4',
     wingLengthY: '6',
     wingLengthZ: '1',
+    frameWingspan: 'frameDiameter + 2 * wingLengthX',
     wingAllowance: '.2',
     wingDeflectionAngle: '3',
     wingChannelRadius: 'frameHoleRadius + wingLengthX + wingAllowance',
@@ -252,6 +256,48 @@ class Reel extends CompoundModel3D {
   }
 }
 
+class Frame extends CompoundModel3D {
+  constructor(params: Dimensions<typeof dimensionNames>) {
+    const {
+      frameDiameter,
+      frameLengthY,
+      wingLengthY,
+      wingLengthZ,
+      frameWingspan,
+    } = params;
+
+    super(
+      new Union({
+        models: [
+          new Cylinder({
+            origin: 'bottom',
+            diameter: frameDiameter,
+            lengthZ: frameLengthY,
+          }),
+          new Subtraction({
+            minuend: new Cylinder({
+              origin: 'bottom',
+              diameter: frameWingspan,
+              lengthZ: wingLengthZ,
+            }),
+            subtrahends: _.range(2).map((index) => (
+              new RectangularPrism({
+                origin: ['center', (index === 0 ? 'front' : 'back'), 'bottom'],
+                lengthX: frameWingspan,
+                lengthY: (frameWingspan - wingLengthY) / 2,
+                lengthZ: wingLengthZ,
+                translation: {
+                  y: (index === 0 ? -1 : 1) * (wingLengthY / 2),
+                },
+              })
+            )),
+          }),
+        ],
+      }),
+    );
+  }
+}
+
 export class Thing extends CompoundModel3D {
   constructor(inputParams: InputDimensions<typeof dimensionNames>) {
     const params = parseInputDimensions(inputParams);
@@ -261,6 +307,7 @@ export class Thing extends CompoundModel3D {
         models: [
           new Shade(params),
           new Reel(params),
+          new Frame(params),
         ],
       }),
     );
