@@ -7,6 +7,7 @@ import {
   Subtraction,
   Union,
 } from '../modeling';
+import { Vector3DObject } from '../modeling/vector';
 
 const dimensionNames = [
   'thingHeight',
@@ -18,6 +19,11 @@ const dimensionNames = [
   'shadeHeight',
   'shadeOutletDiameter',
   'shadeOutletLengthY',
+  'trackBaseRadius',
+  'trackBaseDiameter',
+  'trackBaseHeight',
+  'trackLipThickness',
+  'trackLipHeight',
   'reelAllowance',
   'reelInnerRadius',
   'reelInnerDiameter',
@@ -62,10 +68,15 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     shadeThickness: '2',
     shadeOuterRadius: 'shadeInnerRadius + 2',
     shadeOuterDiameter: '2 * shadeOuterRadius',
-    shadeHeight: 'thingHeight',
+    shadeHeight: 'thingHeight + reelAllowance',
     shadeOutletDiameter: 'frameHoleDiameter + 2', // widening to permit more light
     shadeOutletLengthY: '2 * shadeThickness', // doubling to force a hole
-    reelAllowance: '.1',
+    trackBaseRadius: 'shadeOuterRadius + 2 * reelAllowance + reelThickness + trackLipThickness',
+    trackBaseDiameter: '2 * trackBaseRadius',
+    trackBaseHeight: '2',
+    trackLipThickness: '.8',
+    trackLipHeight: '(reelHeight - frameHoleDiameter) / 3',
+    reelAllowance: '.2',
     reelInnerRadius: 'shadeOuterRadius + reelAllowance',
     reelInnerDiameter: '2 * reelInnerRadius',
     reelThickness: '6',
@@ -102,7 +113,7 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
 );
 
 class Shade extends CompoundModel3D {
-  constructor(thingParams: Dimensions<typeof dimensionNames>) {
+  constructor(thingParams: Dimensions<typeof dimensionNames>, translation?: Partial<Vector3DObject>) {
     const {
       shadeInnerRadius,
       shadeInnerDiameter,
@@ -138,6 +149,69 @@ class Shade extends CompoundModel3D {
               [{ x: 90 }, 'self'],
             ],
           }),
+        ],
+        translation,
+      }),
+    );
+  }
+}
+
+class Track extends CompoundModel3D {
+  constructor(params: Dimensions<typeof dimensionNames>) {
+    const {
+      trackBaseRadius,
+      trackBaseDiameter,
+      trackBaseHeight,
+      trackLipHeight,
+      trackLipThickness,
+      shadeInnerDiameter,
+    } = params;
+
+    super(
+      new Union({
+        models: [
+          new Subtraction({
+            minuend: new Cylinder({
+              origin: 'bottom',
+              diameter: trackBaseDiameter,
+              height: trackBaseHeight,
+            }),
+            subtrahends: [
+              new Cylinder({
+                origin: 'bottom',
+                diameter: shadeInnerDiameter,
+                height: trackBaseDiameter,
+              }),
+            ],
+          }),
+          new Subtraction({
+            minuend: new Cylinder({
+              origin: 'bottom',
+              diameter: trackBaseDiameter,
+              height: trackLipHeight,
+            }),
+            subtrahends: [
+              new Cylinder({
+                origin: 'bottom',
+                radius: trackBaseRadius - trackLipThickness,
+                height: trackLipHeight,
+              }),
+            ],
+            translation: { z: trackBaseHeight },
+          }),
+        ],
+      }),
+    );
+  }
+}
+
+class ShadeAndTrack extends CompoundModel3D {
+  constructor(params: Dimensions<typeof dimensionNames>) {
+    super(
+      new Union({
+        models: [
+          new Shade(params, { z: params.trackBaseHeight }),
+          new Track(params),
         ],
       }),
     );
@@ -221,7 +295,7 @@ class FrameHoleAssembly extends CompoundModel3D {
 }
 
 class Reel extends CompoundModel3D {
-  constructor(thingParams: Dimensions<typeof dimensionNames>) {
+  constructor(thingParams: Dimensions<typeof dimensionNames>, translation: Partial<Vector3DObject>) {
     const {
       reelOuterDiameter,
       reelHeight,
@@ -251,6 +325,7 @@ class Reel extends CompoundModel3D {
             })
           )),
         ],
+        translation,
       }),
     );
   }
@@ -302,11 +377,16 @@ export class Thing extends CompoundModel3D {
   constructor(inputParams: InputDimensions<typeof dimensionNames>) {
     const params = parseInputDimensions(inputParams);
 
+    const {
+      trackBaseHeight,
+      reelAllowance,
+    } = params;
+
     super(
       new Union({
         models: [
-          new Shade(params),
-          new Reel(params),
+          new ShadeAndTrack(params),
+          new Reel(params, { z: trackBaseHeight + reelAllowance }),
           new Frame(params),
         ],
       }),
