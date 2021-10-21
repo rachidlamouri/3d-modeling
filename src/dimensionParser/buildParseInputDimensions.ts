@@ -32,8 +32,16 @@ class WorkingDimension {
   }
 
   set computedValue(computedValue: WorkingValue) {
-    const hasInputConflict = this.#inputValue !== null && this.#inputValue !== computedValue;
-    const hasComputedConflict = this.#computedValue !== null && this.#computedValue !== computedValue;
+    if (computedValue === null) {
+      throw Error('Cannot set computedValue to null');
+    }
+
+    const tolerance = 0.00001;
+    const hasInputConflict = this.#inputValue !== null && Math.abs(this.#inputValue - computedValue) > tolerance;
+    const hasComputedConflict = (
+      this.#computedValue !== null
+      && Math.abs(this.#computedValue - computedValue) > tolerance
+    );
 
     let error = null;
     if (hasInputConflict && !hasComputedConflict) {
@@ -152,7 +160,7 @@ export const buildParseInputDimensions = <DimensionNames extends VariableLiteral
 
       nextEquations.forEach(({ dimensionName, value }) => {
         if (value !== null) {
-          workingDimensions[dimensionName].computedValue = _.round(value, 10);
+          workingDimensions[dimensionName].computedValue = value;
         }
       });
 
