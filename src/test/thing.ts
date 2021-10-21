@@ -24,6 +24,12 @@ const dimensionNames = [
   'trackBaseHeight',
   'trackLipThickness',
   'trackLipHeight',
+  'trackNubRadius',
+  'trackNubDiameter',
+  'trackNubAllowance',
+  'trackNubLength',
+  'reelNotchRadius',
+  'reelNotchLength',
   'reelAllowance',
   'reelInnerRadius',
   'reelInnerDiameter',
@@ -76,6 +82,12 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     trackBaseHeight: '2',
     trackLipThickness: '.8',
     trackLipHeight: '(reelHeight - frameHoleDiameter) / 3',
+    trackNubRadius: '.4 * trackLipHeight',
+    trackNubDiameter: '2 * trackNubRadius',
+    trackNubAllowance: '.1',
+    trackNubLength: 'trackBaseRadius - shadeOuterRadius',
+    reelNotchRadius: 'trackNubRadius + trackNubAllowance',
+    reelNotchLength: 'reelThickness',
     reelAllowance: '.2',
     reelInnerRadius: 'shadeOuterRadius + reelAllowance',
     reelInnerDiameter: '2 * reelInnerRadius',
@@ -165,6 +177,9 @@ class Track extends CompoundModel3D {
       trackLipHeight,
       trackLipThickness,
       shadeInnerDiameter,
+      trackNubLength,
+      trackNubRadius,
+      trackNubDiameter,
     } = params;
 
     super(
@@ -198,6 +213,28 @@ class Track extends CompoundModel3D {
               }),
             ],
             translation: { z: trackBaseHeight },
+          }),
+          new Subtraction({
+            minuend: new Cylinder({
+              origin: 'center',
+              radius: trackNubRadius,
+              height: trackNubLength,
+              rotations: [
+                [{ x: 90 }, 'self'],
+              ],
+            }),
+            subtrahends: [
+              new RectangularPrism({
+                origin: ['center', 'center', 'top'],
+                lengthX: trackNubDiameter,
+                lengthY: trackNubLength,
+                lengthZ: trackNubRadius,
+              }),
+            ],
+            translation: {
+              y: -(trackNubLength / 2) + trackBaseRadius - trackLipThickness,
+              z: trackBaseHeight,
+            },
           }),
         ],
       }),
@@ -294,6 +331,29 @@ class FrameHoleAssembly extends CompoundModel3D {
   }
 }
 
+class ReelNotch extends Cylinder {
+  constructor({ originAngleZ, thingParams }: FrameHoleAssemblyParams) {
+    const {
+      reelNotchRadius,
+      reelNotchLength,
+      reelInnerRadius,
+    } = thingParams;
+
+    super({
+      origin: 'center',
+      radius: reelNotchRadius,
+      lengthZ: reelNotchLength,
+      translation: {
+        y: (reelNotchLength / 2) + reelInnerRadius,
+      },
+      rotations: [
+        [{ x: 90 }, 'self'],
+        [{ z: originAngleZ }, 'origin'],
+      ],
+    });
+  }
+}
+
 class Reel extends CompoundModel3D {
   constructor(thingParams: Dimensions<typeof dimensionNames>, translation: Partial<Vector3DObject>) {
     const {
@@ -318,12 +378,20 @@ class Reel extends CompoundModel3D {
             diameter: reelInnerDiameter,
             height: reelHeight,
           }),
-          ..._.range(frameCount).map((index) => (
-            new FrameHoleAssembly({
-              originAngleZ: firstFrameAngle + index * frameAngleZ,
-              thingParams,
-            })
-          )),
+          ..._.range(frameCount).flatMap((index) => {
+            const originAngleZ = firstFrameAngle + index * frameAngleZ;
+
+            return [
+              new FrameHoleAssembly({
+                originAngleZ,
+                thingParams,
+              }),
+              new ReelNotch({
+                originAngleZ,
+                thingParams,
+              }),
+            ];
+          }),
         ],
         translation,
       }),
