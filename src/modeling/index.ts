@@ -1,5 +1,7 @@
+export * from './collection3D';
 export * from './compoundModel3D';
 export * from './cylinder';
+export * from './extrudedPolygon';
 export * from './model3D';
 export * from './operation3D';
 export * from './primitiveModel3D';

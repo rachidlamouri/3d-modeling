@@ -11,17 +11,39 @@ import {
   Operation3D,
   NoOp3D,
   Union,
+  Collection3D,
+  ExtrudedPolygon,
 } from '../../modeling';
 import { Vector3DTuple } from '../../modeling/vector';
 
 const {
-  primitives: { cuboid, cylinder },
+  primitives: { cuboid, cylinder, polygon },
   booleans: { subtract, union },
   transforms: { translate, rotate },
   utils: { degToRad },
+  extrusions: { extrudeLinear },
 } = jscad;
 
 const parsePrimitiveModel = (model: PrimitiveModel3D) => {
+  if (model instanceof ExtrudedPolygon) {
+    return translate(
+      model.positionTuple,
+      translate(
+        [
+          -model.boundingBox.x / 2,
+          -model.boundingBox.y / 2,
+          -model.boundingBox.z / 2,
+        ],
+        extrudeLinear(
+          { height: model.lengthZ },
+          polygon({
+            points: model.points,
+          }),
+        ),
+      ),
+    );
+  }
+
   if (model instanceof RectangularPrism) {
     return cuboid({
       center: model.positionTuple,
@@ -61,18 +83,23 @@ const parseOperation = (operation: Operation3D) => {
   throw Error(`Unhandled ${Operation3D.name}: ${operation.constructor.name}`);
 };
 
-export const parseModel = (model: Model3D): Geom3 => {
+export const parseModel = (model: Model3D | Collection3D): Geom3 | Geom3[] => {
   let parsedModel: Geom3 | null = null;
+
+  if (model instanceof Collection3D) {
+    return model.models.map((submodel) => parseModel(submodel) as Geom3);
+  }
+
   if (model instanceof PrimitiveModel3D) {
-    parsedModel = parsePrimitiveModel(model);
+    parsedModel = parsePrimitiveModel(model) as Geom3;
   }
 
   if (model instanceof CompoundModel3D) {
-    parsedModel = parseModel(model.operation);
+    parsedModel = parseModel(model.operation) as Geom3;
   }
 
   if (model instanceof Operation3D) {
-    parsedModel = parseOperation(model);
+    parsedModel = parseOperation(model) as Geom3;
     parsedModel = translate(model.translationTuple, parsedModel);
   }
 
