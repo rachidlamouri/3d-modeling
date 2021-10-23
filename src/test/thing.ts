@@ -71,12 +71,12 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     thingHeight: 'wingChannelDiameter + 2',
     shadeInnerDiameter: '76',
     shadeInnerRadius: 'shadeInnerDiameter / 2',
-    shadeThickness: '2',
-    shadeOuterRadius: 'shadeInnerRadius + 2',
+    shadeThickness: 'frameDiameter / 8',
+    shadeOuterRadius: 'shadeInnerRadius + shadeThickness',
     shadeOuterDiameter: '2 * shadeOuterRadius',
     shadeHeight: 'thingHeight + reelAllowance',
     shadeOutletDiameter: 'frameHoleDiameter + 2', // widening to permit more light
-    shadeOutletLengthY: '2 * shadeThickness', // doubling to force a hole
+    shadeOutletLengthY: '4 * shadeThickness', // quadrupling to force a hole
     trackBaseRadius: 'shadeOuterRadius + 2 * reelAllowance + reelThickness + trackLipThickness',
     trackBaseDiameter: '2 * trackBaseRadius',
     trackBaseHeight: '2',
@@ -91,7 +91,7 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     reelAllowance: '.2',
     reelInnerRadius: 'shadeOuterRadius + reelAllowance',
     reelInnerDiameter: '2 * reelInnerRadius',
-    reelThickness: '6',
+    reelThickness: '(3 / 8) * frameDiameter',
     reelOuterRadius: 'reelInnerRadius + reelThickness',
     reelOuterDiameter: '2 * reelOuterRadius',
     reelHeight: 'thingHeight',
@@ -105,7 +105,7 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     frameAllowance: '.1',
     frameHoleDiameter: 'frameDiameter + frameAllowance',
     frameHoleRadius: 'frameHoleDiameter / 2',
-    frameHoleLengthY: '2 * reelThickness', // doubling to force a hole
+    frameHoleLengthY: '4 * reelThickness', // quadrupling to force a hole
     frameSlotLengthX: 'frameHoleDiameter',
     frameSlotLengthY: 'frameLengthY + frameAllowance',
     frameSlotLengthZ: 'reelHeight / 2',
