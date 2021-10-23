@@ -2,6 +2,7 @@ import fs from 'fs';
 import _ from 'lodash';
 import jpeg from 'jpeg-js';
 import { Collection3D, ExtrudedPolygon, Point2D } from '../modeling';
+import { Vector3DObject } from '../modeling/vector';
 
 type ImageSliceParams = {
   maxHeight: number;
@@ -9,6 +10,7 @@ type ImageSliceParams = {
   sliceLengthY: number;
   fullLengthX: number;
   points: Point2D[];
+  translation: Partial<Vector3DObject>;
 };
 
 class ImageSlice extends ExtrudedPolygon {
@@ -18,6 +20,7 @@ class ImageSlice extends ExtrudedPolygon {
     sliceLengthY,
     maxHeight,
     points,
+    translation,
   }: ImageSliceParams) {
     super({
       boundingBox: {
@@ -28,9 +31,9 @@ class ImageSlice extends ExtrudedPolygon {
       points,
       lengthZ: sliceLengthY,
       translation: {
-        x: fullLengthX / 2,
-        y: -((sliceLengthY / 2) + (offsetY * sliceLengthY)),
-        z: maxHeight / 2,
+        x: fullLengthX / 2 + (translation.x ?? 0),
+        y: -((sliceLengthY / 2) + (offsetY * sliceLengthY)) + (translation.y ?? 0),
+        z: maxHeight / 2 + (translation.z ?? 0),
       },
       rotations: [
         [{ x: 90 }, 'self'],
@@ -39,7 +42,7 @@ class ImageSlice extends ExtrudedPolygon {
   }
 }
 
-type ImageParams = {
+export type ImageParams = {
   filename: string;
   pixelStartX: number;
   pixelStartY: number;
@@ -119,6 +122,10 @@ export class Image extends Collection3D {
         sliceLengthY: lengthPerPixelY,
         maxHeight: maxLengthZ,
         points: scaledPoints,
+        translation: {
+          x: -lengthX / 2,
+          y: lengthY / 2,
+        },
       }));
 
     super(models);
