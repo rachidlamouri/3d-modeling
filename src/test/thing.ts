@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { buildParseInputDimensions, Dimensions, InputDimensions } from '../dimensionParser';
 import {
+  Collection3D,
   CompoundModel3D,
   Cylinder,
   RectangularPrism,
@@ -8,6 +9,7 @@ import {
   Union,
 } from '../modeling';
 import { Vector3DObject } from '../modeling/vector';
+import { Image, ImageParams } from './image';
 
 const dimensionNames = [
   'thingHeight',
@@ -43,6 +45,9 @@ const dimensionNames = [
   'frameAngleZ',
   'frameDiameter',
   'frameRadius',
+  'frameWallThickness',
+  'frameWallInnerRadius',
+  'frameWallInnerDiameter',
   'frameLengthY',
   'frameAllowance',
   'frameHoleRadius',
@@ -99,8 +104,11 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     firstFrameAngle: '90',
     lastFrameAngle: '-90',
     frameAngleZ: '(lastFrameAngle - firstFrameAngle) / (frameCount - 1)',
-    frameDiameter: '16',
+    frameDiameter: '40',
     frameRadius: 'frameDiameter / 2',
+    frameWallThickness: '.8',
+    frameWallInnerRadius: 'frameRadius - frameWallThickness',
+    frameWallInnerDiameter: '2 * frameWallInnerRadius',
     frameLengthY: '2',
     frameAllowance: '.1',
     frameHoleDiameter: 'frameDiameter + frameAllowance',
@@ -399,7 +407,7 @@ class Reel extends CompoundModel3D {
   }
 }
 
-class Frame extends CompoundModel3D {
+class FrameTemplate extends CompoundModel3D {
   constructor(params: Dimensions<typeof dimensionNames>) {
     const {
       frameDiameter,
@@ -441,6 +449,92 @@ class Frame extends CompoundModel3D {
   }
 }
 
+export class Frame extends Collection3D {
+  constructor(params: Omit<ImageParams, 'lengthX' | 'lengthY'>) {
+    const {
+      frameDiameter,
+      frameLengthY,
+      frameWallInnerDiameter,
+      frameWingspan,
+      wingLengthY,
+      wingLengthZ,
+    } = parseInputDimensions({});
+
+    const models = new Image({
+      ...params,
+      lengthX: frameDiameter,
+      lengthY: frameDiameter,
+    })
+      .models.map((imageSlice) => (
+        new Union({
+          models: [
+            new Subtraction({
+              minuend: imageSlice,
+              subtrahends: [
+                new Subtraction({
+                  minuend: new RectangularPrism({
+                    origin: ['center', 'center', 'bottom'],
+                    lengthX: frameDiameter,
+                    lengthY: frameDiameter,
+                    lengthZ: params.maxLengthZ,
+                  }),
+                  subtrahends: [
+                    new Cylinder({
+                      origin: 'bottom',
+                      diameter: frameWallInnerDiameter,
+                      lengthZ: params.maxLengthZ,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new Subtraction({
+              minuend: new Cylinder({
+                origin: 'bottom',
+                diameter: frameDiameter,
+                lengthZ: frameLengthY,
+              }),
+              subtrahends: [
+                new Cylinder({
+                  origin: 'bottom',
+                  diameter: frameWallInnerDiameter,
+                  lengthZ: frameLengthY,
+                }),
+              ],
+            }),
+            new Subtraction({
+              minuend: new Cylinder({
+                origin: 'bottom',
+                diameter: frameWingspan,
+                lengthZ: wingLengthZ,
+              }),
+              subtrahends: [
+                new Cylinder({
+                  origin: 'bottom',
+                  diameter: frameDiameter,
+                  lengthZ: wingLengthZ,
+                }),
+                ..._.range(2).map((index) => (
+                  new RectangularPrism({
+                    origin: ['center', (index === 0 ? 'front' : 'back'), 'bottom'],
+                    lengthX: frameWingspan,
+                    lengthY: (frameWingspan - wingLengthY) / 2,
+                    lengthZ: wingLengthZ,
+                    translation: {
+                      y: (index === 0 ? -1 : 1) * (wingLengthY / 2),
+                    },
+                  })
+                )),
+              ],
+            }),
+          ],
+        })
+      ));
+
+    super(models);
+  }
+}
+
 export class Thing extends CompoundModel3D {
   constructor(inputParams: InputDimensions<typeof dimensionNames>) {
     const params = parseInputDimensions(inputParams);
@@ -455,7 +549,7 @@ export class Thing extends CompoundModel3D {
         models: [
           new ShadeAndTrack(params),
           new Reel(params, { z: trackBaseHeight + reelAllowance }),
-          new Frame(params),
+          new FrameTemplate(params),
         ],
       }),
     );

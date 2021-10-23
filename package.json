@@ -3,6 +3,7 @@
     "build:jscadExample": "jscad build/src/jscadExample.js",
     "build:test": "nodemon --exec \"jscad build/src/test/thingBuild.js -o build/src/test.stl\"",
     "build:image": "nodemon --exec \"jscad build/src/test/imageBuild.js -o build/src/image.stl && echo Done\"",
+    "build:frame": "nodemon --exec \"jscad build/src/test/frameBuild.js -o build/src/frame.stl && echo Done\"",
     "build:widgetExample": "jscad build/src/widgetExample.js",
     "clean": "rm -r build/",
     "compile:ts": "tsc",
