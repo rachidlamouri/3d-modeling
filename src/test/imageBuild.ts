@@ -11,6 +11,6 @@ export const main = () => (
     lengthX: 40,
     lengthY: 40,
     minLengthZ: 0.1,
-    maxLengthZ: 2,
+    maxLengthZ: 4,
   }))
 );
