@@ -540,6 +540,109 @@ export class Frame extends Collection3D {
   }
 }
 
+export class PartialReel extends CompoundModel3D {
+  constructor(params: ThingDimensions) {
+    super(
+      new Subtraction({
+        minuend: new Reel(params, {}),
+        subtrahends: [
+          new Cylinder({
+            origin: 'bottom',
+            diameter: params.reelOuterDiameter,
+            height: params.reelHeight,
+            translation: {
+              z: params.trackBaseHeight + params.trackLipHeight * 2,
+            },
+          }),
+        ],
+      }),
+    );
+  }
+}
+
+export class PartialShadeAndTrack extends CompoundModel3D {
+  constructor(params: ThingDimensions) {
+    super(
+      new Union({
+        models: [
+          new Track(params),
+          new Subtraction({
+            minuend: new Shade(params),
+            subtrahends: [
+              new Cylinder({
+                origin: 'bottom',
+                diameter: params.shadeOuterDiameter,
+                height: params.shadeHeight,
+                translation: {
+                  z: params.trackBaseHeight + params.trackLipHeight,
+                },
+              }),
+            ],
+          }),
+        ],
+      }),
+    );
+  }
+}
+
+export class PartialFrameHole extends CompoundModel3D {
+  constructor(params: ThingDimensions) {
+    super(
+      new Subtraction({
+        minuend: new Reel(params, {}),
+        subtrahends: [
+          new Subtraction({
+            minuend: new Cylinder({
+              origin: 'bottom',
+              diameter: params.reelOuterDiameter,
+              lengthZ: params.reelHeight,
+            }),
+            subtrahends: [
+              new RectangularPrism({
+                origin: ['center', 'back', 'bottom'],
+                lengthX: params.wingChannelDiameter + 4,
+                lengthY: params.reelOuterRadius,
+                lengthZ: params.reelHeight,
+                rotations: [
+                  [{ z: params.firstFrameAngle + params.frameAngleZ }, 'origin'],
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+    );
+  }
+}
+
+export class WingInspection extends CompoundModel3D {
+  constructor(params: ThingDimensions) {
+    super(
+      new Subtraction({
+        models: [
+          new PartialFrameHole(params),
+          new RectangularPrism({
+            origin: ['center', 'center', 'bottom'],
+            lengthX: params.reelInnerDiameter / 2,
+            lengthY: params.reelInnerDiameter / 2,
+            lengthZ: params.reelInnerDiameter,
+            translation: {
+              y: 72.6,
+            },
+            rotations: [
+              [{ z: params.firstFrameAngle + params.frameAngleZ }, 'origin'],
+              [{ z: params.wingDeflectionAngle }, 'self'],
+            ],
+          }),
+        ],
+        rotations: [
+          [{ z: -(params.firstFrameAngle + params.frameAngleZ) }, 'origin'],
+        ],
+      }),
+    );
+  }
+}
+
 export class Thing extends CompoundModel3D {
   constructor(inputParams: InputDimensions<typeof dimensionNames>) {
     const params = parseInputDimensions(inputParams);
