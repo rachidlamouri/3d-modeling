@@ -83,7 +83,7 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     shadeOuterDiameter: '2 * shadeOuterRadius',
     shadeHeight: 'thingHeight + reelAllowance',
     shadeOutletDiameter: 'frameHoleDiameter + 2', // widening to permit more light
-    shadeOutletLengthY: '4 * shadeThickness', // quadrupling to force a hole
+    shadeOutletLengthY: '3 * shadeThickness', // tripling to force a hole
     trackBaseRadius: 'shadeOuterRadius + 2 * reelAllowance + reelThickness + trackLipThickness',
     trackBaseDiameter: '2 * trackBaseRadius',
     trackBaseHeight: '2',
@@ -115,7 +115,7 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     frameAllowance: '.2',
     frameHoleDiameter: 'frameDiameter + frameAllowance',
     frameHoleRadius: 'frameHoleDiameter / 2',
-    frameHoleLengthY: '4 * reelThickness', // quadrupling to force a hole
+    frameHoleLengthY: '3 * reelThickness', // tripling to force a hole
     frameSlotLengthX: 'frameHoleDiameter',
     frameSlotLengthY: 'frameLengthY + frameAllowance',
     frameSlotLengthZ: 'reelHeight / 2',
@@ -141,9 +141,8 @@ type ThingDimensions = Dimensions<typeof dimensionNames>;
 class Shade extends CompoundModel3D {
   constructor(thingParams: ThingDimensions, translation?: Partial<Vector3DObject>) {
     const {
-      shadeInnerRadius,
+      shadeOuterRadius,
       shadeInnerDiameter,
-      shadeThickness,
       shadeOuterDiameter,
       shadeHeight,
       shadeOutletDiameter,
@@ -168,7 +167,7 @@ class Shade extends CompoundModel3D {
             diameter: shadeOutletDiameter,
             height: shadeOutletLengthY,
             translation: {
-              y: shadeInnerRadius + shadeThickness / 2,
+              y: -shadeOutletLengthY / 2 + shadeOuterRadius,
               z: shadeHeight / 2,
             },
             rotations: [
