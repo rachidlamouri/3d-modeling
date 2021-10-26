@@ -60,14 +60,20 @@ const dimensionNames = [
   'frameSlotLengthX',
   'frameSlotLengthY',
   'frameSlotLengthZ',
-  'lightDiameter',
-  'lightHeight',
-  'lightBaseDiameter',
   'lightBaseHeight',
-  'lightBaseWallThickness',
+  'lightLightBottomHeight',
+  'lightLightTopHeight',
+  'lightTopHeight',
+  'lightBaseDiameter',
+  'lightBaseRadius',
+  'lightMidDiameter',
+  'lightLightDiameter',
+  'lightTopDiameter',
   'lightDiameterAllowance',
-  'lightBaseHoleDiameter',
-  'lightBaseHoleHeight',
+  'supportBaseHeight',
+  'supportLightHoleInnerDiameter',
+  'supportLightHoleHeight',
+  'supportLightBaseSupportLength',
   'shadeInnerDiameter',
   'shadeInnerRadius',
   'shadeThickness',
@@ -76,6 +82,16 @@ const dimensionNames = [
   'shadeHeight',
   'shadeOutletDiameter',
   'shadeOutletLengthY',
+  'supportMainThickness',
+  'supportMainDiameterAllowance',
+  'supportMainRadiusAllowance',
+  'supportMainOuterRadius',
+  'supportMainOuterDiameter',
+  'supportMainInnerRadius',
+  'supportMainInnerDiameter',
+  'supportMainOverlapHeight',
+  'supportMainHeight',
+  'supportMainGapLength',
   'reelInnerRadius',
   'reelInnerDiameter',
   'reelThicknessBuffer',
@@ -96,6 +112,8 @@ const dimensionNames = [
   'trackBaseOuterRadius',
   'trackBaseOuterDiameter',
   'trackBaseHeight',
+  'trackBaseSupportHoleOuterRadius',
+  'trackBaseSupportHoleThickness',
   'trackNubLength',
 ] as const;
 
@@ -159,16 +177,23 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     frameSlotLengthY: 'frameWallChannelLengthY',
     frameSlotLengthZ: 'reelHeight / 2',
 
-    lightDiameter: '100',
-    lightHeight: '150',
+    lightBaseHeight: '16',
+    lightLightBottomHeight: '95',
+    lightLightTopHeight: '150',
+    lightTopHeight: '182',
     lightBaseDiameter: '88',
-    lightBaseHeight: '95',
-    lightBaseWallThickness: '.8',
+    lightBaseRadius: 'lightBaseDiameter / 2',
+    lightMidDiameter: '82',
+    lightLightDiameter: '66',
+    lightTopDiameter: '100',
     lightDiameterAllowance: '.3',
-    lightBaseHoleDiameter: 'lightBaseDiameter + lightDiameterAllowance',
-    lightBaseHoleHeight: '16',
 
-    shadeInnerDiameter: 'lightDiameter + lightDiameterAllowance',
+    supportBaseHeight: '2',
+    supportLightHoleInnerDiameter: 'lightBaseDiameter + lightDiameterAllowance',
+    supportLightHoleHeight: 'lightBaseHeight',
+    supportLightBaseSupportLength: '16',
+
+    shadeInnerDiameter: 'lightTopDiameter + lightDiameterAllowance',
     shadeInnerRadius: 'shadeInnerDiameter / 2',
     shadeThickness: '.8',
     shadeOuterRadius: 'shadeInnerRadius + shadeThickness',
@@ -176,6 +201,17 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     shadeHeight: 'reelHeight + reelHeightAllowance',
     shadeOutletDiameter: 'frameImageHoleDiameter + 2', // widening to permit more light
     shadeOutletLengthY: 'shadeOuterRadius',
+
+    supportMainThickness: '.8',
+    supportMainDiameterAllowance: '.2',
+    supportMainRadiusAllowance: 'supportMainDiameterAllowance / 2',
+    supportMainOuterRadius: '.5 * trackBaseInnerRadius + .5 * trackBaseOuterRadius + supportMainThickness / 2',
+    supportMainOuterDiameter: '2 * supportMainOuterRadius',
+    supportMainInnerRadius: 'supportMainOuterRadius - supportMainThickness',
+    supportMainInnerDiameter: '2 * supportMainInnerRadius',
+    supportMainOverlapHeight: '4',
+    supportMainHeight: 'lightLightBottomHeight + supportMainOverlapHeight',
+    supportMainGapLength: 'shadeOutletDiameter',
 
     reelInnerRadius: 'shadeOuterRadius + reelDiameterAllowance',
     reelInnerDiameter: '2 * reelInnerRadius',
@@ -200,7 +236,9 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     trackLipOuterDiameter: '2 * trackLipOuterRadius',
     trackBaseOuterRadius: 'trackLipOuterRadius',
     trackBaseOuterDiameter: '2 * trackBaseOuterRadius',
-    trackBaseHeight: '2',
+    trackBaseHeight: 'supportMainOverlapHeight + 1',
+    trackBaseSupportHoleOuterRadius: 'supportMainOuterRadius + supportMainRadiusAllowance',
+    trackBaseSupportHoleThickness: 'supportMainThickness + 2 * supportMainRadiusAllowance',
 
     trackNubLength: 'trackLipInnerRadius - trackBaseInnerRadius',
   },
@@ -319,45 +357,79 @@ class Track extends CompoundModel3D {
       trackNubLength,
       trackNubRadius,
       trackNubDiameter,
+      trackBaseSupportHoleOuterRadius,
+      trackBaseSupportHoleThickness,
+      supportMainGapLength,
+      supportMainDiameterAllowance,
     } = params;
 
     super(
-      new Union({
+      new Subtraction({
         models: [
-          new Tube({
-            origin: 'bottom',
-            outerDiameter: trackBaseOuterDiameter,
-            innerDiameter: trackBaseInnerDiameter,
-            height: trackBaseHeight,
-          }),
-          new Tube({
-            origin: 'bottom',
-            outerDiameter: trackLipOuterDiameter,
-            innerDiameter: trackLipInnerDiameter,
-            height: trackLipHeight,
-            translation: { z: trackBaseHeight },
-          }),
-          new Subtraction({
-            minuend: new Cylinder({
-              origin: 'center',
-              radius: trackNubRadius,
-              height: trackNubLength,
-              rotations: [
-                [{ x: 90 }, 'self'],
-              ],
-            }),
-            subtrahends: [
-              new RectangularPrism({
-                origin: ['center', 'center', 'top'],
-                lengthX: trackNubDiameter,
-                lengthY: trackNubLength,
-                lengthZ: trackNubRadius,
+          new Union({
+            models: [
+              new Tube({
+                origin: 'bottom',
+                outerDiameter: trackBaseOuterDiameter,
+                innerDiameter: trackBaseInnerDiameter,
+                height: trackBaseHeight,
+              }),
+              new Tube({
+                origin: 'bottom',
+                outerDiameter: trackLipOuterDiameter,
+                innerDiameter: trackLipInnerDiameter,
+                height: trackLipHeight,
+                translation: { z: trackBaseHeight },
+              }),
+              new Subtraction({
+                minuend: new Cylinder({
+                  origin: 'center',
+                  radius: trackNubRadius,
+                  height: trackNubLength,
+                  rotations: [
+                    [{ x: 90 }, 'self'],
+                  ],
+                }),
+                subtrahends: [
+                  new RectangularPrism({
+                    origin: ['center', 'center', 'top'],
+                    lengthX: trackNubDiameter,
+                    lengthY: trackNubLength,
+                    lengthZ: trackNubRadius,
+                  }),
+                ],
+                translation: {
+                  y: -(trackNubLength / 2) + trackLipInnerRadius,
+                  z: trackBaseHeight,
+                },
               }),
             ],
-            translation: {
-              y: -(trackNubLength / 2) + trackLipInnerRadius,
-              z: trackBaseHeight,
-            },
+          }),
+          new Subtraction({
+            models: [
+              new Tube({
+                origin: 'bottom',
+                outerRadius: trackBaseSupportHoleOuterRadius,
+                wallThickness: trackBaseSupportHoleThickness,
+                height: trackBaseHeight,
+              }),
+              new Union({
+                models: [
+                  new RectangularPrism({
+                    origin: ['center', 'center', 'bottom'],
+                    lengthX: supportMainGapLength - supportMainDiameterAllowance,
+                    lengthY: trackBaseOuterDiameter,
+                    lengthZ: trackBaseHeight,
+                  }),
+                  new RectangularPrism({
+                    origin: ['center', 'center', 'bottom'],
+                    lengthX: trackBaseOuterDiameter,
+                    lengthY: supportMainGapLength - supportMainDiameterAllowance,
+                    lengthZ: trackBaseHeight,
+                  }),
+                ],
+              }),
+            ],
           }),
         ],
       }),
@@ -366,13 +438,14 @@ class Track extends CompoundModel3D {
 }
 
 class ShadeAndTrack extends CompoundModel3D {
-  constructor(params: ThingDimensions) {
+  constructor(params: ThingDimensions, translation: Partial<Vector3DObject> = {}) {
     super(
       new Union({
         models: [
           new Shade(params, { z: params.trackBaseHeight }),
           new Track(params),
         ],
+        translation,
       }),
     );
   }
@@ -667,22 +740,128 @@ export class Frame extends Collection3D {
   }
 }
 
-class Light extends Cylinder {
-  constructor(params: ThingDimensions) {
+class Light extends CompoundModel3D {
+  constructor(params: ThingDimensions, translation: Partial<Vector3DObject> = {}) {
     const {
-      lightDiameter,
-      lightHeight,
+      lightBaseDiameter,
+      lightMidDiameter,
+      lightLightDiameter,
+      lightTopDiameter,
       lightBaseHeight,
+      lightLightBottomHeight,
+      lightLightTopHeight,
+      lightTopHeight,
     } = params;
 
-    super({
-      origin: 'bottom',
-      diameter: lightDiameter,
-      height: lightHeight - lightBaseHeight,
-      translation: {
-        z: lightBaseHeight,
-      },
-    });
+    super(
+      new Union({
+        models: [
+          new Cylinder({
+            origin: 'bottom',
+            diameter: lightBaseDiameter,
+            height: lightBaseHeight,
+          }),
+          new Cylinder({
+            origin: 'bottom',
+            diameter: lightMidDiameter,
+            height: lightLightBottomHeight - lightBaseHeight,
+            translation: { z: lightBaseHeight },
+          }),
+          new Cylinder({
+            origin: 'bottom',
+            diameter: lightLightDiameter,
+            height: lightLightTopHeight - lightLightBottomHeight,
+            translation: { z: lightLightBottomHeight },
+          }),
+          new Cylinder({
+            origin: 'bottom',
+            diameter: lightMidDiameter,
+            height: (lightTopHeight - lightLightTopHeight) / 2,
+            translation: { z: lightLightTopHeight },
+          }),
+          new Cylinder({
+            origin: 'bottom',
+            diameter: lightTopDiameter,
+            height: (lightTopHeight - lightLightTopHeight) / 2,
+            translation: { z: lightLightTopHeight + ((lightTopHeight - lightLightTopHeight) / 2) },
+          }),
+        ],
+        translation,
+      }),
+    );
+  }
+}
+
+class Support extends CompoundModel3D {
+  constructor(params: ThingDimensions) {
+    const {
+      supportLightHoleInnerDiameter,
+      supportLightHoleHeight,
+      supportBaseHeight,
+      lightBaseRadius,
+      supportLightBaseSupportLength,
+      supportMainHeight,
+      supportMainThickness,
+      supportMainInnerDiameter,
+      supportMainOuterDiameter,
+      supportMainOverlapHeight,
+      supportMainGapLength,
+    } = params;
+
+    super(
+      new Union({
+        models: [
+          new Tube({
+            origin: 'bottom',
+            outerDiameter: supportMainOuterDiameter,
+            innerRadius: lightBaseRadius - supportLightBaseSupportLength,
+            height: supportBaseHeight,
+          }),
+          new Union({
+            models: [
+              new Tube({
+                origin: 'bottom',
+                outerDiameter: supportMainInnerDiameter,
+                innerDiameter: supportLightHoleInnerDiameter,
+                height: supportLightHoleHeight,
+              }),
+              new Subtraction({
+                models: [
+                  new Tube({
+                    origin: 'bottom',
+                    outerDiameter: supportMainOuterDiameter,
+                    wallThickness: supportMainThickness,
+                    height: supportMainHeight,
+                  }),
+                  new Union({
+                    models: [
+                      new RectangularPrism({
+                        origin: ['center', 'center', 'bottom'],
+                        lengthX: supportMainGapLength,
+                        lengthY: supportMainOuterDiameter,
+                        lengthZ: supportMainOverlapHeight,
+                      }),
+                      new RectangularPrism({
+                        origin: ['center', 'center', 'bottom'],
+                        lengthX: supportMainOuterDiameter,
+                        lengthY: supportMainGapLength,
+                        lengthZ: supportMainOverlapHeight,
+                      }),
+                    ],
+                    translation: {
+                      z: supportMainHeight - supportMainOverlapHeight,
+                    },
+                  }),
+                ],
+              }),
+            ],
+            translation: {
+              z: supportBaseHeight,
+            },
+          }),
+        ],
+      }),
+    );
   }
 }
 
@@ -829,16 +1008,19 @@ export class ReelFrameChannelSliceTest extends CompoundModel3D {
 export class Demo extends CompoundModel3D {
   constructor(params: ThingDimensions) {
     const {
+      lightLightBottomHeight,
       reelHeightAllowance,
       trackBaseHeight,
+      supportBaseHeight,
     } = params;
 
     super(
       new Union({
         models: [
-          new Light(params),
-          new ShadeAndTrack(params),
-          new Reel(params, { z: trackBaseHeight + reelHeightAllowance }),
+          new Support(params),
+          new Light(params, { z: supportBaseHeight }),
+          new ShadeAndTrack(params, { z: supportBaseHeight + lightLightBottomHeight }),
+          new Reel(params, { z: lightLightBottomHeight + trackBaseHeight + reelHeightAllowance }),
         ],
       }),
     );
@@ -854,6 +1036,8 @@ export class Thing extends CompoundModel3D {
         models: [
           // new FrameTemplate(params),
 
+          // new Light(params),
+          // new Support(params),
           // new Shade(params),
           // new Track(params),
           // new ShadeAndTrack(params),
