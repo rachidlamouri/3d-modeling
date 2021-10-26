@@ -1005,6 +1005,67 @@ export class ReelFrameChannelSliceTest extends CompoundModel3D {
   }
 }
 
+export class SupportTopSliceTest extends CompoundModel3D {
+  constructor(params: ThingDimensions) {
+    super(
+      new Subtraction({
+        models: [
+          new Support(params),
+          new Cylinder({
+            origin: 'bottom',
+            diameter: params.supportMainOuterDiameter,
+            height: params.supportMainHeight - params.supportMainOverlapHeight * 2,
+          }),
+        ],
+      }),
+    );
+  }
+}
+
+export class SupportBottomSliceTest extends CompoundModel3D {
+  constructor(params: ThingDimensions) {
+    super(
+      new Subtraction({
+        models: [
+          new Support(params),
+          new Cylinder({
+            origin: 'bottom',
+            diameter: params.supportMainOuterDiameter,
+            height: params.supportMainHeight,
+            translation: {
+              z: params.lightBaseHeight + (params.lightTopHeight - params.lightLightTopHeight),
+            },
+          }),
+        ],
+      }),
+    );
+  }
+}
+
+export class ShadeSliceTest extends CompoundModel3D {
+  constructor(params: ThingDimensions) {
+    super(
+      new Subtraction({
+        models: [
+          new Shade(params),
+          new RectangularPrism({
+            origin: ['center', 'back', 'bottom'],
+            lengthX: params.shadeOuterDiameter,
+            lengthY: params.shadeOuterRadius,
+            lengthZ: params.shadeHeight,
+          }),
+          new RectangularPrism({
+            origin: ['left', 'front', 'bottom'],
+            lengthX: params.shadeOuterRadius,
+            lengthY: params.shadeOuterRadius,
+            lengthZ: params.shadeHeight,
+          }),
+        ],
+      }),
+    );
+  }
+}
+
 export class Demo extends CompoundModel3D {
   constructor(params: ThingDimensions) {
     const {
@@ -1049,6 +1110,9 @@ export class Thing extends CompoundModel3D {
           // new ShadeAndTrackLowerSliceTest(params),
           // new ReelFrameHoleSliceTest(params),
           // new ReelFrameChannelSliceTest(params),
+          // new SupportTopSliceTest(params),
+          // new SupportBottomSliceTest(params),
+          // new ShadeSliceTest(params),
 
           new Demo(params),
         ],
