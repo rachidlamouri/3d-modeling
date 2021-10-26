@@ -5,6 +5,7 @@ import {
   CompoundModel3D,
   Cylinder,
   RectangularPrism,
+  RotationInput,
   Subtraction,
   Union,
 } from '../modeling';
@@ -12,136 +13,264 @@ import { Vector3DObject } from '../modeling/vector';
 import { Image, ImageParams } from './image';
 
 const dimensionNames = [
-  'thingHeight',
-  'shadeInnerRadius',
-  'shadeInnerDiameter',
-  'shadeOuterRadius',
-  'shadeOuterDiameter',
-  'shadeThickness',
-  'shadeHeight',
-  'shadeOutletDiameter',
-  'shadeOutletLengthY',
-  'trackBaseRadius',
-  'trackBaseDiameter',
-  'trackBaseHeight',
-  'trackLipThickness',
-  'trackLipHeight',
-  'trackNubRadius',
-  'trackNubDiameter',
-  'trackNubAllowance',
-  'trackNubLength',
-  'reelNotchRadius',
-  'reelNotchLength',
-  'reelAllowance',
-  'reelInnerRadius',
-  'reelInnerDiameter',
-  'reelThickness',
-  'reelOuterRadius',
-  'reelOuterDiameter',
-  'reelHeight',
   'frameCount',
   'firstFrameAngle',
   'lastFrameAngle',
   'frameAngleZ',
-  'frameDiameter',
-  'frameRadius',
-  'frameWallThickness',
+  'frameDiameterAllowance',
+  'frameRadiusAllowance',
+  'frameLengthYAllowance',
+  'frameImageDiameter',
+  'frameImageRadius',
+  'frameImageMinLengthY',
+  'frameImageMaxLengthY',
   'frameWallInnerRadius',
   'frameWallInnerDiameter',
-  'frameLengthY',
-  'frameAllowance',
-  'frameHoleRadius',
-  'frameHoleDiameter',
-  'frameHoleLengthY',
+  'frameWallLengthXZ',
+  'frameWallLengthY',
+  'frameWallOuterRadius',
+  'frameWallOuterDiameter',
+  'frameWingLengthX',
+  'frameWingLengthY',
+  'frameWingLengthZ',
+  'frameWingLengthZAllowance',
+  'frameWingDeflectionAngle',
+  'frameWingspan',
+  'frameWingChannelBuffer',
+  'frameImageHoleDiameter',
+  'frameImageHoleRadius',
+  'frameWallChannelDiameter',
+  'frameWallChannelRadius',
+  'frameWallChannelLengthY',
+  'frameWingChannelDiameter',
+  'frameWingChannelRadius',
+  'frameWingChannelLengthY',
+  'frameWingCatchLengthX',
+  'frameWingCatchLengthY',
+  'frameWingCatchLengthZ',
+  'trackNubRadius',
+  'trackNubDiameter',
+  'trackNubRadiusAllowance',
+  'trackNubHoleRadius',
+  'trackNubHoleDiameter',
+  'reelHeight',
+  'reelDiameterAllowance',
+  'reelRadiusAllowance',
+  'reelHeightAllowance',
   'frameSlotLengthX',
   'frameSlotLengthY',
   'frameSlotLengthZ',
-  'wingLengthX',
-  'wingLengthY',
-  'wingLengthZ',
-  'frameWingspan',
-  'wingAllowanceX',
-  'wingAllowanceY',
-  'wingAllowanceZ',
-  'wingChannelRadius',
-  'wingChannelDiameter',
-  'wingChannelLengthY',
-  'wingDeflectionAngle',
-  'wingCatchLengthX',
-  'wingCatchLengthY',
-  'wingCatchLengthZ',
+  'lightDiameter',
+  'lightHeight',
+  'lightBaseDiameter',
+  'lightBaseHeight',
+  'lightBaseWallThickness',
+  'lightDiameterAllowance',
+  'lightBaseHoleDiameter',
+  'lightBaseHoleHeight',
+  'shadeInnerDiameter',
+  'shadeInnerRadius',
+  'shadeThickness',
+  'shadeOuterRadius',
+  'shadeOuterDiameter',
+  'shadeHeight',
+  'shadeOutletDiameter',
+  'shadeOutletLengthY',
+  'reelInnerRadius',
+  'reelInnerDiameter',
+  'reelThicknessBuffer',
+  'reelThickness',
+  'reelOuterRadius',
+  'reelOuterDiameter',
+  'reelNotchRadius',
+  'reelNotchLength',
+  'frameImageHoleLengthY',
+  'trackLipThickness',
+  'trackLipHeight',
+  'trackBaseInnerRadius',
+  'trackBaseInnerDiameter',
+  'trackLipInnerRadius',
+  'trackLipInnerDiameter',
+  'trackLipOuterRadius',
+  'trackLipOuterDiameter',
+  'trackBaseOuterRadius',
+  'trackBaseOuterDiameter',
+  'trackBaseHeight',
+  'trackNubLength',
 ] as const;
 
 const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
   dimensionNames,
   {
-    thingHeight: 'wingChannelDiameter + 2',
-    shadeInnerDiameter: '76',
-    shadeInnerRadius: 'shadeInnerDiameter / 2',
-    shadeThickness: 'frameDiameter / 8',
-    shadeOuterRadius: 'shadeInnerRadius + shadeThickness',
-    shadeOuterDiameter: '2 * shadeOuterRadius',
-    shadeHeight: 'thingHeight + reelAllowance',
-    shadeOutletDiameter: 'frameHoleDiameter + 2', // widening to permit more light
-    shadeOutletLengthY: '3 * shadeThickness', // tripling to force a hole
-    trackBaseRadius: 'shadeOuterRadius + 2 * reelAllowance + reelThickness + trackLipThickness',
-    trackBaseDiameter: '2 * trackBaseRadius',
-    trackBaseHeight: '2',
-    trackLipThickness: '.8',
-    trackLipHeight: '(reelHeight - frameHoleDiameter) / 3',
-    trackNubRadius: '.4 * trackLipHeight',
-    trackNubDiameter: '2 * trackNubRadius',
-    trackNubAllowance: '.2',
-    trackNubLength: 'trackBaseRadius - shadeOuterRadius',
-    reelNotchRadius: 'trackNubRadius + trackNubAllowance',
-    reelNotchLength: 'reelThickness',
-    reelAllowance: '.2',
-    reelInnerRadius: 'shadeOuterRadius + reelAllowance',
-    reelInnerDiameter: '2 * reelInnerRadius',
-    reelThickness: '(3 / 8) * frameDiameter',
-    reelOuterRadius: 'reelInnerRadius + reelThickness',
-    reelOuterDiameter: '2 * reelOuterRadius',
-    reelHeight: 'thingHeight',
     frameCount: '4',
     firstFrameAngle: '90',
     lastFrameAngle: '-90',
     frameAngleZ: '(lastFrameAngle - firstFrameAngle) / (frameCount - 1)',
-    frameDiameter: '40',
-    frameRadius: 'frameDiameter / 2',
-    frameWallThickness: '.8',
-    frameWallInnerRadius: 'frameRadius - frameWallThickness',
+    frameDiameterAllowance: '.3',
+    frameRadiusAllowance: 'frameDiameterAllowance / 2',
+    frameLengthYAllowance: '.2',
+
+    frameImageDiameter: '40',
+    frameImageRadius: 'frameImageDiameter / 2',
+    frameImageMinLengthY: '.1',
+    frameImageMaxLengthY: '4',
+
+    frameWallInnerRadius: 'frameImageRadius',
     frameWallInnerDiameter: '2 * frameWallInnerRadius',
-    frameLengthY: '2',
-    frameAllowance: '.2',
-    frameHoleDiameter: 'frameDiameter + frameAllowance',
-    frameHoleRadius: 'frameHoleDiameter / 2',
-    frameHoleLengthY: '3 * reelThickness', // tripling to force a hole
-    frameSlotLengthX: 'frameHoleDiameter',
-    frameSlotLengthY: 'frameLengthY + frameAllowance',
+    frameWallLengthXZ: '.8',
+    frameWallLengthY: 'frameImageMaxLengthY',
+    frameWallOuterRadius: 'frameWallInnerRadius + frameWallLengthXZ',
+    frameWallOuterDiameter: '2 * frameWallOuterRadius',
+
+    frameWingLengthX: '4',
+    frameWingLengthY: '1.6',
+    frameWingLengthZ: '6',
+    frameWingLengthZAllowance: '.3',
+    frameWingDeflectionAngle: '2',
+    frameWingspan: 'frameWallOuterDiameter + 2 * frameWingLengthX',
+    frameWingChannelBuffer: '1',
+
+    frameImageHoleDiameter: 'frameImageDiameter + frameDiameterAllowance',
+    frameImageHoleRadius: 'frameImageHoleDiameter / 2',
+
+    frameWallChannelDiameter: 'frameWallOuterDiameter + frameDiameterAllowance',
+    frameWallChannelRadius: 'frameWallChannelDiameter / 2',
+    frameWallChannelLengthY: 'frameWallLengthY + frameLengthYAllowance',
+
+    frameWingChannelDiameter: 'frameWingspan + frameDiameterAllowance',
+    frameWingChannelRadius: 'frameWingChannelDiameter / 2',
+    frameWingChannelLengthY: 'frameWingLengthY + frameLengthYAllowance',
+    frameWingCatchLengthX: '2 * (frameRadiusAllowance) + frameWingLengthX',
+    frameWingCatchLengthY: 'frameWingChannelLengthY',
+    frameWingCatchLengthZ: 'frameWingLengthZ + frameWingLengthZAllowance',
+
+    trackNubRadius: '3',
+    trackNubDiameter: '2 * trackNubRadius',
+    trackNubRadiusAllowance: '.2',
+    trackNubHoleRadius: 'trackNubRadius + trackNubRadiusAllowance',
+    trackNubHoleDiameter: '2 * trackNubHoleRadius',
+
+    reelHeight: '2 * (trackNubHoleRadius + frameWingChannelBuffer) + frameWingChannelDiameter',
+    reelDiameterAllowance: '.3',
+    reelRadiusAllowance: 'reelDiameterAllowance / 2',
+    reelHeightAllowance: '.1',
+
+    frameSlotLengthX: 'frameWallChannelDiameter',
+    frameSlotLengthY: 'frameWallChannelLengthY',
     frameSlotLengthZ: 'reelHeight / 2',
-    wingLengthX: '4',
-    wingLengthY: '6',
-    wingLengthZ: '1',
-    frameWingspan: 'frameDiameter + 2 * wingLengthX',
-    wingAllowanceX: '.2',
-    wingAllowanceY: '.3',
-    wingAllowanceZ: '.2',
-    wingDeflectionAngle: '3',
-    wingChannelRadius: 'frameHoleRadius + wingLengthX + wingAllowanceX',
-    wingChannelDiameter: '2 * wingChannelRadius',
-    wingChannelLengthY: 'wingLengthZ + wingAllowanceZ',
-    wingCatchLengthX: 'wingChannelDiameter',
-    wingCatchLengthY: 'wingChannelLengthY',
-    wingCatchLengthZ: 'wingLengthY + wingAllowanceY',
+
+    lightDiameter: '100',
+    lightHeight: '150',
+    lightBaseDiameter: '88',
+    lightBaseHeight: '95',
+    lightBaseWallThickness: '.8',
+    lightDiameterAllowance: '.3',
+    lightBaseHoleDiameter: 'lightBaseDiameter + lightDiameterAllowance',
+    lightBaseHoleHeight: '16',
+
+    shadeInnerDiameter: 'lightDiameter + lightDiameterAllowance',
+    shadeInnerRadius: 'shadeInnerDiameter / 2',
+    shadeThickness: '.8',
+    shadeOuterRadius: 'shadeInnerRadius + shadeThickness',
+    shadeOuterDiameter: '2 * shadeOuterRadius',
+    shadeHeight: 'reelHeight + reelHeightAllowance',
+    shadeOutletDiameter: 'frameImageHoleDiameter + 2', // widening to permit more light
+    shadeOutletLengthY: 'shadeOuterRadius',
+
+    reelInnerRadius: 'shadeOuterRadius + reelDiameterAllowance',
+    reelInnerDiameter: '2 * reelInnerRadius',
+    reelThicknessBuffer: '2',
+    reelThickness: '1.8 * frameSlotLengthY + 2 * reelThicknessBuffer',
+    reelOuterRadius: 'reelInnerRadius + reelThickness',
+    reelOuterDiameter: '2 * reelOuterRadius',
+
+    reelNotchRadius: 'trackNubRadius + trackNubRadiusAllowance',
+    reelNotchLength: 'reelOuterRadius',
+
+    frameImageHoleLengthY: 'reelOuterRadius',
+
+    trackLipThickness: '.8',
+    trackLipHeight: 'trackNubHoleRadius + frameWingChannelBuffer',
+
+    trackBaseInnerRadius: 'shadeInnerRadius',
+    trackBaseInnerDiameter: '2 * trackBaseInnerRadius',
+    trackLipInnerRadius: 'shadeOuterRadius + 2 * reelRadiusAllowance + reelThickness',
+    trackLipInnerDiameter: '2 * trackLipInnerRadius',
+    trackLipOuterRadius: 'trackLipInnerRadius + trackLipThickness',
+    trackLipOuterDiameter: '2 * trackLipOuterRadius',
+    trackBaseOuterRadius: 'trackLipOuterRadius',
+    trackBaseOuterDiameter: '2 * trackBaseOuterRadius',
+    trackBaseHeight: '2',
+
+    trackNubLength: 'trackLipInnerRadius - trackBaseInnerRadius',
   },
 );
 
 type ThingDimensions = Dimensions<typeof dimensionNames>;
 
+const tubeDimensions = [
+  'innerRadius',
+  'innerDiameter',
+  'wallThickness',
+  'outerRadius',
+  'outerDiameter',
+  'lengthZ',
+  'height',
+] as const;
+
+const parseTubeDimensions = buildParseInputDimensions<typeof tubeDimensions>(
+  tubeDimensions,
+  {
+    innerDiameter: '2 * innerRadius',
+    outerDiameter: '2 * outerRadius',
+    outerRadius: 'innerRadius + wallThickness',
+    height: 'lengthZ',
+  },
+);
+
+type TubeParams = InputDimensions<typeof tubeDimensions> & {
+  origin: 'bottom' | 'center' | 'top';
+  rotations?: RotationInput[];
+  translation?: Partial<Vector3DObject>;
+};
+
+class Tube extends CompoundModel3D {
+  constructor({
+    origin,
+    rotations = [],
+    translation = {},
+    ...inputParams
+  }: TubeParams) {
+    const {
+      innerDiameter,
+      outerDiameter,
+      lengthZ,
+    } = parseTubeDimensions(inputParams);
+
+    super(
+      new Subtraction({
+        models: [
+          new Cylinder({
+            origin,
+            diameter: outerDiameter,
+            lengthZ,
+          }),
+          new Cylinder({
+            origin,
+            diameter: innerDiameter,
+            lengthZ,
+          }),
+        ],
+        rotations,
+        translation,
+      }),
+    );
+  }
+}
+
 class Shade extends CompoundModel3D {
   constructor(thingParams: ThingDimensions, translation?: Partial<Vector3DObject>) {
     const {
-      shadeOuterRadius,
       shadeInnerDiameter,
       shadeOuterDiameter,
       shadeHeight,
@@ -151,15 +280,11 @@ class Shade extends CompoundModel3D {
 
     super(
       new Subtraction({
-        minuend: new Cylinder({
-          origin: 'bottom',
-          diameter: shadeOuterDiameter,
-          height: shadeHeight,
-        }),
-        subtrahends: [
-          new Cylinder({
+        models: [
+          new Tube({
             origin: 'bottom',
-            diameter: shadeInnerDiameter,
+            outerDiameter: shadeOuterDiameter,
+            innerDiameter: shadeInnerDiameter,
             height: shadeHeight,
           }),
           new Cylinder({
@@ -167,11 +292,11 @@ class Shade extends CompoundModel3D {
             diameter: shadeOutletDiameter,
             height: shadeOutletLengthY,
             translation: {
-              y: -shadeOutletLengthY / 2 + shadeOuterRadius,
+              y: shadeOutletLengthY / 2,
               z: shadeHeight / 2,
             },
             rotations: [
-              [{ x: 90 }, 'self'],
+              [{ x: -90 }, 'self'],
             ],
           }),
         ],
@@ -184,12 +309,13 @@ class Shade extends CompoundModel3D {
 class Track extends CompoundModel3D {
   constructor(params: ThingDimensions) {
     const {
-      trackBaseRadius,
-      trackBaseDiameter,
+      trackBaseInnerDiameter,
+      trackBaseOuterDiameter,
       trackBaseHeight,
+      trackLipInnerRadius,
+      trackLipInnerDiameter,
+      trackLipOuterDiameter,
       trackLipHeight,
-      trackLipThickness,
-      shadeInnerDiameter,
       trackNubLength,
       trackNubRadius,
       trackNubDiameter,
@@ -198,33 +324,17 @@ class Track extends CompoundModel3D {
     super(
       new Union({
         models: [
-          new Subtraction({
-            minuend: new Cylinder({
-              origin: 'bottom',
-              diameter: trackBaseDiameter,
-              height: trackBaseHeight,
-            }),
-            subtrahends: [
-              new Cylinder({
-                origin: 'bottom',
-                diameter: shadeInnerDiameter,
-                height: trackBaseDiameter,
-              }),
-            ],
+          new Tube({
+            origin: 'bottom',
+            outerDiameter: trackBaseOuterDiameter,
+            innerDiameter: trackBaseInnerDiameter,
+            height: trackBaseHeight,
           }),
-          new Subtraction({
-            minuend: new Cylinder({
-              origin: 'bottom',
-              diameter: trackBaseDiameter,
-              height: trackLipHeight,
-            }),
-            subtrahends: [
-              new Cylinder({
-                origin: 'bottom',
-                radius: trackBaseRadius - trackLipThickness,
-                height: trackLipHeight,
-              }),
-            ],
+          new Tube({
+            origin: 'bottom',
+            outerDiameter: trackLipOuterDiameter,
+            innerDiameter: trackLipInnerDiameter,
+            height: trackLipHeight,
             translation: { z: trackBaseHeight },
           }),
           new Subtraction({
@@ -245,7 +355,7 @@ class Track extends CompoundModel3D {
               }),
             ],
             translation: {
-              y: -(trackNubLength / 2) + trackBaseRadius - trackLipThickness,
+              y: -(trackNubLength / 2) + trackLipInnerRadius,
               z: trackBaseHeight,
             },
           }),
@@ -269,142 +379,143 @@ class ShadeAndTrack extends CompoundModel3D {
 }
 
 type FrameHoleAssemblyParams = {
-  originAngleZ: number;
   thingParams: Dimensions<typeof dimensionNames>;
+  originAngleZ: number;
+  translation?: Partial<Vector3DObject>,
+  rotations?: RotationInput[],
 };
 
 class FrameHoleAssembly extends CompoundModel3D {
-  constructor({ originAngleZ, thingParams }: FrameHoleAssemblyParams) {
+  constructor({
+    thingParams,
+    translation = {},
+    rotations = [],
+  }: FrameHoleAssemblyParams) {
     const {
-      frameHoleDiameter,
-      frameHoleLengthY,
-      reelOuterRadius,
-      reelThickness,
-      reelHeight,
       frameSlotLengthX,
       frameSlotLengthY,
       frameSlotLengthZ,
-      wingDeflectionAngle,
-      wingChannelDiameter,
-      wingChannelLengthY,
-      wingCatchLengthX,
-      wingCatchLengthY,
-      wingCatchLengthZ,
+      frameWallChannelDiameter,
+      frameWallChannelLengthY,
+      frameWingChannelDiameter,
+      frameWingChannelLengthY,
+      frameWingDeflectionAngle,
+      frameWingCatchLengthX,
+      frameWingCatchLengthY,
+      frameWingCatchLengthZ,
     } = thingParams;
 
     super(
       new Union({
         models: [
+          new RectangularPrism({
+            origin: ['center', 'back', 'bottom'],
+            lengthX: frameSlotLengthX,
+            lengthY: frameSlotLengthY,
+            lengthZ: frameSlotLengthZ,
+          }),
           new Cylinder({
-            origin: 'center',
-            diameter: frameHoleDiameter,
-            lengthZ: frameHoleLengthY,
+            origin: 'bottom',
+            diameter: frameWallChannelDiameter,
+            lengthZ: frameWallChannelLengthY,
             rotations: [
-              [{ x: 90 }, 'self'],
+              [{ x: -90 }, 'origin'],
             ],
           }),
-          new Union({
-            models: [
-              new RectangularPrism({
-                origin: ['center', 'front', 'bottom'],
-                lengthX: frameSlotLengthX,
-                lengthY: frameSlotLengthY,
-                lengthZ: frameSlotLengthZ,
-              }),
-              new Cylinder({
-                origin: 'center',
-                diameter: wingChannelDiameter,
-                height: wingChannelLengthY,
-                translation: { y: -wingChannelLengthY / 2 - frameSlotLengthY / 2 },
-                rotations: [
-                  [{ x: 90 }, 'self'],
-                  [{ z: wingDeflectionAngle }, 'self'],
-                ],
-              }),
-              new RectangularPrism({
-                origin: ['center', 'front', 'center'],
-                lengthX: wingCatchLengthX,
-                lengthY: wingCatchLengthY,
-                lengthZ: wingCatchLengthZ,
-                translation: { y: -(frameSlotLengthY / 2) },
-              }),
+          new Cylinder({
+            origin: 'bottom',
+            diameter: frameWingChannelDiameter,
+            lengthZ: frameWingChannelLengthY,
+            rotations: [
+              [{ x: -90 }, 'origin'],
+              [{ z: frameWingDeflectionAngle }, 'self'],
             ],
-            translation: { y: 1 },
+          }),
+          new RectangularPrism({
+            origin: ['center', 'back', 'center'],
+            lengthX: frameWingCatchLengthX + frameWallChannelDiameter + frameWingCatchLengthX,
+            lengthY: frameWingCatchLengthY,
+            lengthZ: frameWingCatchLengthZ,
           }),
         ],
-        translation: {
-          y: reelOuterRadius - reelThickness / 2,
-          z: reelHeight / 2,
-        },
-        rotations: [
-          [{ z: originAngleZ }, 'origin'],
-        ],
+        translation,
+        rotations,
       }),
     );
   }
 }
 
-class ReelNotch extends Cylinder {
-  constructor({ originAngleZ, thingParams }: FrameHoleAssemblyParams) {
-    const {
-      reelNotchRadius,
-      reelNotchLength,
-      reelInnerRadius,
-    } = thingParams;
-
-    super({
-      origin: 'center',
-      radius: reelNotchRadius,
-      lengthZ: reelNotchLength,
-      translation: {
-        y: (reelNotchLength / 2) + reelInnerRadius,
-      },
-      rotations: [
-        [{ x: 90 }, 'self'],
-        [{ z: originAngleZ }, 'origin'],
-      ],
-    });
-  }
-}
-
 class Reel extends CompoundModel3D {
-  constructor(thingParams: Dimensions<typeof dimensionNames>, translation: Partial<Vector3DObject>) {
+  constructor(params: Dimensions<typeof dimensionNames>, translation: Partial<Vector3DObject> = {}) {
     const {
+      reelInnerRadius,
+      reelInnerDiameter,
+      reelOuterRadius,
       reelOuterDiameter,
       reelHeight,
-      reelInnerDiameter,
+      reelThicknessBuffer,
       frameCount,
       firstFrameAngle,
       frameAngleZ,
-    } = thingParams;
+      frameImageHoleDiameter,
+      frameImageHoleLengthY,
+      reelNotchRadius,
+      reelNotchLength,
+    } = params;
+
+    const getOriginAngle = (index: number) => firstFrameAngle + index * frameAngleZ;
 
     super(
       new Subtraction({
-        minuend: new Cylinder({
-          origin: 'bottom',
-          diameter: reelOuterDiameter,
-          height: reelHeight,
-        }),
-        subtrahends: [
-          new Cylinder({
+        models: [
+          new Tube({
             origin: 'bottom',
-            diameter: reelInnerDiameter,
+            outerDiameter: reelOuterDiameter,
+            innerDiameter: reelInnerDiameter,
             height: reelHeight,
           }),
-          ..._.range(frameCount).flatMap((index) => {
-            const originAngleZ = firstFrameAngle + index * frameAngleZ;
-
-            return [
-              new FrameHoleAssembly({
-                originAngleZ,
-                thingParams,
-              }),
-              new ReelNotch({
-                originAngleZ,
-                thingParams,
-              }),
-            ];
-          }),
+          ..._.range(frameCount).map((index) => (
+            new Cylinder({
+              origin: 'center',
+              diameter: frameImageHoleDiameter,
+              height: frameImageHoleLengthY,
+              translation: {
+                y: frameImageHoleLengthY / 2,
+                z: reelHeight / 2,
+              },
+              rotations: [
+                [{ x: 90 }, 'self'],
+                [{ z: getOriginAngle(index) }, 'origin'],
+              ],
+            })
+          )),
+          ..._.range(frameCount).map((index) => (
+            new FrameHoleAssembly({
+              thingParams: params,
+              originAngleZ: getOriginAngle(index),
+              translation: {
+                y: reelInnerRadius + reelThicknessBuffer,
+                z: reelHeight / 2,
+              },
+              rotations: [
+                [{ z: getOriginAngle(index) }, 'origin'],
+              ],
+            })
+          )),
+          ..._.range(frameCount + 1).map((index) => (
+            new Cylinder({
+              origin: 'center',
+              radius: reelNotchRadius,
+              height: reelNotchLength,
+              translation: {
+                y: -reelNotchLength / 2 + reelOuterRadius,
+              },
+              rotations: [
+                [{ x: 90 }, 'self'],
+                [{ z: index === 4 ? 180 : getOriginAngle(index) }, 'origin'],
+              ],
+            })
+          )),
         ],
         translation,
       }),
@@ -412,13 +523,15 @@ class Reel extends CompoundModel3D {
   }
 }
 
-class FrameTemplate extends CompoundModel3D {
+export class FrameTemplate extends CompoundModel3D {
   constructor(params: Dimensions<typeof dimensionNames>) {
     const {
-      frameDiameter,
-      frameLengthY,
-      wingLengthY,
-      wingLengthZ,
+      frameImageDiameter,
+      frameWallInnerDiameter,
+      frameWallOuterDiameter,
+      frameWallLengthY,
+      frameWingLengthY,
+      frameWingLengthZ,
       frameWingspan,
     } = params;
 
@@ -427,27 +540,44 @@ class FrameTemplate extends CompoundModel3D {
         models: [
           new Cylinder({
             origin: 'bottom',
-            diameter: frameDiameter,
-            lengthZ: frameLengthY,
+            diameter: frameImageDiameter,
+            lengthZ: 1, // sample image height
+          }),
+          new Tube({
+            origin: 'bottom',
+            outerDiameter: frameWallOuterDiameter,
+            innerDiameter: frameWallInnerDiameter,
+            lengthZ: frameWallLengthY,
           }),
           new Subtraction({
-            minuend: new Cylinder({
-              origin: 'bottom',
-              diameter: frameWingspan,
-              lengthZ: wingLengthZ,
-            }),
-            subtrahends: _.range(2).map((index) => (
-              new RectangularPrism({
+            models: [
+              new Cylinder({
+                origin: 'bottom',
+                diameter: frameWingspan,
+                lengthZ: frameWingLengthY,
+              }),
+              new Cylinder({
+                origin: 'bottom',
+                diameter: frameWallOuterDiameter,
+                lengthZ: frameWingLengthY,
+              }),
+              ..._.range(2).map((index) => new RectangularPrism({
                 origin: ['center', (index === 0 ? 'front' : 'back'), 'bottom'],
                 lengthX: frameWingspan,
-                lengthY: (frameWingspan - wingLengthY) / 2,
-                lengthZ: wingLengthZ,
+                lengthY: frameWingspan,
+                lengthZ: frameWingLengthY,
                 translation: {
-                  y: (index === 0 ? -1 : 1) * (wingLengthY / 2),
+                  y: (index === 0 ? -1 : 1) * (frameWingLengthZ / 2),
                 },
-              })
-            )),
+              })),
+            ],
           }),
+        ],
+        translation: {
+          z: frameWallOuterDiameter / 2,
+        },
+        rotations: [
+          [{ x: 90 }, 'self'],
         ],
       }),
     );
@@ -455,78 +585,75 @@ class FrameTemplate extends CompoundModel3D {
 }
 
 export class Frame extends Collection3D {
-  constructor(params: Omit<ImageParams, 'lengthX' | 'lengthY'>) {
+  constructor(params: Omit<ImageParams, 'lengthX' | 'lengthY' | 'minLengthZ' | 'maxLengthZ'>) {
     const {
-      frameDiameter,
-      frameLengthY,
+      frameImageDiameter,
+      frameImageMinLengthY,
+      frameImageMaxLengthY,
       frameWallInnerDiameter,
+      frameWallOuterDiameter,
+      frameWallLengthY,
       frameWingspan,
-      wingLengthY,
-      wingLengthZ,
+      frameWingLengthY,
+      frameWingLengthZ,
     } = parseInputDimensions({});
 
     const models = new Image({
       ...params,
-      lengthX: frameDiameter,
-      lengthY: frameDiameter,
+      lengthX: frameImageDiameter,
+      lengthY: frameImageDiameter,
+      minLengthZ: frameImageMinLengthY,
+      maxLengthZ: frameImageMaxLengthY,
     })
       .models.map((imageSlice) => (
         new Union({
           models: [
             new Subtraction({
-              minuend: imageSlice,
-              subtrahends: [
+              models: [
+                imageSlice,
                 new Subtraction({
                   minuend: new RectangularPrism({
                     origin: ['center', 'center', 'bottom'],
-                    lengthX: frameDiameter,
-                    lengthY: frameDiameter,
-                    lengthZ: params.maxLengthZ,
+                    lengthX: frameImageDiameter,
+                    lengthY: frameImageDiameter,
+                    lengthZ: frameImageMaxLengthY,
                   }),
                   subtrahends: [
                     new Cylinder({
                       origin: 'bottom',
-                      diameter: frameWallInnerDiameter,
-                      lengthZ: params.maxLengthZ,
+                      diameter: frameImageDiameter,
+                      lengthZ: frameImageMaxLengthY,
                     }),
                   ],
                 }),
               ],
             }),
-            new Subtraction({
-              minuend: new Cylinder({
-                origin: 'bottom',
-                diameter: frameDiameter,
-                lengthZ: frameLengthY,
-              }),
-              subtrahends: [
-                new Cylinder({
-                  origin: 'bottom',
-                  diameter: frameWallInnerDiameter,
-                  lengthZ: frameLengthY,
-                }),
-              ],
+            new Tube({
+              origin: 'bottom',
+              outerDiameter: frameWallOuterDiameter,
+              innerDiameter: frameWallInnerDiameter,
+              lengthZ: frameWallLengthY,
             }),
             new Subtraction({
               minuend: new Cylinder({
                 origin: 'bottom',
                 diameter: frameWingspan,
-                lengthZ: wingLengthZ,
+                lengthZ: frameWingLengthY,
               }),
               subtrahends: [
                 new Cylinder({
                   origin: 'bottom',
-                  diameter: frameDiameter,
-                  lengthZ: wingLengthZ,
+                  diameter: frameWallOuterDiameter,
+                  lengthZ: frameWingLengthY,
                 }),
                 ..._.range(2).map((index) => (
                   new RectangularPrism({
                     origin: ['center', (index === 0 ? 'front' : 'back'), 'bottom'],
                     lengthX: frameWingspan,
-                    lengthY: (frameWingspan - wingLengthY) / 2,
-                    lengthZ: wingLengthZ,
+                    lengthY: (frameWingspan - frameWingLengthZ) / 2,
+                    lengthZ: frameWingLengthY,
                     translation: {
-                      y: (index === 0 ? -1 : 1) * (wingLengthY / 2),
+                      y: (index === 0 ? -1 : 1) * (frameWingLengthZ / 2),
                     },
                   })
                 )),
@@ -540,18 +667,53 @@ export class Frame extends Collection3D {
   }
 }
 
-export class PartialReel extends CompoundModel3D {
+class Light extends Cylinder {
   constructor(params: ThingDimensions) {
+    const {
+      lightDiameter,
+      lightHeight,
+      lightBaseHeight,
+    } = params;
+
+    super({
+      origin: 'bottom',
+      diameter: lightDiameter,
+      height: lightHeight - lightBaseHeight,
+      translation: {
+        z: lightBaseHeight,
+      },
+    });
+  }
+}
+
+export class FrameHoleAssemblyDemo extends FrameHoleAssembly {
+  constructor(params: ThingDimensions) {
+    super({
+      originAngleZ: 0,
+      thingParams: params,
+    });
+  }
+}
+
+export class ReelLowerSliceTest extends CompoundModel3D {
+  constructor(params: ThingDimensions) {
+    const {
+      reelOuterDiameter,
+      reelHeight,
+      trackBaseHeight,
+      trackLipHeight,
+    } = params;
+
     super(
       new Subtraction({
-        minuend: new Reel(params, {}),
-        subtrahends: [
+        models: [
+          new Reel(params),
           new Cylinder({
             origin: 'bottom',
-            diameter: params.reelOuterDiameter,
-            height: params.reelHeight,
+            diameter: reelOuterDiameter,
+            height: reelHeight,
             translation: {
-              z: params.trackBaseHeight + params.trackLipHeight * 2,
+              z: trackBaseHeight + trackLipHeight * 2,
             },
           }),
         ],
@@ -560,24 +722,26 @@ export class PartialReel extends CompoundModel3D {
   }
 }
 
-export class PartialShadeAndTrack extends CompoundModel3D {
+export class ShadeAndTrackLowerSliceTest extends CompoundModel3D {
   constructor(params: ThingDimensions) {
+    const {
+      shadeOuterDiameter,
+      shadeHeight,
+      trackBaseHeight,
+      trackLipHeight,
+    } = params;
+
     super(
-      new Union({
+      new Subtraction({
         models: [
-          new Track(params),
-          new Subtraction({
-            minuend: new Shade(params),
-            subtrahends: [
-              new Cylinder({
-                origin: 'bottom',
-                diameter: params.shadeOuterDiameter,
-                height: params.shadeHeight,
-                translation: {
-                  z: params.trackBaseHeight + params.trackLipHeight,
-                },
-              }),
-            ],
+          new ShadeAndTrack(params),
+          new Cylinder({
+            origin: 'bottom',
+            diameter: shadeOuterDiameter,
+            height: shadeHeight,
+            translation: {
+              z: trackBaseHeight + trackLipHeight,
+            },
           }),
         ],
       }),
@@ -585,26 +749,36 @@ export class PartialShadeAndTrack extends CompoundModel3D {
   }
 }
 
-export class PartialFrameHole extends CompoundModel3D {
+export class ReelFrameHoleSliceTest extends CompoundModel3D {
   constructor(params: ThingDimensions) {
+    const {
+      reelOuterRadius,
+      reelOuterDiameter,
+      reelHeight,
+      frameWingChannelDiameter,
+      frameWingChannelBuffer,
+      firstFrameAngle,
+      frameAngleZ,
+    } = params;
+
     super(
       new Subtraction({
-        minuend: new Reel(params, {}),
-        subtrahends: [
+        models: [
+          new Reel(params),
           new Subtraction({
-            minuend: new Cylinder({
-              origin: 'bottom',
-              diameter: params.reelOuterDiameter,
-              lengthZ: params.reelHeight,
-            }),
-            subtrahends: [
+            models: [
+              new Cylinder({
+                origin: 'bottom',
+                diameter: reelOuterDiameter,
+                lengthZ: reelHeight,
+              }),
               new RectangularPrism({
                 origin: ['center', 'back', 'bottom'],
-                lengthX: params.wingChannelDiameter + 4,
-                lengthY: params.reelOuterRadius,
-                lengthZ: params.reelHeight,
+                lengthX: frameWingChannelDiameter + (2 * frameWingChannelBuffer),
+                lengthY: reelOuterRadius,
+                lengthZ: reelHeight,
                 rotations: [
-                  [{ z: params.firstFrameAngle + params.frameAngleZ }, 'origin'],
+                  [{ z: firstFrameAngle + frameAngleZ }, 'origin'],
                 ],
               }),
             ],
@@ -615,28 +789,56 @@ export class PartialFrameHole extends CompoundModel3D {
   }
 }
 
-export class WingInspection extends CompoundModel3D {
+export class ReelFrameChannelSliceTest extends CompoundModel3D {
   constructor(params: ThingDimensions) {
+    const {
+      frameWallChannelDiameter,
+      reelInnerDiameter,
+      reelThickness,
+      firstFrameAngle,
+      frameAngleZ,
+      frameWingDeflectionAngle,
+    } = params;
+
     super(
       new Subtraction({
         models: [
-          new PartialFrameHole(params),
+          new ReelFrameHoleSliceTest(params),
           new RectangularPrism({
-            origin: ['center', 'center', 'bottom'],
-            lengthX: params.reelInnerDiameter / 2,
-            lengthY: params.reelInnerDiameter / 2,
-            lengthZ: params.reelInnerDiameter,
+            origin: ['center', 'front', 'bottom'],
+            lengthX: frameWallChannelDiameter,
+            lengthY: reelThickness,
+            lengthZ: reelInnerDiameter,
             translation: {
-              y: 72.6,
+              y: 54.9,
             },
             rotations: [
-              [{ z: params.firstFrameAngle + params.frameAngleZ }, 'origin'],
-              [{ z: params.wingDeflectionAngle }, 'self'],
+              [{ z: firstFrameAngle + frameAngleZ }, 'origin'],
+              [{ z: frameWingDeflectionAngle }, 'self'],
             ],
           }),
         ],
         rotations: [
-          [{ z: -(params.firstFrameAngle + params.frameAngleZ) }, 'origin'],
+          [{ z: -(firstFrameAngle + frameAngleZ) }, 'origin'],
+        ],
+      }),
+    );
+  }
+}
+
+export class Demo extends CompoundModel3D {
+  constructor(params: ThingDimensions) {
+    const {
+      reelHeightAllowance,
+      trackBaseHeight,
+    } = params;
+
+    super(
+      new Union({
+        models: [
+          new Light(params),
+          new ShadeAndTrack(params),
+          new Reel(params, { z: trackBaseHeight + reelHeightAllowance }),
         ],
       }),
     );
@@ -647,17 +849,24 @@ export class Thing extends CompoundModel3D {
   constructor(inputParams: InputDimensions<typeof dimensionNames>) {
     const params = parseInputDimensions(inputParams);
 
-    const {
-      trackBaseHeight,
-      reelAllowance,
-    } = params;
-
     super(
       new Union({
         models: [
-          new ShadeAndTrack(params),
-          new Reel(params, { z: trackBaseHeight + reelAllowance }),
-          new FrameTemplate(params),
+          // new FrameTemplate(params),
+
+          // new Shade(params),
+          // new Track(params),
+          // new ShadeAndTrack(params),
+
+          // new FrameHoleAssemblyDemo(params),
+          // new Reel(params),
+
+          // new ReelLowerSliceTest(params),
+          // new ShadeAndTrackLowerSliceTest(params),
+          // new ReelFrameHoleSliceTest(params),
+          // new ReelFrameChannelSliceTest(params),
+
+          new Demo(params),
         ],
       }),
     );

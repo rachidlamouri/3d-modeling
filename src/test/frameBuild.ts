@@ -8,7 +8,5 @@ export const main = () => (
     pixelStartY: 0,
     pixelLengthX: 160,
     pixelLengthY: 160,
-    minLengthZ: 0.1,
-    maxLengthZ: 2,
   }))
 );
