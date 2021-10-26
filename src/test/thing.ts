@@ -136,8 +136,10 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
   },
 );
 
+type ThingDimensions = Dimensions<typeof dimensionNames>;
+
 class Shade extends CompoundModel3D {
-  constructor(thingParams: Dimensions<typeof dimensionNames>, translation?: Partial<Vector3DObject>) {
+  constructor(thingParams: ThingDimensions, translation?: Partial<Vector3DObject>) {
     const {
       shadeInnerRadius,
       shadeInnerDiameter,
@@ -181,7 +183,7 @@ class Shade extends CompoundModel3D {
 }
 
 class Track extends CompoundModel3D {
-  constructor(params: Dimensions<typeof dimensionNames>) {
+  constructor(params: ThingDimensions) {
     const {
       trackBaseRadius,
       trackBaseDiameter,
@@ -255,7 +257,7 @@ class Track extends CompoundModel3D {
 }
 
 class ShadeAndTrack extends CompoundModel3D {
-  constructor(params: Dimensions<typeof dimensionNames>) {
+  constructor(params: ThingDimensions) {
     super(
       new Union({
         models: [
