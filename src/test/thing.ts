@@ -111,6 +111,7 @@ const dimensionNames = [
   'trackLipOuterDiameter',
   'trackBaseOuterRadius',
   'trackBaseOuterDiameter',
+  'trackBaseSupportHoleHeightAllowance',
   'trackBaseHeight',
   'trackBaseSupportHoleOuterRadius',
   'trackBaseSupportHoleThickness',
@@ -162,14 +163,14 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     frameWingCatchLengthY: 'frameWingChannelLengthY',
     frameWingCatchLengthZ: 'frameWingLengthZ + frameWingLengthZAllowance',
 
-    trackNubRadius: '3',
+    trackNubRadius: '2',
     trackNubDiameter: '2 * trackNubRadius',
-    trackNubRadiusAllowance: '.2',
+    trackNubRadiusAllowance: '.3',
     trackNubHoleRadius: 'trackNubRadius + trackNubRadiusAllowance',
     trackNubHoleDiameter: '2 * trackNubHoleRadius',
 
     reelHeight: '2 * (trackNubHoleRadius + frameWingChannelBuffer) + frameWingChannelDiameter',
-    reelDiameterAllowance: '.3',
+    reelDiameterAllowance: '.5',
     reelRadiusAllowance: 'reelDiameterAllowance / 2',
     reelHeightAllowance: '.1',
 
@@ -181,7 +182,7 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     lightLightBottomHeight: '95',
     lightLightTopHeight: '150',
     lightTopHeight: '182',
-    lightBaseDiameter: '88',
+    lightBaseDiameter: '89',
     lightBaseRadius: 'lightBaseDiameter / 2',
     lightMidDiameter: '82',
     lightLightDiameter: '66',
@@ -203,17 +204,17 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     shadeOutletLengthY: 'shadeOuterRadius',
 
     supportMainThickness: '.8',
-    supportMainDiameterAllowance: '.2',
+    supportMainDiameterAllowance: '.6',
     supportMainRadiusAllowance: 'supportMainDiameterAllowance / 2',
     supportMainOuterRadius: '.5 * trackBaseInnerRadius + .5 * trackBaseOuterRadius + supportMainThickness / 2',
     supportMainOuterDiameter: '2 * supportMainOuterRadius',
     supportMainInnerRadius: 'supportMainOuterRadius - supportMainThickness',
     supportMainInnerDiameter: '2 * supportMainInnerRadius',
-    supportMainOverlapHeight: '4',
+    supportMainOverlapHeight: '6',
     supportMainHeight: 'lightLightBottomHeight + supportMainOverlapHeight',
     supportMainGapLength: 'shadeOutletDiameter',
 
-    reelInnerRadius: 'shadeOuterRadius + reelDiameterAllowance',
+    reelInnerRadius: 'shadeOuterRadius + reelRadiusAllowance',
     reelInnerDiameter: '2 * reelInnerRadius',
     reelThicknessBuffer: '2',
     reelThickness: '1.8 * frameSlotLengthY + 2 * reelThicknessBuffer',
@@ -236,7 +237,8 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     trackLipOuterDiameter: '2 * trackLipOuterRadius',
     trackBaseOuterRadius: 'trackLipOuterRadius',
     trackBaseOuterDiameter: '2 * trackBaseOuterRadius',
-    trackBaseHeight: 'supportMainOverlapHeight + 1',
+    trackBaseSupportHoleHeightAllowance: '.5',
+    trackBaseHeight: 'supportMainOverlapHeight + trackBaseSupportHoleHeightAllowance',
     trackBaseSupportHoleOuterRadius: 'supportMainOuterRadius + supportMainRadiusAllowance',
     trackBaseSupportHoleThickness: 'supportMainThickness + 2 * supportMainRadiusAllowance',
 
@@ -892,7 +894,7 @@ export class ReelLowerSliceTest extends CompoundModel3D {
             diameter: reelOuterDiameter,
             height: reelHeight,
             translation: {
-              z: trackBaseHeight + trackLipHeight * 2,
+              z: trackBaseHeight + trackLipHeight + 2,
             },
           }),
         ],
@@ -904,7 +906,7 @@ export class ReelLowerSliceTest extends CompoundModel3D {
 export class ShadeAndTrackLowerSliceTest extends CompoundModel3D {
   constructor(params: ThingDimensions) {
     const {
-      shadeOuterDiameter,
+      trackBaseOuterDiameter,
       shadeHeight,
       trackBaseHeight,
       trackLipHeight,
@@ -916,8 +918,8 @@ export class ShadeAndTrackLowerSliceTest extends CompoundModel3D {
           new ShadeAndTrack(params),
           new Cylinder({
             origin: 'bottom',
-            diameter: shadeOuterDiameter,
-            height: shadeHeight,
+            diameter: trackBaseOuterDiameter,
+            height: shadeHeight + trackBaseHeight,
             translation: {
               z: trackBaseHeight + trackLipHeight,
             },
@@ -1033,7 +1035,7 @@ export class SupportBottomSliceTest extends CompoundModel3D {
             diameter: params.supportMainOuterDiameter,
             height: params.supportMainHeight,
             translation: {
-              z: params.lightBaseHeight + (params.lightTopHeight - params.lightLightTopHeight),
+              z: params.lightBaseHeight,
             },
           }),
         ],
