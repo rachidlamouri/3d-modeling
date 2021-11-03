@@ -47,13 +47,13 @@ export class Widget extends CompoundModel3D {
 
     super(
       new Subtraction({
-        minuend: new RectangularPrism({
-          origin: ['center', 'center', 'bottom'],
-          lengthX,
-          lengthY,
-          lengthZ,
-        }),
-        subtrahends: [
+        models: [
+          new RectangularPrism({
+            origin: ['center', 'center', 'bottom'],
+            lengthX,
+            lengthY,
+            lengthZ,
+          }),
           new Cylinder({
             origin: 'bottom',
             lengthZ,

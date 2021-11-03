@@ -3,8 +3,7 @@ import { Vector3DObject } from './vector';
 import { Operation3D } from './operation3D';
 
 type SubtractionParams = {
-  minuend: Model3D;
-  subtrahends: Model3D[];
+  models: [Model3D, ...Model3D[]];
   rotations?: RotationInput[];
   translation?: Partial<Vector3DObject>;
 }
@@ -14,11 +13,12 @@ export class Subtraction extends Operation3D {
   subtrahends: Model3D[];
 
   constructor({
-    minuend,
-    subtrahends,
+    models,
     rotations = [],
     translation = {},
   }: SubtractionParams) {
+    const [minuend, ...subtrahends] = models;
+
     super({
       position: minuend.position,
       rotations,
