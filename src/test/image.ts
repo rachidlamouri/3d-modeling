@@ -96,7 +96,7 @@ export class Image extends Collection3D {
       rowPixels.forEach((pixelValue, column) => {
         const pixelNumber = row * pixelLengthX + column;
         const percentProcessed = pixelNumber / totalSelectedPixels;
-        process.stdout.write(`\rProcessing "${filename}": ${(percentProcessed * 100).toFixed(2)}`);
+        process.stdout.write(`\rProcessing "${filename}" ${image.width}x${image.height}: ${(percentProcessed * 100).toFixed(2)}`);
 
         const lastPoint = _.last(points) as Point2D;
         if (lastPoint[1] !== pixelValue) {

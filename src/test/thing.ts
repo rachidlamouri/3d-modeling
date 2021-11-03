@@ -132,12 +132,12 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     frameImageDiameter: '40',
     frameImageRadius: 'frameImageDiameter / 2',
     frameImageMinLengthY: '.1',
-    frameImageMaxLengthY: '4',
+    frameImageMaxLengthY: '3',
 
     frameWallInnerRadius: 'frameImageRadius',
     frameWallInnerDiameter: '2 * frameWallInnerRadius',
     frameWallLengthXZ: '.8',
-    frameWallLengthY: 'frameImageMaxLengthY',
+    frameWallLengthY: '4',
     frameWallOuterRadius: 'frameWallInnerRadius + frameWallLengthXZ',
     frameWallOuterDiameter: '2 * frameWallOuterRadius',
 
