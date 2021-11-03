@@ -11,6 +11,7 @@ import {
   Operation3D,
   NoOp3D,
   Union,
+  ModelCollection3D,
 } from '../../modeling';
 import { Vector3DTuple } from '../../modeling/vector';
 
@@ -43,32 +44,33 @@ const parsePrimitiveModel = (model: PrimitiveModel3D) => {
 const parseOperation = (operation: Operation3D) => {
   if (operation instanceof Subtraction) {
     return subtract(
-      parseModel(operation.minuend), // eslint-disable-line no-use-before-define
-      ...operation.subtrahends.map(parseModel), // eslint-disable-line no-use-before-define
+      parseModel3D(operation.minuend), // eslint-disable-line no-use-before-define
+      ...operation.subtrahends.map(parseModel3D), // eslint-disable-line no-use-before-define
     );
   }
 
   if (operation instanceof Union) {
     return union(
-      ...operation.models.map(parseModel), // eslint-disable-line no-use-before-define
+      ...operation.models.map(parseModel3D), // eslint-disable-line no-use-before-define
     );
   }
 
   if (operation instanceof NoOp3D) {
-    return parseModel(operation.model); // eslint-disable-line no-use-before-define
+    return parseModel3D(operation.model); // eslint-disable-line no-use-before-define
   }
 
   throw Error(`Unhandled ${Operation3D.name}: ${operation.constructor.name}`);
 };
 
-export const parseModel = (model: Model3D): Geom3 => {
+const parseModel3D = (model: Model3D): Geom3 => {
   let parsedModel: Geom3 | null = null;
+
   if (model instanceof PrimitiveModel3D) {
     parsedModel = parsePrimitiveModel(model);
   }
 
   if (model instanceof CompoundModel3D) {
-    parsedModel = parseModel(model.operation);
+    parsedModel = parseModel3D(model.operation);
   }
 
   if (model instanceof Operation3D) {
@@ -94,3 +96,11 @@ export const parseModel = (model: Model3D): Geom3 => {
       parsedModel,
     );
 };
+
+export const parseModel = (model: Model3D | ModelCollection3D): Geom3 | Geom3[] => {
+  if (model instanceof ModelCollection3D) {
+    return model.models.map((submodel) => parseModel3D(submodel));
+  }
+
+  return parseModel3D(model);
+}
