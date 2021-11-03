@@ -12,17 +12,38 @@ import {
   NoOp3D,
   Union,
   ModelCollection3D,
+  ExtrudedPolygon,
 } from '../../modeling';
 import { Vector3DTuple } from '../../modeling/vector';
 
 const {
-  primitives: { cuboid, cylinder },
+  primitives: { cuboid, cylinder, polygon },
   booleans: { subtract, union },
   transforms: { translate, rotate },
   utils: { degToRad },
+  extrusions: { extrudeLinear },
 } = jscad;
 
 const parsePrimitiveModel = (model: PrimitiveModel3D) => {
+  if (model instanceof ExtrudedPolygon) {
+    return translate(
+      model.positionTuple,
+      translate(
+        [
+          -model.boundingBox.x / 2,
+          -model.boundingBox.y / 2,
+          -model.boundingBox.z / 2,
+        ],
+        extrudeLinear(
+          { height: model.lengthZ },
+          polygon({
+            points: model.points,
+          }),
+        ),
+      ),
+    );
+  }
+
   if (model instanceof RectangularPrism) {
     return cuboid({
       center: model.positionTuple,
