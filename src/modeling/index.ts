@@ -8,3 +8,4 @@ export * from './primitiveModel3D';
 export * from './rectangularPrism';
 export * from './subtraction';
 export * from './union';
+export * from './vector';
