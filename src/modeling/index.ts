@@ -7,5 +7,6 @@ export * from './operation3D';
 export * from './primitiveModel3D';
 export * from './rectangularPrism';
 export * from './subtraction';
+export * from './tube';
 export * from './union';
 export * from './vector';
