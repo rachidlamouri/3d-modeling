@@ -1,10 +1,10 @@
-import { buildParseInputDimensions, InputDimensions } from './dimensionParser/buildParseInputDimensions';
+import { buildParseInputDimensions, InputDimensions } from '../../../dimensionParser/buildParseInputDimensions';
 import {
   CompoundModel3D,
   RectangularPrism,
   Subtraction,
   Cylinder,
-} from './modeling';
+} from '../../../modeling';
 
 const dimensionNames = [
   'lengthX',
