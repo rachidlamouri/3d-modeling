@@ -1,4 +1,11 @@
-import { CompoundModel3D, Union, Tube, Subtraction, RectangularPrism, Cylinder } from '../../modeling';
+import {
+  CompoundModel3D,
+  Union,
+  Tube,
+  Subtraction,
+  RectangularPrism,
+  Cylinder,
+} from '../../modeling';
 import { projectorDimensions } from './dimensions';
 
 export class Support extends CompoundModel3D {

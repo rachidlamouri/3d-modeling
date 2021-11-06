@@ -1,5 +1,12 @@
 import _ from 'lodash';
-import { CompoundModel3D, Union, Cylinder, Tube, Subtraction, RectangularPrism } from '../../modeling';
+import {
+  CompoundModel3D,
+  Union,
+  Cylinder,
+  Tube,
+  Subtraction,
+  RectangularPrism,
+} from '../../modeling';
 import { projectorDimensions } from './dimensions';
 
 export class FrameTemplate extends CompoundModel3D {

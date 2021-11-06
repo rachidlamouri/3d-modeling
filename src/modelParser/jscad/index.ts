@@ -124,4 +124,4 @@ export const parseModel = (model: Model3D | ModelCollection3D): Geom3 | Geom3[] 
   }
 
   return parseModel3D(model);
-}
+};

@@ -1,9 +1,13 @@
-import { CompoundModel3D, Union } from '../../modeling';
 import { projectorDimensions } from './dimensions';
 import { FrameHoleAssembly } from './frameHoleAssembly';
 import { FrameTemplate } from './frameTemplate';
 import { Light } from './light';
-import { Reel, ReelFrameChannelSliceTest, ReelFrameHoleSliceTest, ReelLowerSliceTest } from './reel';
+import {
+  Reel,
+  ReelFrameChannelSliceTest,
+  ReelFrameHoleSliceTest,
+  ReelLowerSliceTest,
+} from './reel';
 import { Shade, ShadeSliceTest } from './shade';
 import { ShadeAndTrack, ShadeAndTrackLowerSliceTest } from './shadeAndTrack';
 import { Support, SupportBottomSliceTest, SupportTopSliceTest } from './support';
@@ -40,6 +44,6 @@ export default {
 
   demoSupport: new Support(),
   demoLight: new Light({ z: supportBaseHeight }),
-  demoShadeAndTrack: new ShadeAndTrack( { z: supportBaseHeight + lightLightBottomHeight }),
+  demoShadeAndTrack: new ShadeAndTrack({ z: supportBaseHeight + lightLightBottomHeight }),
   demoReel: new Reel({ z: lightLightBottomHeight + trackBaseHeight + reelHeightAllowance }),
-}
+};

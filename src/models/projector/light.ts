@@ -1,4 +1,9 @@
-import { CompoundModel3D, Vector3DObject, Union, Cylinder } from '../../modeling';
+import {
+  CompoundModel3D,
+  Vector3DObject,
+  Union,
+  Cylinder,
+} from '../../modeling';
 import { projectorDimensions } from './dimensions';
 
 export class Light extends CompoundModel3D {

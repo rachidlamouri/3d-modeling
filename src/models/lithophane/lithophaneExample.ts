@@ -12,4 +12,4 @@ export default {
     minLengthZ: 0.1,
     maxLengthZ: 4,
   }),
-}
+};

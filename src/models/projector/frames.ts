@@ -36,4 +36,4 @@ export default {
     pixelLengthX: 200,
     pixelLengthY: 200,
   }),
-}
+};

@@ -1,4 +1,4 @@
-import { buildParseInputDimensions, Dimensions, InputDimensions } from '../../dimensionParser';
+import { buildParseInputDimensions, Dimensions } from '../../dimensionParser';
 
 const dimensionNames = [
   'frameCount',

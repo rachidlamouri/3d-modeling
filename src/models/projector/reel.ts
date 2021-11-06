@@ -1,5 +1,12 @@
 import _ from 'lodash';
-import { CompoundModel3D, Cylinder, RectangularPrism, Subtraction, Tube, Vector3DObject } from '../../modeling';
+import {
+  CompoundModel3D,
+  Cylinder,
+  RectangularPrism,
+  Subtraction,
+  Tube,
+  Vector3DObject,
+} from '../../modeling';
 import { projectorDimensions } from './dimensions';
 import { FrameHoleAssembly } from './frameHoleAssembly';
 

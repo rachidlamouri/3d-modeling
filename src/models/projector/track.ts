@@ -1,4 +1,11 @@
-import { CompoundModel3D, Cylinder, RectangularPrism, Subtraction, Tube, Union } from '../../modeling';
+import {
+  CompoundModel3D,
+  Cylinder,
+  RectangularPrism,
+  Subtraction,
+  Tube,
+  Union,
+} from '../../modeling';
 import { projectorDimensions } from './dimensions';
 
 export class Track extends CompoundModel3D {

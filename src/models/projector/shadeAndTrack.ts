@@ -1,4 +1,10 @@
-import { CompoundModel3D, Cylinder, Subtraction, Union, Vector3DObject } from '../../modeling';
+import {
+  CompoundModel3D,
+  Cylinder,
+  Subtraction,
+  Union,
+  Vector3DObject,
+} from '../../modeling';
 import { projectorDimensions } from './dimensions';
 import { Shade } from './shade';
 import { Track } from './track';

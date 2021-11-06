@@ -1,7 +1,12 @@
 import fs from 'fs';
 import _ from 'lodash';
 import jpeg from 'jpeg-js';
-import { ModelCollection3D, ExtrudedPolygon, Point2D, Vector3DObject } from '../../modeling';
+import {
+  ModelCollection3D,
+  ExtrudedPolygon,
+  Point2D,
+  Vector3DObject,
+} from '../../modeling';
 
 type LithophaneSliceParams = {
   maxHeight: number;

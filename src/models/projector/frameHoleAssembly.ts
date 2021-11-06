@@ -1,4 +1,11 @@
-import { CompoundModel3D, Cylinder, RectangularPrism, RotationInput, Union, Vector3DObject } from '../../modeling';
+import {
+  CompoundModel3D,
+  Cylinder,
+  RectangularPrism,
+  RotationInput,
+  Union,
+  Vector3DObject,
+} from '../../modeling';
 import { projectorDimensions } from './dimensions';
 
 type FrameHoleAssemblyParams = {

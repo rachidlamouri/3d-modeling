@@ -5,12 +5,10 @@ const ROOT_DIR = __dirname
   .replace(/\\/g, '/')
   .replace(/build\/src\/modelParser\/jscad$/, '');
 
-export const getParameterDefinitions = () => {
-  return [
-    { name: 'filepath', type: 'text', initial: '' },
-    { name: 'model', type: 'text', initial: '' },
-  ]
-}
+export const getParameterDefinitions = () => [
+  { name: 'filepath', type: 'text', initial: '' },
+  { name: 'model', type: 'text', initial: '' },
+];
 
 export const main = ({ filepath, model }: { filepath: string, model :string }) => {
   if (!filepath) {
@@ -26,7 +24,8 @@ export const main = ({ filepath, model }: { filepath: string, model :string }) =
   }
 
   const fullFilepath = `${ROOT_DIR}${filepath}`;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-dynamic-require, global-require
   const models = require(fullFilepath);
 
-  return parseModel(models.default[model])
+  return parseModel(models.default[model]);
 };

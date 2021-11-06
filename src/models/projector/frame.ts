@@ -1,5 +1,12 @@
 import _ from 'lodash';
-import { Cylinder, ModelCollection3D, RectangularPrism, Subtraction, Tube, Union } from '../../modeling';
+import {
+  Cylinder,
+  ModelCollection3D,
+  RectangularPrism,
+  Subtraction,
+  Tube,
+  Union,
+} from '../../modeling';
 import { projectorDimensions } from './dimensions';
 import { LithophaneParams, Lithophane } from '../lithophane/lithophane';
 
