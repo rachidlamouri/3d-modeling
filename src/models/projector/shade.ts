@@ -2,14 +2,15 @@ import {
   CompoundModel3D,
   Cylinder,
   RectangularPrism,
+  Rotation,
   Subtraction,
+  Translation,
   Tube,
-  Vector3DObject,
 } from '../../modeling';
 import { projectorDimensions } from './dimensions';
 
 export class Shade extends CompoundModel3D {
-  constructor(translation?: Partial<Vector3DObject>) {
+  constructor(translation: Translation = new Translation({})) {
     const {
       shadeInnerDiameter,
       shadeOuterDiameter,
@@ -31,16 +32,18 @@ export class Shade extends CompoundModel3D {
             origin: 'center',
             diameter: shadeOutletDiameter,
             height: shadeOutletLengthY,
-            translation: {
-              y: shadeOutletLengthY / 2,
-              z: shadeHeight / 2,
-            },
-            rotations: [
-              [{ x: -90 }, 'self'],
+            transforms: [
+              new Rotation({ x: -90 }, 'self'),
+              new Translation({
+                y: shadeOutletLengthY / 2,
+                z: shadeHeight / 2,
+              }),
             ],
           }),
         ],
-        translation,
+        transforms: [
+          translation,
+        ],
       }),
     );
   }

@@ -6,6 +6,8 @@ import {
   Tube,
   Subtraction,
   RectangularPrism,
+  Translation,
+  Rotation,
 } from '../../modeling';
 import { projectorDimensions } from './dimensions';
 
@@ -52,18 +54,16 @@ export class FrameTemplate extends CompoundModel3D {
                 lengthX: frameWingspan,
                 lengthY: frameWingspan,
                 lengthZ: frameWingLengthY,
-                translation: {
-                  y: (index === 0 ? -1 : 1) * (frameWingLengthZ / 2),
-                },
+                transforms: [
+                  new Translation({ y: (index === 0 ? -1 : 1) * (frameWingLengthZ / 2) }),
+                ],
               })),
             ],
           }),
         ],
-        translation: {
-          z: frameWallOuterDiameter / 2,
-        },
-        rotations: [
-          [{ x: 90 }, 'self'],
+        transforms: [
+          new Rotation({ x: 90 }, 'self'),
+          new Translation({ z: frameWallOuterDiameter / 2 }),
         ],
       }),
     );

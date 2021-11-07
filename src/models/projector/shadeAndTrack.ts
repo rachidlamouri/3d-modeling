@@ -2,22 +2,24 @@ import {
   CompoundModel3D,
   Cylinder,
   Subtraction,
+  Translation,
   Union,
-  Vector3DObject,
 } from '../../modeling';
 import { projectorDimensions } from './dimensions';
 import { Shade } from './shade';
 import { Track } from './track';
 
 export class ShadeAndTrack extends CompoundModel3D {
-  constructor(translation: Partial<Vector3DObject> = {}) {
+  constructor(translation: Translation = new Translation({})) {
     super(
       new Union({
         models: [
-          new Shade({ z: projectorDimensions.trackBaseHeight }),
+          new Shade(new Translation({ z: projectorDimensions.trackBaseHeight })),
           new Track(),
         ],
-        translation,
+        transforms: [
+          translation,
+        ],
       }),
     );
   }
@@ -40,9 +42,11 @@ export class ShadeAndTrackLowerSliceTest extends CompoundModel3D {
             origin: 'bottom',
             diameter: trackBaseOuterDiameter,
             height: shadeHeight + trackBaseHeight,
-            translation: {
-              z: trackBaseHeight + trackLipHeight,
-            },
+            transforms: [
+              new Translation({
+                z: trackBaseHeight + trackLipHeight,
+              }),
+            ],
           }),
         ],
       }),

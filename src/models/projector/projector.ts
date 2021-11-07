@@ -1,3 +1,4 @@
+import { Translation } from '../../modeling';
 import { projectorDimensions } from './dimensions';
 import { FrameHoleAssembly } from './frameHoleAssembly';
 import { FrameTemplate } from './frameTemplate';
@@ -43,7 +44,7 @@ export default {
   reelFrameChannelSliceTest: new ReelFrameChannelSliceTest(),
 
   demoSupport: new Support(),
-  demoLight: new Light({ z: supportBaseHeight }),
-  demoShadeAndTrack: new ShadeAndTrack({ z: supportBaseHeight + lightLightBottomHeight }),
-  demoReel: new Reel({ z: lightLightBottomHeight + trackBaseHeight + reelHeightAllowance }),
+  demoLight: new Light(new Translation({ z: supportBaseHeight })),
+  demoShadeAndTrack: new ShadeAndTrack(new Translation({ z: supportBaseHeight + lightLightBottomHeight })),
+  demoReel: new Reel(new Translation({ z: lightLightBottomHeight + trackBaseHeight + reelHeightAllowance })),
 };

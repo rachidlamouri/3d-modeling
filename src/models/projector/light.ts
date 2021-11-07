@@ -1,13 +1,13 @@
 import {
   CompoundModel3D,
-  Vector3DObject,
   Union,
   Cylinder,
+  Translation,
 } from '../../modeling';
 import { projectorDimensions } from './dimensions';
 
 export class Light extends CompoundModel3D {
-  constructor(translation: Partial<Vector3DObject> = {}) {
+  constructor(translation: Translation = new Translation({})) {
     const {
       lightBaseDiameter,
       lightMidDiameter,
@@ -31,28 +31,38 @@ export class Light extends CompoundModel3D {
             origin: 'bottom',
             diameter: lightMidDiameter,
             height: lightLightBottomHeight - lightBaseHeight,
-            translation: { z: lightBaseHeight },
+            transforms: [
+              new Translation({ z: lightBaseHeight }),
+            ],
           }),
           new Cylinder({
             origin: 'bottom',
             diameter: lightLightDiameter,
             height: lightLightTopHeight - lightLightBottomHeight,
-            translation: { z: lightLightBottomHeight },
+            transforms: [
+              new Translation({ z: lightLightBottomHeight }),
+            ],
           }),
           new Cylinder({
             origin: 'bottom',
             diameter: lightMidDiameter,
             height: (lightTopHeight - lightLightTopHeight) / 2,
-            translation: { z: lightLightTopHeight },
+            transforms: [
+              new Translation({ z: lightLightTopHeight }),
+            ],
           }),
           new Cylinder({
             origin: 'bottom',
             diameter: lightTopDiameter,
             height: (lightTopHeight - lightLightTopHeight) / 2,
-            translation: { z: lightLightTopHeight + ((lightTopHeight - lightLightTopHeight) / 2) },
+            transforms: [
+              new Translation({ z: lightLightTopHeight + ((lightTopHeight - lightLightTopHeight) / 2) }),
+            ],
           }),
         ],
-        translation,
+        transforms: [
+          translation,
+        ],
       }),
     );
   }

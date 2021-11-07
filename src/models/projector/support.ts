@@ -5,6 +5,7 @@ import {
   Subtraction,
   RectangularPrism,
   Cylinder,
+  Translation,
 } from '../../modeling';
 import { projectorDimensions } from './dimensions';
 
@@ -64,16 +65,16 @@ export class Support extends CompoundModel3D {
                         lengthZ: supportMainOverlapHeight,
                       }),
                     ],
-                    translation: {
-                      z: supportMainHeight - supportMainOverlapHeight,
-                    },
+                    transforms: [
+                      new Translation({ z: supportMainHeight - supportMainOverlapHeight }),
+                    ],
                   }),
                 ],
               }),
             ],
-            translation: {
-              z: supportBaseHeight,
-            },
+            transforms: [
+              new Translation({ z: supportBaseHeight }),
+            ],
           }),
         ],
       }),
@@ -120,9 +121,9 @@ export class SupportBottomSliceTest extends CompoundModel3D {
             origin: 'bottom',
             diameter: supportMainOuterDiameter,
             height: supportMainHeight,
-            translation: {
-              z: lightBaseHeight,
-            },
+            transforms: [
+              new Translation({ z: lightBaseHeight }),
+            ],
           }),
         ],
       }),

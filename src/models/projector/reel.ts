@@ -3,15 +3,16 @@ import {
   CompoundModel3D,
   Cylinder,
   RectangularPrism,
+  Rotation,
   Subtraction,
+  Translation,
   Tube,
-  Vector3DObject,
 } from '../../modeling';
 import { projectorDimensions } from './dimensions';
 import { FrameHoleAssembly } from './frameHoleAssembly';
 
 export class Reel extends CompoundModel3D {
-  constructor(translation: Partial<Vector3DObject> = {}) {
+  constructor(translation: Translation = new Translation({})) {
     const {
       reelInnerRadius,
       reelInnerDiameter,
@@ -44,25 +45,25 @@ export class Reel extends CompoundModel3D {
               origin: 'center',
               diameter: frameImageHoleDiameter,
               height: frameImageHoleLengthY,
-              translation: {
-                y: frameImageHoleLengthY / 2,
-                z: reelHeight / 2,
-              },
-              rotations: [
-                [{ x: 90 }, 'self'],
-                [{ z: getOriginAngle(index) }, 'origin'],
+              transforms: [
+                new Rotation({ x: 90 }, 'self'),
+                new Translation({
+                  y: frameImageHoleLengthY / 2,
+                  z: reelHeight / 2,
+                }),
+                new Rotation({ z: getOriginAngle(index) }, 'origin'),
               ],
             })
           )),
           ..._.range(frameCount).map((index) => (
             new FrameHoleAssembly({
               originAngleZ: getOriginAngle(index),
-              translation: {
-                y: reelInnerRadius + reelThicknessBuffer,
-                z: reelHeight / 2,
-              },
-              rotations: [
-                [{ z: getOriginAngle(index) }, 'origin'],
+              transforms: [
+                new Translation({
+                  y: reelInnerRadius + reelThicknessBuffer,
+                  z: reelHeight / 2,
+                }),
+                new Rotation({ z: getOriginAngle(index) }, 'origin'),
               ],
             })
           )),
@@ -71,17 +72,17 @@ export class Reel extends CompoundModel3D {
               origin: 'center',
               radius: reelNotchRadius,
               height: reelNotchLength,
-              translation: {
-                y: -reelNotchLength / 2 + reelOuterRadius,
-              },
-              rotations: [
-                [{ x: 90 }, 'self'],
-                [{ z: index === 4 ? 180 : getOriginAngle(index) }, 'origin'],
+              transforms: [
+                new Rotation({ x: 90 }, 'self'),
+                new Translation({ y: -reelNotchLength / 2 + reelOuterRadius }),
+                new Rotation({ z: index === 4 ? 180 : getOriginAngle(index) }, 'origin'),
               ],
             })
           )),
         ],
-        translation,
+        transforms: [
+          translation,
+        ],
       }),
     );
   }
@@ -104,9 +105,9 @@ export class ReelLowerSliceTest extends CompoundModel3D {
             origin: 'bottom',
             diameter: reelOuterDiameter,
             height: reelHeight,
-            translation: {
-              z: trackBaseHeight + trackLipHeight + 2,
-            },
+            transforms: [
+              new Translation({ z: trackBaseHeight + trackLipHeight + 2 }),
+            ],
           }),
         ],
       }),
@@ -142,8 +143,8 @@ export class ReelFrameHoleSliceTest extends CompoundModel3D {
                 lengthX: frameWingChannelDiameter + (2 * frameWingChannelBuffer),
                 lengthY: reelOuterRadius,
                 lengthZ: reelHeight,
-                rotations: [
-                  [{ z: firstFrameAngle + frameAngleZ }, 'origin'],
+                transforms: [
+                  new Rotation({ z: firstFrameAngle + frameAngleZ }, 'origin'),
                 ],
               }),
             ],
@@ -174,17 +175,15 @@ export class ReelFrameChannelSliceTest extends CompoundModel3D {
             lengthX: frameWallChannelDiameter,
             lengthY: reelThickness,
             lengthZ: reelInnerDiameter,
-            translation: {
-              y: 54.9,
-            },
-            rotations: [
-              [{ z: firstFrameAngle + frameAngleZ }, 'origin'],
-              [{ z: frameWingDeflectionAngle }, 'self'],
+            transforms: [
+              new Translation({ y: 54.9 }),
+              new Rotation({ z: firstFrameAngle + frameAngleZ }, 'origin'),
+              new Rotation({ z: frameWingDeflectionAngle }, 'self'),
             ],
           }),
         ],
-        rotations: [
-          [{ z: -(firstFrameAngle + frameAngleZ) }, 'origin'],
+        transforms: [
+          new Rotation({ z: -(firstFrameAngle + frameAngleZ) }, 'origin'),
         ],
       }),
     );

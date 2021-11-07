@@ -3,8 +3,10 @@ import {
   Cylinder,
   RectangularPrism,
   Subtraction,
+  Translation,
   Tube,
   Union,
+  Rotation,
 } from '../../modeling';
 import { projectorDimensions } from './dimensions';
 
@@ -43,7 +45,9 @@ export class Track extends CompoundModel3D {
                 outerDiameter: trackLipOuterDiameter,
                 innerDiameter: trackLipInnerDiameter,
                 height: trackLipHeight,
-                translation: { z: trackBaseHeight },
+                transforms: [
+                  new Translation({ z: trackBaseHeight }),
+                ],
               }),
               new Subtraction({
                 models: [
@@ -51,8 +55,8 @@ export class Track extends CompoundModel3D {
                     origin: 'center',
                     radius: trackNubRadius,
                     height: trackNubLength,
-                    rotations: [
-                      [{ x: 90 }, 'self'],
+                    transforms: [
+                      new Rotation({ x: 90 }, 'self'),
                     ],
                   }),
                   new RectangularPrism({
@@ -62,10 +66,12 @@ export class Track extends CompoundModel3D {
                     lengthZ: trackNubRadius,
                   }),
                 ],
-                translation: {
-                  y: -(trackNubLength / 2) + trackLipInnerRadius,
-                  z: trackBaseHeight,
-                },
+                transforms: [
+                  new Translation({
+                    y: -(trackNubLength / 2) + trackLipInnerRadius,
+                    z: trackBaseHeight,
+                  }),
+                ],
               }),
             ],
           }),

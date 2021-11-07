@@ -4,6 +4,7 @@ import {
   ModelCollection3D,
   RectangularPrism,
   Subtraction,
+  Translation,
   Tube,
   Union,
 } from '../../modeling';
@@ -78,9 +79,9 @@ export class Frame extends ModelCollection3D {
                     lengthX: frameWingspan,
                     lengthY: (frameWingspan - frameWingLengthZ) / 2,
                     lengthZ: frameWingLengthY,
-                    translation: {
-                      y: (index === 0 ? -1 : 1) * (frameWingLengthZ / 2),
-                    },
+                    transforms: [
+                      new Translation({ y: (index === 0 ? -1 : 1) * (frameWingLengthZ / 2) }),
+                    ],
                   })
                 )),
               ],

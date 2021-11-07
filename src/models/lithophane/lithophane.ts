@@ -7,6 +7,8 @@ import {
   Point2D,
   Vector3DObject,
   Vector3D,
+  Rotation,
+  Translation,
 } from '../../modeling';
 
 type LithophaneSliceParams = {
@@ -31,13 +33,13 @@ class LithophaneSlice extends ExtrudedPolygon {
       boundingBox: new Vector3D(fullLengthX, maxHeight, sliceLengthY),
       points,
       lengthZ: sliceLengthY,
-      translation: {
-        x: fullLengthX / 2 + (translation.x ?? 0),
-        y: -((sliceLengthY / 2) + (offsetY * sliceLengthY)) + (translation.y ?? 0),
-        z: maxHeight / 2 + (translation.z ?? 0),
-      },
-      rotations: [
-        [{ x: 90 }, 'self'],
+      transforms: [
+        new Rotation({ x: 90 }, 'self'),
+        new Translation({
+          x: fullLengthX / 2 + (translation.x ?? 0),
+          y: -((sliceLengthY / 2) + (offsetY * sliceLengthY)) + (translation.y ?? 0),
+          z: maxHeight / 2 + (translation.z ?? 0),
+        }),
       ],
     });
   }
