@@ -18,12 +18,14 @@ export class ExtrudedPolygon extends PrimitiveModel3D {
   lengthZ: number;
 
   constructor({
+    name = 'Extruded Polygon',
     boundingBox,
     points,
     lengthZ,
     transforms = [],
   }: ExtrudedPolygonParams) {
     super({
+      name,
       position: new Vector3D(0, 0, 0),
       transforms,
     });

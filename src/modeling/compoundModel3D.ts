@@ -7,6 +7,7 @@ export abstract class CompoundModel3D extends Model3D {
 
   constructor(operation: Operation3D) {
     super({
+      name: '',
       position: new Vector3D(0, 0, 0),
       transforms: [],
     });

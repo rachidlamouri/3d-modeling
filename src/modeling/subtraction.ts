@@ -12,12 +12,14 @@ export class Subtraction extends Operation3D {
   subtrahends: Model3D[];
 
   constructor({
+    name = 'Subtraction',
     models,
     transforms = [],
   }: SubtractionParams) {
     const [minuend, ...subtrahends] = models;
 
     super({
+      name,
       position: minuend.position,
       transforms,
     });

@@ -11,6 +11,7 @@ export class Union extends Operation3D {
   models: Model3D[];
 
   constructor({
+    name = 'Union',
     models,
     transforms = [],
   }: UnionParams) {
@@ -19,6 +20,7 @@ export class Union extends Operation3D {
     }
 
     super({
+      name,
       position: models[0].position,
       transforms,
     });

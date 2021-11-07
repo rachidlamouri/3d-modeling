@@ -29,6 +29,7 @@ export class RectangularPrism extends PrimitiveModel3D {
   private dimensions: Dimensions<DimensionNames>;
 
   constructor({
+    name = 'Rectangular Prism',
     origin,
     transforms = [],
     ...inputDimensions
@@ -61,6 +62,7 @@ export class RectangularPrism extends PrimitiveModel3D {
     }[originZ];
 
     super({
+      name,
       position: new Vector3D(positionX, positionY, positionZ),
       transforms,
     });

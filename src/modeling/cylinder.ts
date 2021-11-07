@@ -49,6 +49,7 @@ export class Cylinder extends PrimitiveModel3D {
   private dimensions: Dimensions<DimensionNames>;
 
   constructor({
+    name = 'Cylinder',
     axis,
     origin,
     transforms = [],
@@ -69,6 +70,7 @@ export class Cylinder extends PrimitiveModel3D {
     }[origin];
 
     super({
+      name,
       position,
       transforms: [
         Cylinder.getOrientationTransform(axis),

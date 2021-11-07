@@ -35,6 +35,7 @@ type TubeParams =
 
 export class Tube extends CompoundModel3D {
   constructor({
+    name = 'Tube',
     axis,
     origin,
     transforms = [],
@@ -55,14 +56,17 @@ export class Tube extends CompoundModel3D {
 
     super(
       new Subtraction({
+        name,
         models: [
           new Cylinder({
+            name: 'Tube Shell',
             axis: 'z',
             origin: 'center',
             diameter: outerDiameter,
             axialLength,
           }),
           new Cylinder({
+            name: 'Tube Hole',
             axis: 'z',
             origin: 'center',
             diameter: innerDiameter,

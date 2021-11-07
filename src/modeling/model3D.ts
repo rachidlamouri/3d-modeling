@@ -13,22 +13,27 @@ const {
 export type OrientationAxis = 'x' | 'y' | 'z';
 
 export type CommonModel3DParams = {
+  name?: string;
   transforms?: Transform3D[];
 }
 
 export type Model3DParams = {
+  name: string;
   position: Vector3D;
   transforms: Transform3D[];
 }
 
 export abstract class Model3D {
+  readonly name: string;
   readonly position: Vector3D;
   readonly transforms: TransformState[];
 
   constructor({
+    name,
     position,
     transforms,
   }: Model3DParams) {
+    this.name = name;
     this.position = position;
 
     let previousPosition = position;
