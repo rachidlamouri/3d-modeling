@@ -18,7 +18,7 @@ type DimensionNames = typeof dimensionNames;
 
 const parseInputDimensions = buildParseInputDimensions(dimensionNames, {});
 
-type RectangularPrismParams =
+export type RectangularPrismParams =
   CommonModel3DParams
   & InputDimensions<DimensionNames>
   & {
