@@ -2,6 +2,7 @@ import _ from 'lodash';
 import {
   CompoundModel3D,
   Cylinder,
+  NoTranslation,
   RectangularPrism,
   Rotation,
   Subtraction,
@@ -12,7 +13,7 @@ import { projectorDimensions } from './dimensions';
 import { FrameHoleAssembly } from './frameHoleAssembly';
 
 export class Reel extends CompoundModel3D {
-  constructor(translation: Translation = new Translation({})) {
+  constructor(translation: Translation = new NoTranslation()) {
     const {
       reelInnerRadius,
       reelInnerDiameter,

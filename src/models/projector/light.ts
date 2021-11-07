@@ -3,11 +3,12 @@ import {
   Union,
   Cylinder,
   Translation,
+  NoTranslation,
 } from '../../modeling';
 import { projectorDimensions } from './dimensions';
 
 export class Light extends CompoundModel3D {
-  constructor(translation: Translation = new Translation({})) {
+  constructor(translation: Translation = new NoTranslation()) {
     const {
       lightBaseDiameter,
       lightMidDiameter,

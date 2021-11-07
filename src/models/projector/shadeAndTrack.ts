@@ -1,6 +1,7 @@
 import {
   CompoundModel3D,
   Cylinder,
+  NoTranslation,
   Subtraction,
   Translation,
   Union,
@@ -10,7 +11,7 @@ import { Shade } from './shade';
 import { Track } from './track';
 
 export class ShadeAndTrack extends CompoundModel3D {
-  constructor(translation: Translation = new Translation({})) {
+  constructor(translation: Translation = new NoTranslation()) {
     super(
       new Union({
         models: [

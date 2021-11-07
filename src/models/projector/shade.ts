@@ -1,6 +1,7 @@
 import {
   CompoundModel3D,
   Cylinder,
+  NoTranslation,
   RectangularPrism,
   Rotation,
   Subtraction,
@@ -10,7 +11,7 @@ import {
 import { projectorDimensions } from './dimensions';
 
 export class Shade extends CompoundModel3D {
-  constructor(translation: Translation = new Translation({})) {
+  constructor(translation: Translation = new NoTranslation()) {
     const {
       shadeInnerDiameter,
       shadeOuterDiameter,
