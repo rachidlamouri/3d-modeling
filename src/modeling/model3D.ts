@@ -38,30 +38,31 @@ export abstract class Model3D {
 
     let previousPosition = position;
     let nextPosition: Vector3D;
-    this.transforms = transforms.map((transform) => {
-      if (transform instanceof Translation) {
-        nextPosition = previousPosition.add(transform.vector);
-      }
+    this.transforms = transforms
+      .map((transform) => {
+        if (transform instanceof Translation) {
+          nextPosition = previousPosition.add(transform.vector);
+        }
 
-      if (transform instanceof Rotation) {
-        const rotate = {
-          x: vec3.rotateX,
-          y: vec3.rotateY,
-          z: vec3.rotateZ,
-        }[transform.axis];
-        const nextPositionTuple: Vec3 = vec3.create();
-        const origin = transform.center === 'self'
-          ? previousPosition.tuple
-          : [0, 0, 0] as Vec3;
-        const angle = degToRad(transform.angle);
+        if (transform instanceof Rotation) {
+          const rotate = {
+            x: vec3.rotateX,
+            y: vec3.rotateY,
+            z: vec3.rotateZ,
+          }[transform.axis];
+          const nextPositionTuple: Vec3 = vec3.create();
+          const origin = transform.center === 'self'
+            ? previousPosition.tuple
+            : [0, 0, 0] as Vec3;
+          const angle = degToRad(transform.angle);
 
-        rotate(nextPositionTuple, previousPosition.tuple, origin, angle);
-        nextPosition = new Vector3D(...nextPositionTuple);
-      }
+          rotate(nextPositionTuple, previousPosition.tuple, origin, angle);
+          nextPosition = new Vector3D(...nextPositionTuple);
+        }
 
-      const transformState: TransformState = [previousPosition, transform];
-      previousPosition = nextPosition;
-      return transformState;
-    });
+        const transformState: TransformState = [previousPosition, transform];
+        previousPosition = nextPosition;
+        return transformState;
+      });
   }
 }
