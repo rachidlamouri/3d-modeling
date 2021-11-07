@@ -1,30 +1,16 @@
-import { Model3D, CommonModel3DParams } from './model3D';
-import { Operation3D } from './operation3D';
-
-type SubtractionParams =
-  CommonModel3DParams
-  & {
-    models: [Model3D, ...Model3D[]];
-  }
+import { Operation3D, CommonOperation3DParams } from './operation3D';
 
 export class Subtraction extends Operation3D {
-  minuend: Model3D;
-  subtrahends: Model3D[];
-
   constructor({
     name = 'Subtraction',
     models,
     transforms = [],
-  }: SubtractionParams) {
-    const [minuend, ...subtrahends] = models;
-
+  }: CommonOperation3DParams) {
     super({
       name,
-      position: minuend.position,
+      type: Subtraction,
+      models,
       transforms,
     });
-
-    this.minuend = minuend;
-    this.subtrahends = subtrahends;
   }
 }

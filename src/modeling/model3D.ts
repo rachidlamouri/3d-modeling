@@ -26,7 +26,8 @@ export type Model3DParams = {
 export abstract class Model3D {
   readonly name: string;
   readonly position: Vector3D;
-  readonly transforms: TransformState[];
+  readonly transforms: Transform3D[];
+  private memoizedTransformStates?: TransformState[];
 
   constructor({
     name,
@@ -35,38 +36,46 @@ export abstract class Model3D {
   }: Model3DParams) {
     this.name = name;
     this.position = position;
+    this.transforms = transforms;
+  }
 
-    let previousPosition = position;
-    let nextPosition: Vector3D;
-    this.transforms = transforms
-      .filter((transform) => (
-        !(transform instanceof NoTranslation)
-        && !(transform instanceof NoRotation)
-      ))
-      .map((transform) => {
-        if (transform instanceof Translation) {
-          nextPosition = previousPosition.add(transform.vector);
-        } else if (transform instanceof Rotation) {
-          const rotate = {
-            x: vec3.rotateX,
-            y: vec3.rotateY,
-            z: vec3.rotateZ,
-          }[transform.axis];
-          const nextPositionTuple: Vec3 = vec3.create();
-          const origin = transform.center === 'self'
-            ? previousPosition.tuple
-            : [0, 0, 0] as Vec3;
-          const angle = degToRad(transform.angle);
+  get transformStates(): TransformState[] {
+    if (this.memoizedTransformStates === undefined) {
+      let previousPosition = this.position;
+      let nextPosition: Vector3D;
 
-          rotate(nextPositionTuple, previousPosition.tuple, origin, angle);
-          nextPosition = new Vector3D(...nextPositionTuple);
-        } else {
-          throw Error(`Unhandled ${Transform3D.name}: ${transform.constructor.name}`);
-        }
+      this.memoizedTransformStates = this.transforms
+        .filter((transform) => (
+          !(transform instanceof NoTranslation)
+          && !(transform instanceof NoRotation)
+        ))
+        .map((transform) => {
+          if (transform instanceof Translation) {
+            nextPosition = previousPosition.add(transform.vector);
+          } else if (transform instanceof Rotation) {
+            const rotate = {
+              x: vec3.rotateX,
+              y: vec3.rotateY,
+              z: vec3.rotateZ,
+            }[transform.axis];
+            const nextPositionTuple: Vec3 = vec3.create();
+            const origin = transform.center === 'self'
+              ? previousPosition.tuple
+              : [0, 0, 0] as Vec3;
+            const angle = degToRad(transform.angle);
 
-        const transformState: TransformState = [previousPosition, transform];
-        previousPosition = nextPosition;
-        return transformState;
-      });
+            rotate(nextPositionTuple, previousPosition.tuple, origin, angle);
+            nextPosition = new Vector3D(...nextPositionTuple);
+          } else {
+            throw Error(`Unhandled ${Transform3D.name}: ${transform.constructor.name}`);
+          }
+
+          const transformState: TransformState = [previousPosition, transform];
+          previousPosition = nextPosition;
+          return transformState;
+        });
+    }
+
+    return this.memoizedTransformStates;
   }
 }

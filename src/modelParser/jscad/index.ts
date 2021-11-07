@@ -5,7 +5,6 @@ import type { Vec3 } from '@jscad/modeling/src/maths/vec3';
 import {
   PrimitiveModel3D,
   Model3D,
-  CompoundModel3D,
   RectangularPrism,
   Cylinder,
   Subtraction,
@@ -62,14 +61,13 @@ const parsePrimitiveModel = (model: PrimitiveModel3D) => {
 };
 
 const parseOperation = (operation: Operation3D) => {
-  if (operation instanceof Subtraction) {
+  if (operation.type === Subtraction) {
     return subtract(
-      parseModel3D(operation.minuend), // eslint-disable-line no-use-before-define
-      ...operation.subtrahends.map(parseModel3D), // eslint-disable-line no-use-before-define
+      ...operation.models.map(parseModel3D), // eslint-disable-line no-use-before-define
     );
   }
 
-  if (operation instanceof Union) {
+  if (operation.type === Union) {
     return union(
       ...operation.models.map(parseModel3D), // eslint-disable-line no-use-before-define
     );
@@ -85,10 +83,6 @@ const parseModel3D = (model: Model3D): Geom3 => {
     parsedModel = parsePrimitiveModel(model);
   }
 
-  if (model instanceof CompoundModel3D) {
-    parsedModel = parseModel3D(model.operation);
-  }
-
   if (model instanceof Operation3D) {
     parsedModel = parseOperation(model);
   }
@@ -97,7 +91,7 @@ const parseModel3D = (model: Model3D): Geom3 => {
     throw Error(`Unhandled ${Model3D.name}: ${model.constructor.name}`);
   }
 
-  parsedModel = model.transforms
+  parsedModel = model.transformStates
     .flatMap(([position, transform]) => {
       if (transform instanceof Translation) {
         return (nextParsedModel: Geom3) => translate(transform.vector.tuple, nextParsedModel);

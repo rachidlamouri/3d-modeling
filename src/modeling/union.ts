@@ -1,30 +1,16 @@
-import { Model3D, CommonModel3DParams } from './model3D';
-import { Operation3D } from './operation3D';
-
-type UnionParams =
-  CommonModel3DParams
-  & {
-    models: Model3D[];
-  }
+import { Operation3D, CommonOperation3DParams } from './operation3D';
 
 export class Union extends Operation3D {
-  models: Model3D[];
-
   constructor({
     name = 'Union',
     models,
     transforms = [],
-  }: UnionParams) {
-    if (models.length === 0) {
-      throw Error('At least 1 model must be provided');
-    }
-
+  }: CommonOperation3DParams) {
     super({
       name,
-      position: models[0].position,
+      type: Union,
+      models,
       transforms,
     });
-
-    this.models = models;
   }
 }
