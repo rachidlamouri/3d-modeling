@@ -6,7 +6,7 @@ import {
 import { PrimitiveModel3D } from './primitiveModel3D';
 import { CommonModel3DParams, OrientationAxis } from './model3D';
 import { Vector3D } from './vector';
-import { Rotation } from './rotation';
+import { NoRotation, Rotation } from './rotation';
 
 const dimensionNames = [
   'diameter',
@@ -34,7 +34,7 @@ type CylinderParams =
   };
 
 export class Cylinder extends PrimitiveModel3D {
-  static getOrientationTransform(axis: OrientationAxis) {
+  static getOrientationRotation(axis: OrientationAxis): Rotation {
     if (axis === 'x') {
       return new Rotation({ y: 90 }, 'self');
     }
@@ -43,7 +43,7 @@ export class Cylinder extends PrimitiveModel3D {
       return new Rotation({ x: -90 }, 'self');
     }
 
-    return new Rotation({ z: 0 }, 'self');
+    return new NoRotation();
   }
 
   private dimensions: Dimensions<DimensionNames>;
@@ -73,7 +73,7 @@ export class Cylinder extends PrimitiveModel3D {
       name,
       position,
       transforms: [
-        Cylinder.getOrientationTransform(axis),
+        Cylinder.getOrientationRotation(axis),
         ...transforms,
       ],
     });

@@ -30,3 +30,9 @@ export class Rotation extends Transform3D {
     return this.angles.object[this.axis];
   }
 }
+
+export class NoRotation extends Rotation {
+  constructor() {
+    super({ z: 0 }, 'self');
+  }
+}

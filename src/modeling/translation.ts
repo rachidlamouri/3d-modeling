@@ -14,3 +14,9 @@ export class Translation extends Transform3D {
     );
   }
 }
+
+export class NoTranslation extends Translation {
+  constructor() {
+    super({});
+  }
+}

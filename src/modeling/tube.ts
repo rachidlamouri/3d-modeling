@@ -3,7 +3,7 @@ import { CompoundModel3D } from './compoundModel3D';
 import { Subtraction } from './subtraction';
 import { Cylinder, CylinderOrigin } from './cylinder';
 import { CommonModel3DParams, OrientationAxis } from './model3D';
-import { Translation } from './translation';
+import { Translation, NoTranslation } from './translation';
 
 const dimensionNames = [
   'innerRadius',
@@ -50,7 +50,7 @@ export class Tube extends CompoundModel3D {
     const lengthZ = axis === 'z' ? axialLength : outerDiameter;
     const positionTransform = {
       bottom: new Translation({ z: lengthZ / 2 }),
-      center: new Translation({}),
+      center: new NoTranslation(),
       top: new Translation({ z: -lengthZ / 2 }),
     }[origin];
 
@@ -75,7 +75,7 @@ export class Tube extends CompoundModel3D {
           }),
         ],
         transforms: [
-          Cylinder.getOrientationTransform(axis),
+          Cylinder.getOrientationRotation(axis),
           positionTransform,
           ...transforms,
         ],
