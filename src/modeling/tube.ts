@@ -36,8 +36,7 @@ type TubeParams =
 export class Tube extends CompoundModel3D {
   constructor({
     origin,
-    rotations = [],
-    translation = {},
+    transforms = [],
     ...inputParams
   }: TubeParams) {
     const {
@@ -60,8 +59,7 @@ export class Tube extends CompoundModel3D {
             lengthZ,
           }),
         ],
-        rotations,
-        translation,
+        transforms,
       }),
     );
   }

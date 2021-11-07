@@ -12,8 +12,7 @@ export class Union extends Operation3D {
 
   constructor({
     models,
-    rotations = [],
-    translation = {},
+    transforms = [],
   }: UnionParams) {
     if (models.length === 0) {
       throw Error('At least 1 model must be provided');
@@ -21,8 +20,7 @@ export class Union extends Operation3D {
 
     super({
       position: models[0].position,
-      rotations,
-      translation,
+      transforms,
     });
 
     this.models = models;

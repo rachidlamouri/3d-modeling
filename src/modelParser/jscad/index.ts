@@ -13,8 +13,11 @@ import {
   Union,
   ModelCollection3D,
   ExtrudedPolygon,
+  Rotation,
+  Transform3D,
+  Translation,
+  Vector3D,
 } from '../../modeling';
-import { Vector3DTuple } from '../../modeling/vector';
 
 const {
   primitives: { cuboid, cylinder, polygon },
@@ -88,26 +91,36 @@ const parseModel3D = (model: Model3D): Geom3 => {
 
   if (model instanceof Operation3D) {
     parsedModel = parseOperation(model);
-    parsedModel = translate(model.translation.tuple, parsedModel);
   }
 
   if (parsedModel === null) {
     throw Error(`Unhandled ${Model3D.name}: ${model.constructor.name}`);
   }
 
-  return model.rotations
-    .flatMap((rotation) => [
-      (nextParsedModel: Geom3) => translate(rotation.offset, nextParsedModel),
-      (nextParsedModel: Geom3) => rotate(rotation.angles.map((degToRad)) as Vector3DTuple, nextParsedModel),
-      (nextParsedModel: Geom3) => translate(
-        rotation.offset.map((value) => -value) as Vector3DTuple,
-        nextParsedModel,
-      ),
-    ])
+  parsedModel = model.transforms
+    .flatMap(([position, transform]) => {
+      if (transform instanceof Translation) {
+        return (nextParsedModel: Geom3) => translate(transform.vector.tuple, nextParsedModel);
+      }
+
+      if (transform instanceof Rotation) {
+        const offset = transform.center === 'self' ? position : new Vector3D(0, 0, 0);
+
+        return [
+          (nextParsedModel: Geom3) => translate(offset.invert().tuple, nextParsedModel),
+          (nextParsedModel: Geom3) => rotate(transform.angles.tuple.map((degToRad)) as Vec3, nextParsedModel),
+          (nextParsedModel: Geom3) => translate(offset.tuple, nextParsedModel),
+        ];
+      }
+
+      throw Error(`Unhandled ${Transform3D.name}: ${transform.constructor.name}`);
+    })
     .reduce(
       (nextParsedModel, transformation) => transformation(nextParsedModel),
       parsedModel,
     );
+
+  return parsedModel;
 };
 
 export const parseModel = (model: Model3D | ModelCollection3D): Geom3 | Geom3[] => {

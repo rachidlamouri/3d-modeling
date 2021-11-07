@@ -1,50 +1,60 @@
-import { Vector3D, Vector3DObject, Vector3DTuple } from './vector';
+import * as jscad from '@jscad/modeling';
+import { Vec3 } from '@jscad/modeling/src/maths/vec3';
+import { Transform3D, TransformState } from './transform3D';
+import { Vector3D } from './vector';
+import { Translation } from './translation';
+import { Rotation } from './rotation';
 
-export type RotationInput = [Partial<Vector3DObject>, 'self' | 'origin'];
-
-type Rotation = {
-  angles: Vector3DTuple;
-  offset: Vector3DTuple;
-}
+const {
+  maths: { vec3 },
+  utils: { degToRad },
+} = jscad;
 
 export type CommonModel3DParams = {
-  rotations?: RotationInput[];
-  translation?: Partial<Vector3DObject>;
+  transforms?: Transform3D[];
 }
 
 export type Model3DParams = {
   position: Vector3D;
-  rotations: RotationInput[];
-  translation: Partial<Vector3DObject>;
+  transforms: Transform3D[];
 }
 
 export abstract class Model3D {
   readonly position: Vector3D;
-  readonly rotations: Rotation[];
-  readonly translation: Vector3D;
+  readonly transforms: TransformState[];
 
   constructor({
     position,
-    rotations: rotationInputs,
-    translation,
+    transforms,
   }: Model3DParams) {
     this.position = position;
-    this.translation = new Vector3D(
-      translation.x ?? 0,
-      translation.y ?? 0,
-      translation.z ?? 0,
-    );
 
-    this.position = position.add(this.translation);
+    let previousPosition = position;
+    let nextPosition: Vector3D;
+    this.transforms = transforms.map((transform) => {
+      if (transform instanceof Translation) {
+        nextPosition = previousPosition.add(transform.vector);
+      }
 
-    this.rotations = rotationInputs.map(([angles, type]) => {
-      const { x = 0, y = 0, z = 0 } = angles;
-      return {
-        angles: [x, y, z],
-        offset: type === 'self'
-          ? (this.position.tuple.map((value) => -value) as Vector3DTuple)
-          : [0, 0, 0],
-      };
+      if (transform instanceof Rotation) {
+        const rotate = {
+          x: vec3.rotateX,
+          y: vec3.rotateY,
+          z: vec3.rotateZ,
+        }[transform.axis];
+        const nextPositionTuple: Vec3 = vec3.create();
+        const origin = transform.center === 'self'
+          ? previousPosition.tuple
+          : [0, 0, 0] as Vec3;
+        const angle = degToRad(transform.angle);
+
+        rotate(nextPositionTuple, previousPosition.tuple, origin, angle);
+        nextPosition = new Vector3D(...nextPositionTuple);
+      }
+
+      const transformState: TransformState = [previousPosition, transform];
+      previousPosition = nextPosition;
+      return transformState;
     });
   }
 }

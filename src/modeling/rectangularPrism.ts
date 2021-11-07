@@ -30,8 +30,7 @@ export class RectangularPrism extends PrimitiveModel3D {
 
   constructor({
     origin,
-    rotations = [],
-    translation = {},
+    transforms = [],
     ...inputDimensions
   }: RectangularPrismParams) {
     const dimensions = parseInputDimensions(inputDimensions);
@@ -63,8 +62,7 @@ export class RectangularPrism extends PrimitiveModel3D {
 
     super({
       position: new Vector3D(positionX, positionY, positionZ),
-      rotations,
-      translation,
+      transforms,
     });
 
     this.dimensions = dimensions;

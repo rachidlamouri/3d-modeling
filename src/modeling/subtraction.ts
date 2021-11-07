@@ -13,15 +13,13 @@ export class Subtraction extends Operation3D {
 
   constructor({
     models,
-    rotations = [],
-    translation = {},
+    transforms = [],
   }: SubtractionParams) {
     const [minuend, ...subtrahends] = models;
 
     super({
       position: minuend.position,
-      rotations,
-      translation,
+      transforms,
     });
 
     this.minuend = minuend;

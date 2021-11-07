@@ -38,8 +38,7 @@ export class Cylinder extends PrimitiveModel3D {
 
   constructor({
     origin,
-    rotations = [],
-    translation = {},
+    transforms = [],
     ...inputParams
   }: CylinderParams) {
     const dimensions = parseInputDimensions(inputParams);
@@ -52,8 +51,7 @@ export class Cylinder extends PrimitiveModel3D {
 
     super({
       position,
-      rotations,
-      translation,
+      transforms,
     });
 
     this.dimensions = dimensions;

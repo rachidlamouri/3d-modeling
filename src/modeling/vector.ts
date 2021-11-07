@@ -25,6 +25,14 @@ export class Vector3D {
     );
   }
 
+  invert() {
+    return new Vector3D(
+      -this.#x,
+      -this.#y,
+      -this.#z,
+    );
+  }
+
   get object(): Vector3DObject {
     return {
       x: this.#x,

@@ -21,13 +21,11 @@ export class ExtrudedPolygon extends PrimitiveModel3D {
     boundingBox,
     points,
     lengthZ,
-    translation = {},
-    rotations = [],
+    transforms = [],
   }: ExtrudedPolygonParams) {
     super({
       position: new Vector3D(0, 0, 0),
-      translation,
-      rotations,
+      transforms,
     });
 
     this.boundingBox = boundingBox;
