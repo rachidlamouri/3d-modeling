@@ -10,17 +10,19 @@ export default {
   union: new Union({
     models: [
       new Cylinder({
+        axis: 'z',
         origin: 'bottom',
         diameter: 10,
-        lengthZ: 4,
+        axialLength: 4,
         transforms: [
           new Translation({ x: 2 }),
         ],
       }),
       new Cylinder({
+        axis: 'z',
         origin: 'bottom',
         diameter: 10,
-        lengthZ: 4,
+        axialLength: 4,
         transforms: [
           new Translation({ x: -2 }),
         ],
@@ -36,9 +38,10 @@ export default {
         lengthZ: 2,
       }),
       new Cylinder({
+        axis: 'z',
         origin: 'bottom',
         diameter: 10,
-        lengthZ: 2,
+        axialLength: 2,
       }),
     ],
   }),

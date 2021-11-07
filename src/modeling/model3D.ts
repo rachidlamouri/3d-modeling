@@ -10,6 +10,8 @@ const {
   utils: { degToRad },
 } = jscad;
 
+export type OrientationAxis = 'x' | 'y' | 'z';
+
 export type CommonModel3DParams = {
   transforms?: Transform3D[];
 }

@@ -1,10 +1,20 @@
-import { Tube } from '../../../modeling';
+import _ from 'lodash';
+import { CylinderOrigin, OrientationAxis, Tube } from '../../../modeling';
 
-export default {
-  bottom: new Tube({
-    origin: 'bottom',
-    outerDiameter: 20,
-    wallThickness: 2,
-    lengthZ: 10,
-  }),
-};
+const axes: OrientationAxis[] = ['x', 'y', 'z'];
+const origins: CylinderOrigin[] = ['bottom', 'center', 'top'];
+
+export default Object.fromEntries(
+  axes.flatMap((axis) => origins.map(
+    (origin) => [
+      `${axis}${_.upperFirst(origin)}`,
+      new Tube({
+        axis,
+        origin,
+        outerDiameter: 20,
+        wallThickness: 2,
+        axialLength: 10,
+      }),
+    ],
+  )),
+);

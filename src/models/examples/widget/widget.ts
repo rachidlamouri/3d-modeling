@@ -57,8 +57,9 @@ export class Widget extends CompoundModel3D {
             lengthZ,
           }),
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
-            lengthZ,
+            axialLength: lengthZ,
             radius: circleRadius,
           }),
         ],
