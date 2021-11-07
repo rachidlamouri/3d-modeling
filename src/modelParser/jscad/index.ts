@@ -10,7 +10,6 @@ import {
   Cylinder,
   Subtraction,
   Operation3D,
-  NoOp3D,
   Union,
   ModelCollection3D,
   ExtrudedPolygon,
@@ -71,10 +70,6 @@ const parseOperation = (operation: Operation3D) => {
     return union(
       ...operation.models.map(parseModel3D), // eslint-disable-line no-use-before-define
     );
-  }
-
-  if (operation instanceof NoOp3D) {
-    return parseModel3D(operation.model); // eslint-disable-line no-use-before-define
   }
 
   throw Error(`Unhandled ${Operation3D.name}: ${operation.constructor.name}`);
