@@ -23,38 +23,43 @@ export class Light extends CompoundModel3D {
       new Union({
         models: [
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
             diameter: lightBaseDiameter,
-            height: lightBaseHeight,
+            axialLength: lightBaseHeight,
           }),
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
             diameter: lightMidDiameter,
-            height: lightLightBottomHeight - lightBaseHeight,
+            axialLength: lightLightBottomHeight - lightBaseHeight,
             transforms: [
               new Translation({ z: lightBaseHeight }),
             ],
           }),
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
             diameter: lightLightDiameter,
-            height: lightLightTopHeight - lightLightBottomHeight,
+            axialLength: lightLightTopHeight - lightLightBottomHeight,
             transforms: [
               new Translation({ z: lightLightBottomHeight }),
             ],
           }),
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
             diameter: lightMidDiameter,
-            height: (lightTopHeight - lightLightTopHeight) / 2,
+            axialLength: (lightTopHeight - lightLightTopHeight) / 2,
             transforms: [
               new Translation({ z: lightLightTopHeight }),
             ],
           }),
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
             diameter: lightTopDiameter,
-            height: (lightTopHeight - lightLightTopHeight) / 2,
+            axialLength: (lightTopHeight - lightLightTopHeight) / 2,
             transforms: [
               new Translation({ z: lightLightTopHeight + ((lightTopHeight - lightLightTopHeight) / 2) }),
             ],

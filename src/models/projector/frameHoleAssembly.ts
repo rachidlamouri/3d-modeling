@@ -42,17 +42,19 @@ export class FrameHoleAssembly extends CompoundModel3D {
             lengthZ: frameSlotLengthZ,
           }),
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
             diameter: frameWallChannelDiameter,
-            lengthZ: frameWallChannelLengthY,
+            axialLength: frameWallChannelLengthY,
             transforms: [
               new Rotation({ x: -90 }, 'origin'),
             ],
           }),
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
             diameter: frameWingChannelDiameter,
-            lengthZ: frameWingChannelLengthY,
+            axialLength: frameWingChannelLengthY,
             transforms: [
               new Rotation({ x: -90 }, 'origin'),
               new Rotation({ z: frameWingDeflectionAngle }, 'self'),

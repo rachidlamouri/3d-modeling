@@ -29,26 +29,29 @@ export class Support extends CompoundModel3D {
       new Union({
         models: [
           new Tube({
+            axis: 'z',
             origin: 'bottom',
             outerDiameter: supportMainOuterDiameter,
             innerRadius: lightBaseRadius - supportLightBaseSupportLength,
-            height: supportBaseHeight,
+            axialLength: supportBaseHeight,
           }),
           new Union({
             models: [
               new Tube({
+                axis: 'z',
                 origin: 'bottom',
                 outerDiameter: supportMainInnerDiameter,
                 innerDiameter: supportLightHoleInnerDiameter,
-                height: supportLightHoleHeight,
+                axialLength: supportLightHoleHeight,
               }),
               new Subtraction({
                 models: [
                   new Tube({
+                    axis: 'z',
                     origin: 'bottom',
                     outerDiameter: supportMainOuterDiameter,
                     wallThickness: supportMainThickness,
-                    height: supportMainHeight,
+                    axialLength: supportMainHeight,
                   }),
                   new Union({
                     models: [
@@ -95,9 +98,10 @@ export class SupportTopSliceTest extends CompoundModel3D {
         models: [
           new Support(),
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
             diameter: supportMainOuterDiameter,
-            height: supportMainHeight - supportMainOverlapHeight * 2,
+            axialLength: supportMainHeight - supportMainOverlapHeight * 2,
           }),
         ],
       }),
@@ -118,9 +122,10 @@ export class SupportBottomSliceTest extends CompoundModel3D {
         models: [
           new Support(),
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
             diameter: supportMainOuterDiameter,
-            height: supportMainHeight,
+            axialLength: supportMainHeight,
             transforms: [
               new Translation({ z: lightBaseHeight }),
             ],

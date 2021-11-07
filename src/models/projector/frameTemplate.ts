@@ -27,27 +27,31 @@ export class FrameTemplate extends CompoundModel3D {
       new Union({
         models: [
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
             diameter: frameImageDiameter,
-            lengthZ: 1, // sample image height
+            axialLength: 1, // sample image height
           }),
           new Tube({
+            axis: 'z',
             origin: 'bottom',
             outerDiameter: frameWallOuterDiameter,
             innerDiameter: frameWallInnerDiameter,
-            lengthZ: frameWallLengthY,
+            axialLength: frameWallLengthY,
           }),
           new Subtraction({
             models: [
               new Cylinder({
+                axis: 'z',
                 origin: 'bottom',
                 diameter: frameWingspan,
-                lengthZ: frameWingLengthY,
+                axialLength: frameWingLengthY,
               }),
               new Cylinder({
+                axis: 'z',
                 origin: 'bottom',
                 diameter: frameWallOuterDiameter,
-                lengthZ: frameWingLengthY,
+                axialLength: frameWingLengthY,
               }),
               ..._.range(2).map((index) => new RectangularPrism({
                 origin: ['center', (index === 0 ? 'front' : 'back'), 'bottom'],

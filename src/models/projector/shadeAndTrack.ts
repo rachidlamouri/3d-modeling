@@ -39,9 +39,10 @@ export class ShadeAndTrackLowerSliceTest extends CompoundModel3D {
         models: [
           new ShadeAndTrack(),
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
             diameter: trackBaseOuterDiameter,
-            height: shadeHeight + trackBaseHeight,
+            axialLength: shadeHeight + trackBaseHeight,
             transforms: [
               new Translation({
                 z: trackBaseHeight + trackLipHeight,

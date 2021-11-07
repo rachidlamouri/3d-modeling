@@ -23,15 +23,17 @@ export class Shade extends CompoundModel3D {
       new Subtraction({
         models: [
           new Tube({
+            axis: 'z',
             origin: 'bottom',
             outerDiameter: shadeOuterDiameter,
             innerDiameter: shadeInnerDiameter,
-            height: shadeHeight,
+            axialLength: shadeHeight,
           }),
           new Cylinder({
+            axis: 'z',
             origin: 'center',
             diameter: shadeOutletDiameter,
-            height: shadeOutletLengthY,
+            axialLength: shadeOutletLengthY,
             transforms: [
               new Rotation({ x: -90 }, 'self'),
               new Translation({

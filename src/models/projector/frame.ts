@@ -47,31 +47,35 @@ export class Frame extends ModelCollection3D {
                       lengthZ: frameImageMaxLengthY,
                     }),
                     new Cylinder({
+                      axis: 'z',
                       origin: 'bottom',
                       diameter: frameImageDiameter,
-                      lengthZ: frameImageMaxLengthY,
+                      axialLength: frameImageMaxLengthY,
                     }),
                   ],
                 }),
               ],
             }),
             new Tube({
+              axis: 'z',
               origin: 'bottom',
               outerDiameter: frameWallOuterDiameter,
               innerDiameter: frameWallInnerDiameter,
-              lengthZ: frameWallLengthY,
+              axialLength: frameWallLengthY,
             }),
             new Subtraction({
               models: [
                 new Cylinder({
+                  axis: 'z',
                   origin: 'bottom',
                   diameter: frameWingspan,
-                  lengthZ: frameWingLengthY,
+                  axialLength: frameWingLengthY,
                 }),
                 new Cylinder({
+                  axis: 'z',
                   origin: 'bottom',
                   diameter: frameWallOuterDiameter,
-                  lengthZ: frameWingLengthY,
+                  axialLength: frameWingLengthY,
                 }),
                 ..._.range(2).map((index) => (
                   new RectangularPrism({

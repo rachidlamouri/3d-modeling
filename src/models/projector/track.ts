@@ -35,16 +35,18 @@ export class Track extends CompoundModel3D {
           new Union({
             models: [
               new Tube({
+                axis: 'z',
                 origin: 'bottom',
                 outerDiameter: trackBaseOuterDiameter,
                 innerDiameter: trackBaseInnerDiameter,
-                height: trackBaseHeight,
+                axialLength: trackBaseHeight,
               }),
               new Tube({
+                axis: 'z',
                 origin: 'bottom',
                 outerDiameter: trackLipOuterDiameter,
                 innerDiameter: trackLipInnerDiameter,
-                height: trackLipHeight,
+                axialLength: trackLipHeight,
                 transforms: [
                   new Translation({ z: trackBaseHeight }),
                 ],
@@ -52,9 +54,10 @@ export class Track extends CompoundModel3D {
               new Subtraction({
                 models: [
                   new Cylinder({
+                    axis: 'z',
                     origin: 'center',
                     radius: trackNubRadius,
-                    height: trackNubLength,
+                    axialLength: trackNubLength,
                     transforms: [
                       new Rotation({ x: 90 }, 'self'),
                     ],
@@ -78,10 +81,11 @@ export class Track extends CompoundModel3D {
           new Subtraction({
             models: [
               new Tube({
+                axis: 'z',
                 origin: 'bottom',
                 outerRadius: trackBaseSupportHoleOuterRadius,
                 wallThickness: trackBaseSupportHoleThickness,
-                height: trackBaseHeight,
+                axialLength: trackBaseHeight,
               }),
               new Union({
                 models: [

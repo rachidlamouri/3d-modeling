@@ -35,16 +35,18 @@ export class Reel extends CompoundModel3D {
       new Subtraction({
         models: [
           new Tube({
+            axis: 'z',
             origin: 'bottom',
             outerDiameter: reelOuterDiameter,
             innerDiameter: reelInnerDiameter,
-            height: reelHeight,
+            axialLength: reelHeight,
           }),
           ..._.range(frameCount).map((index) => (
             new Cylinder({
+              axis: 'z',
               origin: 'center',
               diameter: frameImageHoleDiameter,
-              height: frameImageHoleLengthY,
+              axialLength: frameImageHoleLengthY,
               transforms: [
                 new Rotation({ x: 90 }, 'self'),
                 new Translation({
@@ -69,9 +71,10 @@ export class Reel extends CompoundModel3D {
           )),
           ..._.range(frameCount + 1).map((index) => (
             new Cylinder({
+              axis: 'z',
               origin: 'center',
               radius: reelNotchRadius,
-              height: reelNotchLength,
+              axialLength: reelNotchLength,
               transforms: [
                 new Rotation({ x: 90 }, 'self'),
                 new Translation({ y: -reelNotchLength / 2 + reelOuterRadius }),
@@ -102,9 +105,10 @@ export class ReelLowerSliceTest extends CompoundModel3D {
         models: [
           new Reel(),
           new Cylinder({
+            axis: 'z',
             origin: 'bottom',
             diameter: reelOuterDiameter,
-            height: reelHeight,
+            axialLength: reelHeight,
             transforms: [
               new Translation({ z: trackBaseHeight + trackLipHeight + 2 }),
             ],
@@ -134,9 +138,10 @@ export class ReelFrameHoleSliceTest extends CompoundModel3D {
           new Subtraction({
             models: [
               new Cylinder({
+                axis: 'z',
                 origin: 'bottom',
                 diameter: reelOuterDiameter,
-                lengthZ: reelHeight,
+                axialLength: reelHeight,
               }),
               new RectangularPrism({
                 origin: ['center', 'back', 'bottom'],
