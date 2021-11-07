@@ -14,83 +14,32 @@ export type Model3DParams = {
 }
 
 export abstract class Model3D {
-  #positionX: number;
-  #positionY: number;
-  #positionZ: number;
-  #rotations: Rotation[];
-  #translationX: number;
-  #translationY: number;
-  #translationZ: number;
+  readonly position: Vector3D;
+  readonly rotations: Rotation[];
+  readonly translation: Vector3D;
 
   constructor({
     position,
     rotations: rotationInputs,
     translation,
   }: Model3DParams) {
-    if (Array.isArray(position)) {
-      ([
-        this.#positionX,
-        this.#positionY,
-        this.#positionZ,
-      ] = position);
-    } else {
-      ({
-        x: this.#positionX,
-        y: this.#positionY,
-        z: this.#positionZ,
-      } = position);
-    }
+    this.position = position;
+    this.translation = new Vector3D(
+      translation.x ?? 0,
+      translation.y ?? 0,
+      translation.z ?? 0,
+    );
 
-    const {
-      x: translationX = 0,
-      y: translationY = 0,
-      z: translationZ = 0,
-    } = translation;
+    this.position = position.add(this.translation);
 
-    this.#translationX = translationX;
-    this.#translationY = translationY;
-    this.#translationZ = translationZ;
-
-    this.#positionX += translationX;
-    this.#positionY += translationY;
-    this.#positionZ += translationZ;
-
-    this.#rotations = rotationInputs.map(([angles, type]) => {
+    this.rotations = rotationInputs.map(([angles, type]) => {
       const { x = 0, y = 0, z = 0 } = angles;
       return {
         angles: [x, y, z],
         offset: type === 'self'
-          ? (this.positionTuple.map((value) => -value) as Vector3DTuple)
+          ? (this.position.tuple.map((value) => -value) as Vector3DTuple)
           : [0, 0, 0],
       };
     });
-  }
-
-  get position(): Vector3DObject {
-    return {
-      x: this.#positionX,
-      y: this.#positionY,
-      z: this.#positionZ,
-    };
-  }
-
-  get positionTuple(): Vector3DTuple {
-    return [this.#positionX, this.#positionY, this.#positionZ];
-  }
-
-  get rotations() {
-    return this.#rotations;
-  }
-
-  get translation(): Vector3DObject {
-    return {
-      x: this.#translationX,
-      y: this.#translationY,
-      z: this.#translationZ,
-    };
-  }
-
-  get translationTuple(): Vector3DTuple {
-    return [this.#translationX, this.#translationY, this.#translationZ];
   }
 }

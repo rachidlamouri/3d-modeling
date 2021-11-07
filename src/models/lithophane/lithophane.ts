@@ -6,6 +6,7 @@ import {
   ExtrudedPolygon,
   Point2D,
   Vector3DObject,
+  Vector3D,
 } from '../../modeling';
 
 type LithophaneSliceParams = {
@@ -27,11 +28,7 @@ class LithophaneSlice extends ExtrudedPolygon {
     translation,
   }: LithophaneSliceParams) {
     super({
-      boundingBox: {
-        x: fullLengthX,
-        y: maxHeight,
-        z: sliceLengthY,
-      },
+      boundingBox: new Vector3D(fullLengthX, maxHeight, sliceLengthY),
       points,
       lengthZ: sliceLengthY,
       translation: {

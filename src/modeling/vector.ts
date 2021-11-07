@@ -6,8 +6,38 @@ export type Vector3DObject = {
 
 export type Vector3DTuple = [x: number, y: number, z: number];
 
-export type Vector3D = Vector3DObject | Vector3DTuple;
+export class Vector3D {
+  #x: number;
+  #y: number;
+  #z: number;
 
-export const vector3DTupleToObject = ([x, y, z]: Vector3DTuple): Vector3DObject => ({ x, y, z });
+  constructor(x: number, y: number, z: number) {
+    this.#x = x;
+    this.#y = y;
+    this.#z = z;
+  }
 
-export const vector3DObjectToTuple = ({ x, y, z }: Vector3DObject): Vector3DTuple => [x, y, z];
+  add(vector: Vector3D) {
+    return new Vector3D(
+      this.#x + vector.#x,
+      this.#y + vector.#y,
+      this.#z + vector.#z,
+    );
+  }
+
+  get object(): Vector3DObject {
+    return {
+      x: this.#x,
+      y: this.#y,
+      z: this.#z,
+    };
+  }
+
+  get tuple(): Vector3DTuple {
+    return [
+      this.#x,
+      this.#y,
+      this.#z,
+    ];
+  }
+}

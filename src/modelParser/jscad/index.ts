@@ -1,5 +1,6 @@
 import * as jscad from '@jscad/modeling';
 import type { Geom3 } from '@jscad/modeling/src/geometries/geom3';
+import type { Vec3 } from '@jscad/modeling/src/maths/vec3';
 
 import {
   PrimitiveModel3D,
@@ -27,13 +28,9 @@ const {
 const parsePrimitiveModel = (model: PrimitiveModel3D) => {
   if (model instanceof ExtrudedPolygon) {
     return translate(
-      model.positionTuple,
+      model.position.tuple,
       translate(
-        [
-          -model.boundingBox.x / 2,
-          -model.boundingBox.y / 2,
-          -model.boundingBox.z / 2,
-        ],
+        model.boundingBox.tuple.map((value) => -value / 2) as Vec3,
         extrudeLinear(
           { height: model.lengthZ },
           polygon({
@@ -46,14 +43,14 @@ const parsePrimitiveModel = (model: PrimitiveModel3D) => {
 
   if (model instanceof RectangularPrism) {
     return cuboid({
-      center: model.positionTuple,
-      size: model.sizeTuple,
+      center: model.position.tuple,
+      size: model.size.tuple,
     });
   }
 
   if (model instanceof Cylinder) {
     return cylinder({
-      center: model.positionTuple,
+      center: model.position.tuple,
       height: model.lengthZ,
       radius: model.radius,
     });
@@ -96,7 +93,7 @@ const parseModel3D = (model: Model3D): Geom3 => {
 
   if (model instanceof Operation3D) {
     parsedModel = parseOperation(model);
-    parsedModel = translate(model.translationTuple, parsedModel);
+    parsedModel = translate(model.translation.tuple, parsedModel);
   }
 
   if (parsedModel === null) {

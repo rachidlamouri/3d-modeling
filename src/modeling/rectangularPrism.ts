@@ -1,7 +1,7 @@
 import { buildParseInputDimensions, InputDimensions, Dimensions } from '../dimensionParser';
 import { PrimitiveModel3D } from './primitiveModel3D';
 import { RotationInput } from './model3D';
-import { Vector3DObject, Vector3DTuple } from './vector';
+import { Vector3D, Vector3DObject } from './vector';
 
 type OriginX = 'left' | 'center' | 'right';
 type OriginY = 'back' | 'center' | 'front';
@@ -59,7 +59,7 @@ export class RectangularPrism extends PrimitiveModel3D {
     }[originZ];
 
     super({
-      position: [positionX, positionY, positionZ],
+      position: new Vector3D(positionX, positionY, positionZ),
       rotations,
       translation,
     });
@@ -67,19 +67,11 @@ export class RectangularPrism extends PrimitiveModel3D {
     this.dimensions = dimensions;
   }
 
-  get lengthX() {
-    return this.dimensions.lengthX;
-  }
-
-  get lengthY() {
-    return this.dimensions.lengthY;
-  }
-
-  get lengthZ() {
-    return this.dimensions.lengthZ;
-  }
-
-  get sizeTuple(): Vector3DTuple {
-    return [this.lengthX, this.lengthY, this.lengthZ];
+  get size() {
+    return new Vector3D(
+      this.dimensions.lengthX,
+      this.dimensions.lengthY,
+      this.dimensions.lengthZ,
+    );
   }
 }
