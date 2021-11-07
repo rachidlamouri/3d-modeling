@@ -1,7 +1,7 @@
 import { buildParseInputDimensions, InputDimensions, Dimensions } from '../dimensionParser';
 import { PrimitiveModel3D } from './primitiveModel3D';
-import { RotationInput } from './model3D';
-import { Vector3D, Vector3DObject } from './vector';
+import { CommonModel3DParams } from './model3D';
+import { Vector3D } from './vector';
 
 type OriginX = 'left' | 'center' | 'right';
 type OriginY = 'back' | 'center' | 'front';
@@ -14,16 +14,19 @@ const dimensionNames = [
   'lengthZ',
 ] as const;
 
-type RectangularPrismParams = InputDimensions<typeof dimensionNames> & {
-  origin: OriginTuple;
-  rotations?: RotationInput[];
-  translation?: Partial<Vector3DObject>;
-}
+type DimensionNames = typeof dimensionNames;
+
+const parseInputDimensions = buildParseInputDimensions(dimensionNames, {});
+
+type RectangularPrismParams =
+  CommonModel3DParams
+  & InputDimensions<DimensionNames>
+  & {
+    origin: OriginTuple;
+  }
 
 export class RectangularPrism extends PrimitiveModel3D {
-  private dimensions: Dimensions<typeof dimensionNames>;
-
-  static parseInputDimensions = buildParseInputDimensions(dimensionNames, {})
+  private dimensions: Dimensions<DimensionNames>;
 
   constructor({
     origin,
@@ -31,7 +34,7 @@ export class RectangularPrism extends PrimitiveModel3D {
     translation = {},
     ...inputDimensions
   }: RectangularPrismParams) {
-    const dimensions = RectangularPrism.parseInputDimensions(inputDimensions);
+    const dimensions = parseInputDimensions(inputDimensions);
 
     const [originX, originY, originZ] = origin;
     const {

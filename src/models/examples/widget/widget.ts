@@ -20,30 +20,32 @@ const dimensionNames = [
   'frontYMargin',
 ] as const;
 
-export class Widget extends CompoundModel3D {
-  static parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
-    dimensionNames,
-    {
-      leftXMargin: 'xMargin',
-      rightXMargin: 'xMargin',
-      backYMargin: 'yMargin',
-      frontYMargin: 'yMargin',
-      lengthX:
-        'circleDiameter + 2 * xMargin',
-      lengthY:
-        'circleDiameter + 2 * yMargin',
-      circleDiameter:
-        '2 * circleRadius',
-    },
-  )
+type DimensionNames = typeof dimensionNames;
 
-  constructor(inputDimensions: InputDimensions<typeof dimensionNames>) {
+const parseInputDimensions = buildParseInputDimensions<DimensionNames>(
+  dimensionNames,
+  {
+    leftXMargin: 'xMargin',
+    rightXMargin: 'xMargin',
+    backYMargin: 'yMargin',
+    frontYMargin: 'yMargin',
+    lengthX:
+      'circleDiameter + 2 * xMargin',
+    lengthY:
+      'circleDiameter + 2 * yMargin',
+    circleDiameter:
+      '2 * circleRadius',
+  },
+);
+
+export class Widget extends CompoundModel3D {
+  constructor(inputDimensions: InputDimensions<DimensionNames>) {
     const {
       lengthX,
       lengthY,
       lengthZ,
       circleRadius,
-    } = Widget.parseInputDimensions(inputDimensions);
+    } = parseInputDimensions(inputDimensions);
 
     super(
       new Subtraction({

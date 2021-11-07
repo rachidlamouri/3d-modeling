@@ -1,12 +1,11 @@
-import { Model3D, RotationInput } from './model3D';
-import { Vector3DObject } from './vector';
+import { Model3D, CommonModel3DParams } from './model3D';
 import { Operation3D } from './operation3D';
 
-type UnionParams = {
-  models: Model3D[];
-  rotations?: RotationInput[];
-  translation?: Partial<Vector3DObject>;
-}
+type UnionParams =
+  CommonModel3DParams
+  & {
+    models: Model3D[];
+  }
 
 export class Union extends Operation3D {
   models: Model3D[];

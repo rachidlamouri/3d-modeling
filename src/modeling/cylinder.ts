@@ -4,8 +4,8 @@ import {
   Dimensions,
 } from '../dimensionParser/buildParseInputDimensions';
 import { PrimitiveModel3D } from './primitiveModel3D';
-import { RotationInput } from './model3D';
-import { Vector3DObject, Vector3D } from './vector';
+import { CommonModel3DParams } from './model3D';
+import { Vector3D } from './vector';
 
 const dimensionNames = [
   'diameter',
@@ -14,22 +14,27 @@ const dimensionNames = [
   'height',
 ] as const;
 
-type CylinderParams = InputDimensions<typeof dimensionNames> & {
-  origin: 'bottom' | 'center' | 'top';
-  rotations?: RotationInput[];
-  translation?: Partial<Vector3DObject>;
-};
+type DimensionNames = typeof dimensionNames;
+
+const parseInputDimensions = buildParseInputDimensions<DimensionNames>(
+  dimensionNames,
+  {
+    diameter: '2 * radius',
+    height: 'lengthZ',
+  },
+);
+
+export type CylinderOrigin = 'bottom' | 'center' | 'top';
+
+type CylinderParams =
+  CommonModel3DParams
+  & InputDimensions<DimensionNames>
+  & {
+    origin: CylinderOrigin;
+  };
 
 export class Cylinder extends PrimitiveModel3D {
-  static parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
-    dimensionNames,
-    {
-      diameter: '2 * radius',
-      height: 'lengthZ',
-    },
-  )
-
-  private params: Dimensions<typeof dimensionNames>;
+  private dimensions: Dimensions<DimensionNames>;
 
   constructor({
     origin,
@@ -37,12 +42,12 @@ export class Cylinder extends PrimitiveModel3D {
     translation = {},
     ...inputParams
   }: CylinderParams) {
-    const params = Cylinder.parseInputDimensions(inputParams);
+    const dimensions = parseInputDimensions(inputParams);
 
     const position = {
-      bottom: new Vector3D(0, 0, params.lengthZ / 2),
+      bottom: new Vector3D(0, 0, dimensions.lengthZ / 2),
       center: new Vector3D(0, 0, 0),
-      top: new Vector3D(0, 0, -params.lengthZ / 2),
+      top: new Vector3D(0, 0, -dimensions.lengthZ / 2),
     }[origin];
 
     super({
@@ -51,18 +56,18 @@ export class Cylinder extends PrimitiveModel3D {
       translation,
     });
 
-    this.params = params;
+    this.dimensions = dimensions;
   }
 
   get diameter() {
-    return this.params.diameter;
+    return this.dimensions.diameter;
   }
 
   get radius() {
-    return this.params.radius;
+    return this.dimensions.radius;
   }
 
   get lengthZ() {
-    return this.params.lengthZ;
+    return this.dimensions.lengthZ;
   }
 }

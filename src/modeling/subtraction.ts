@@ -1,12 +1,11 @@
-import { Model3D, RotationInput } from './model3D';
-import { Vector3DObject } from './vector';
+import { Model3D, CommonModel3DParams } from './model3D';
 import { Operation3D } from './operation3D';
 
-type SubtractionParams = {
-  models: [Model3D, ...Model3D[]];
-  rotations?: RotationInput[];
-  translation?: Partial<Vector3DObject>;
-}
+type SubtractionParams =
+  CommonModel3DParams
+  & {
+    models: [Model3D, ...Model3D[]];
+  }
 
 export class Subtraction extends Operation3D {
   minuend: Model3D;

@@ -7,6 +7,11 @@ type Rotation = {
   offset: Vector3DTuple;
 }
 
+export type CommonModel3DParams = {
+  rotations?: RotationInput[];
+  translation?: Partial<Vector3DObject>;
+}
+
 export type Model3DParams = {
   position: Vector3D;
   rotations: RotationInput[];

@@ -1,11 +1,10 @@
 import { buildParseInputDimensions, InputDimensions } from '../dimensionParser';
-import { RotationInput } from './model3D';
 import { CompoundModel3D } from './compoundModel3D';
-import { Vector3DObject } from './vector';
 import { Subtraction } from './subtraction';
-import { Cylinder } from './cylinder';
+import { Cylinder, CylinderOrigin } from './cylinder';
+import { CommonModel3DParams } from './model3D';
 
-const tubeDimensions = [
+const dimensionNames = [
   'innerRadius',
   'innerDiameter',
   'wallThickness',
@@ -15,8 +14,10 @@ const tubeDimensions = [
   'height',
 ] as const;
 
-const parseTubeDimensions = buildParseInputDimensions<typeof tubeDimensions>(
-  tubeDimensions,
+type DimensionNames = typeof dimensionNames;
+
+const parseInputDimensions = buildParseInputDimensions<DimensionNames>(
+  dimensionNames,
   {
     innerDiameter: '2 * innerRadius',
     outerDiameter: '2 * outerRadius',
@@ -25,11 +26,12 @@ const parseTubeDimensions = buildParseInputDimensions<typeof tubeDimensions>(
   },
 );
 
-type TubeParams = InputDimensions<typeof tubeDimensions> & {
-  origin: 'bottom' | 'center' | 'top';
-  rotations?: RotationInput[];
-  translation?: Partial<Vector3DObject>;
-};
+type TubeParams =
+  CommonModel3DParams
+  & InputDimensions<DimensionNames>
+  & {
+    origin: CylinderOrigin
+  };
 
 export class Tube extends CompoundModel3D {
   constructor({
@@ -42,7 +44,7 @@ export class Tube extends CompoundModel3D {
       innerDiameter,
       outerDiameter,
       lengthZ,
-    } = parseTubeDimensions(inputParams);
+    } = parseInputDimensions(inputParams);
 
     super(
       new Subtraction({
