@@ -1,21 +1,23 @@
 import { Model3D, Model3DParams, CommonModel3DParams } from './model3D';
 
+type ModelList = [Model3D, ...Model3D[]];
+
 export type CommonOperation3DParams =
   CommonModel3DParams
   & {
-    models: Model3D[];
+    models: ModelList;
   };
 
 type Operation3DParams<T> =
   Omit<Model3DParams, 'position'>
   & {
     type: T;
-    models: Model3D[];
+    models: ModelList;
   }
 
 export abstract class Operation3D extends Model3D {
   type: typeof Operation3D;
-  models: Model3D[];
+  models: ModelList;
 
   constructor({
     name,
@@ -23,10 +25,6 @@ export abstract class Operation3D extends Model3D {
     models,
     transforms,
   }: Operation3DParams<typeof Operation3D>) {
-    if (models.length === 0) {
-      throw Error('Operations must have at least 1 model');
-    }
-
     super({
       name,
       position: models[0].position,
