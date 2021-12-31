@@ -3,9 +3,9 @@ import {
   CompoundModel3D,
   Cylinder,
   RectangularPrism,
-  Rotation,
   Subtraction,
   Translation,
+  Union,
 } from '../../modeling';
 
 const dimensionNames = [
@@ -66,6 +66,13 @@ const dimensionNames = [
   'firstCutJigLengthZ',
   'firstCutJigOffsetX',
   'firstCutJigOffsetZ',
+  'firstCutJigMagnetOffsetZ',
+
+  // For grabbing the FirstCutJig
+  'firsCutJigHoldLengthX',
+  'firsCutJigHoldLengthY',
+  'firsCutJigHoldLengthZ',
+  'firsCutJigHoldOffsetX',
 ] as const;
 
 const mmPerInch = 25.4;
@@ -75,9 +82,9 @@ const parseInputDimensions = buildParseInputDimensions(dimensionNames, {
   supportMagnetDiameter: '10',
   supportMagnetRadius: 'supportMagnetDiameter / 2',
   supportMagnetLengthZ: '3',
-  supportMagnetRadiusAllowance: '.1',
+  supportMagnetRadiusAllowance: '.4',
   supportMagnetDiameterAllowance: 'supportMagnetRadiusAllowance * 2',
-  supportMagnetLengthZAllowance: '.2',
+  supportMagnetLengthZAllowance: '.5',
 
   supportMagnetHoleRadius: 'supportMagnetRadius + supportMagnetRadiusAllowance',
   supportMagnetHoleDiameter: '2 * supportMagnetHoleRadius',
@@ -86,21 +93,21 @@ const parseInputDimensions = buildParseInputDimensions(dimensionNames, {
   magneticTapeCutoffLengthX: `${inchesToMm(2)}`,
   magneticTapeExcessLengthX: `${inchesToMm(1)}`,
   magneticTapeLengthY: `${inchesToMm(1)}`,
-  magneticTapeLengthXEndAllowance: '.1', // only one side is closed off
-  magneticTapeLengthYTolerance: '.2',
+  magneticTapeLengthXEndAllowance: '.4', // only one side is closed off
+  magneticTapeLengthYTolerance: '1',
 
   magneticTapeHoleLengthX: 'magneticTapeLengthXEndAllowance + magneticTapeCutoffLengthX + magneticTapeExcessLengthX',
   magneticTapeHoleLengthY: 'magneticTapeLengthY + magneticTapeLengthYTolerance',
   magneticTapeHoleLengthZ: '8',
 
   bladeLengthX: '.9',
-  bladeLengthXTolerance: '.2',
-  bladeHoleLengthYAllowance: '3',
+  bladeLengthXTolerance: '.6',
+  bladeHoleLengthYAllowance: '8',
 
   bladeHoleLengthX: 'bladeLengthX + bladeLengthXTolerance',
   bladeHoleLengthY: 'magneticTapeHoleLengthY + bladeHoleLengthYAllowance',
 
-  magneticBarrierLengthZ: '.3',
+  magneticBarrierLengthZ: '.6',
   baseLengthZ: 'supportMagnetHoleLengthZ + magneticBarrierLengthZ',
   smallestWallLengthXY: '.8',
   wallLengthX: 'smallestWallLengthXY',
@@ -111,7 +118,7 @@ const parseInputDimensions = buildParseInputDimensions(dimensionNames, {
   outerLengthY: 'bladeHoleLengthY + 2 * smallestWallLengthXY',
   outerLengthZ: 'baseLengthZ + wallLengthZ',
 
-  tableProtectionLengthZ: '.3',
+  tableProtectionLengthZ: '.6',
   bladeHoleLengthZ: 'outerLengthZ - tableProtectionLengthZ',
   bladeHoleOffsetX: 'magneticTapeLengthXEndAllowance + magneticTapeCutoffLengthX',
   bladeHoleOffsetZ: 'tableProtectionLengthZ',
@@ -129,6 +136,12 @@ const parseInputDimensions = buildParseInputDimensions(dimensionNames, {
   firstCutJigLengthZ: 'magneticBarrierLengthZ + supportMagnetHoleLengthZ',
   firstCutJigOffsetX: 'wallLengthX + magneticTapeLengthXEndAllowance',
   firstCutJigOffsetZ: 'magneticTapeOffsetZ',
+  firstCutJigMagnetOffsetZ: 'magneticBarrierLengthZ',
+
+  firsCutJigHoldLengthX: '10',
+  firsCutJigHoldLengthY: 'firstCutJigLengthY',
+  firsCutJigHoldLengthZ: 'wallLengthZ',
+  firsCutJigHoldOffsetX: 'firstCutJigLengthX - firsCutJigHoldLengthX',
 });
 
 const d = parseInputDimensions({});
@@ -228,37 +241,57 @@ class MagneticTapeCuttingJig extends CompoundModel3D {
 class FirstCutJig extends CompoundModel3D {
   constructor() {
     super(
-      new Subtraction({
+      new Union({
         name: 'FirstCutJig',
         models: [
-          new RectangularPrism({
-            name: 'OuterBlock',
-            origin: ['left', 'center', 'bottom'],
-            lengthX: d.firstCutJigLengthX,
-            lengthY: d.firstCutJigLengthY,
-            lengthZ: d.firstCutJigLengthZ,
-            transforms: [
-              new Translation({
-                x: d.firstCutJigOffsetX,
+          new Subtraction({
+            name: 'FirstCutJig',
+            models: [
+              new RectangularPrism({
+                name: 'OuterBlock',
+                origin: ['left', 'center', 'bottom'],
+                lengthX: d.firstCutJigLengthX,
+                lengthY: d.firstCutJigLengthY,
+                lengthZ: d.firstCutJigLengthZ,
+              }),
+              new Union({
+                name: 'SupportMagnetHoles',
+                models: [
+                  new SupportMagnetHole({
+                    name: 'FrontSupportMagnetHole',
+                    xType: 'left',
+                    yType: 'front',
+                  }),
+                  new SupportMagnetHole({
+                    name: 'BackSupportMagnetHole',
+                    xType: 'left',
+                    yType: 'back',
+                  }),
+                ],
+                transforms: [
+                  new Translation({
+                    z: d.firstCutJigMagnetOffsetZ,
+                  }),
+                ],
               }),
             ],
           }),
-          new SupportMagnetHole({
-            name: 'FrontSupportMagnetHole',
-            xType: 'left',
-            yType: 'front',
-          }),
-          new SupportMagnetHole({
-            name: 'BackSupportMagnetHole',
-            xType: 'left',
-            yType: 'back',
+          new RectangularPrism({
+            name: 'Hold',
+            origin: ['left', 'center', 'bottom'],
+            lengthX: d.firsCutJigHoldLengthX,
+            lengthY: d.firsCutJigHoldLengthY,
+            lengthZ: d.firsCutJigHoldLengthZ,
+            transforms: [
+              new Translation({ x: d.firsCutJigHoldOffsetX }),
+            ],
           }),
         ],
         transforms: [
           new Translation({
+            x: d.firstCutJigOffsetX,
             z: d.firstCutJigOffsetZ,
           }),
-          new Rotation({ x: 180 }, 'self'),
         ],
       }),
     );
