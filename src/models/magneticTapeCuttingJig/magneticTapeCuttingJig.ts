@@ -101,7 +101,7 @@ const parseInputDimensions = buildParseInputDimensions(dimensionNames, {
   magneticTapeHoleLengthZ: '8',
 
   bladeLengthX: '.6',
-  bladeLengthXTolerance: '.4',
+  bladeLengthXTolerance: '.2',
   bladeHoleLengthYAllowance: '8',
 
   bladeHoleLengthX: 'bladeLengthX + bladeLengthXTolerance',
