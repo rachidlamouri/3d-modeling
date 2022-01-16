@@ -214,5 +214,32 @@ describe('dimensionParser/buildInputDimensionParser', () => {
         expect(testFn).to.throw('"var3" has mismatched input value "5" and computed values "5" and "4"');
       });
     });
+
+    context('when an input dimension is a formula', () => {
+      let result: ParsedInput;
+
+      before(() => {
+        result = buildParseInputDimensions(
+          [
+            'var1',
+            'var2',
+            'var3',
+          ] as const,
+          {},
+        )({
+          var1: 4,
+          var2: 'var1',
+          var3: 'var1 + var2',
+        });
+      });
+
+      it('returns all dimensions', () => {
+        expect(result).to.eql({
+          var1: 4,
+          var2: 4,
+          var3: 4 + 4,
+        });
+      });
+    });
   });
 });

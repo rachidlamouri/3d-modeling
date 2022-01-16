@@ -1,14 +1,21 @@
 import _ from 'lodash';
 import { buildDimensionDefinitions } from './buildDimensionDefinitions';
 import { VariableLiterals } from '../expressionParser/statement';
-import { parseDimensions, DimensionDefinitions } from './parseDimensions';
+import {
+  parseDimensions,
+  DimensionDefinitions,
+  PartialDimensionDefinitions,
+  parsePartialDimensions,
+} from './parseDimensions';
 import { entries, fromEntries } from './utils';
 import { AggregateError } from '../utils/error';
-import { VariableEquation } from '../expressionParser/variableEquation';
+import { VariableEquation, VariableEquationSystems } from '../expressionParser/variableEquation';
+import { DimensionScript } from '../expressionParser/parseExpression';
 
 export type Dimensions<DimensionNames extends VariableLiterals> = { [Name in DimensionNames[number]]: number };
 
-export type InputDimensions<DimensionNames extends VariableLiterals> = Partial<Dimensions<DimensionNames>>;
+export type InputDimensions<DimensionNames extends VariableLiterals> =
+  Partial<{ [Name in DimensionNames[number]]: number | DimensionScript }>;
 
 type WorkingValue = number | null;
 
@@ -111,10 +118,13 @@ const initializeAllDimensions = <DimensionNames extends VariableLiterals>(
   dimensionNames: DimensionNames,
   inputDimensions: InputDimensions<DimensionNames>,
 ): WorkingDimensions<DimensionNames> => {
-  const allEntries = dimensionNames.map((name: DimensionNames[number]) => [
-    name,
-    new WorkingDimension(name, inputDimensions[name] ?? null),
-  ]);
+  const allEntries = dimensionNames.map((name: DimensionNames[number]) => {
+    const inputDimension = inputDimensions[name];
+
+    const inputValue = typeof inputDimension === 'number' ? inputDimension : null;
+
+    return [name, new WorkingDimension(name, inputValue)];
+  });
 
   return Object.fromEntries(allEntries);
 };
@@ -123,13 +133,30 @@ export const buildParseInputDimensions = <DimensionNames extends VariableLiteral
   dimensionNames: DimensionNames,
   partialDefinitions: Partial<DimensionDefinitions<DimensionNames>>,
 ): InputDimensionParser<DimensionNames> => {
-  const allDefinitions = buildDimensionDefinitions(dimensionNames, partialDefinitions);
-  const equationSystems = parseDimensions<DimensionNames>(dimensionNames, allDefinitions);
-  const allEquations = entries(equationSystems).flatMap(([dimensionName, equations]) => (
-    equations.map((equation) => [dimensionName, equation] as [DimensionNames[number], VariableEquation<DimensionNames>])
+  type DimensionName = DimensionNames[number];
+
+  const allDefaultDefinitions = buildDimensionDefinitions(dimensionNames, partialDefinitions);
+  const allDefaultEquationSystems = parseDimensions<DimensionNames>(dimensionNames, allDefaultDefinitions);
+  const allDefaultEquations = entries(allDefaultEquationSystems).flatMap(([dimensionName, equations]) => (
+    equations.map((equation) => [dimensionName, equation] as [DimensionName, VariableEquation<DimensionNames>])
   ));
 
   const parseInputDimensions = (inputDimensions: InputDimensions<DimensionNames>) => {
+    const inputPartialDefinitions: PartialDimensionDefinitions<DimensionNames> = fromEntries(
+      entries(inputDimensions)
+        .filter((tuple): tuple is [DimensionName, DimensionScript] => typeof tuple[1] === 'string'),
+    );
+    const allInputEquationSystems = parsePartialDimensions<DimensionNames>(dimensionNames, inputPartialDefinitions);
+    const allInputEquations = entries(allInputEquationSystems)
+      .flatMap(([dimensionName, equations]) => (
+        equations.map((equation) => [dimensionName, equation] as [DimensionName, VariableEquation<DimensionNames>])
+      ));
+
+    const allEquations: [DimensionName, VariableEquation<DimensionNames>][] = [
+      ...allDefaultEquations,
+      ...allInputEquations,
+    ];
+
     const workingDimensions = initializeAllDimensions(dimensionNames, inputDimensions);
 
     let nextEquations = allEquations.map(([dimensionName, equation]) => ({
@@ -171,9 +198,21 @@ export const buildParseInputDimensions = <DimensionNames extends VariableLiteral
           .filter(([, workingDimension]) => !workingDimension.hasValue())
           .map(([variableName]) => variableName);
 
-        const errors = unsolvedVariableNames.flatMap((variableName) => (
+        const allEquationSystems: VariableEquationSystems<DimensionNames> = dimensionNames.reduce(
+          (accumulatedEquationSystems, dimensionName: DimensionName) => {
+            // eslint-disable-next-line no-param-reassign
+            accumulatedEquationSystems[dimensionName] = [
+              ...allDefaultEquationSystems[dimensionName],
+              ...(allInputEquationSystems[dimensionName] ?? []),
+            ];
 
-          equationSystems[variableName]
+            return accumulatedEquationSystems;
+          },
+          {} as VariableEquationSystems<DimensionNames>,
+        );
+
+        const errors = unsolvedVariableNames.flatMap((variableName) => (
+          allEquationSystems[variableName]
             .filter((equation, index, equations) => !equation.isTautology() || equations.length === 1)
             // TODO: Fix "simplify"
             .map((equation) => new Error(`Unable to solve \`${equation.simplify().simplify().simplify().toString()}\``))
