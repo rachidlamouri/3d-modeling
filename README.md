@@ -9,9 +9,7 @@ npm ci
 
 npm run compile:grammar
 
-npm run compile:ts
-
-npm run build:model build/src/models/examples/widget/widgetInstance.js
+npm run build:model src/models/examples/widget/widgetInstance.ts
 
 # open 'build/src/models/examples/widget/widgetInstance.*.stl' in an stl viewer
 ```
@@ -29,9 +27,7 @@ Make a file with a default export containing keyed `Model3D` or `ModelCollection
 ### Model Development Process
 
 ```bash
-npm run compile:ts -- --watch
-
-npm run build:model <build/src/models/path_to_my_model_instance.js>
+npm run build:model src/models/<path-to-model.ts>
 
 # open build/src/models/path_to_my_model_instance.*.stl in an stl viewer
 ```

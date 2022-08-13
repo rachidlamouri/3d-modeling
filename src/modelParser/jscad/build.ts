@@ -1,10 +1,6 @@
 import fs from 'fs';
 import { parseModel } from './index';
 
-const ROOT_DIR = __dirname
-  .replace(/\\/g, '/')
-  .replace(/build\/src\/modelParser\/jscad$/, '');
-
 export const getParameterDefinitions = () => [
   { name: 'filepath', type: 'text', initial: '' },
   { name: 'model', type: 'text', initial: '' },
@@ -23,9 +19,9 @@ export const main = ({ filepath, model }: { filepath: string, model :string }) =
     throw Error(`File "${filepath}" does not exist`);
   }
 
-  const fullFilepath = `${ROOT_DIR}${filepath}`;
+  const relativeFilePath = `../../../${filepath}`;
   // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-dynamic-require, global-require
-  const models = require(fullFilepath);
+  const models = require(relativeFilePath);
 
   return parseModel(models.default[model]);
 };
