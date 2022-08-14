@@ -3,20 +3,16 @@ import { BasePlate } from './basePlate';
 import { WindowPlate } from './windowPlate';
 import { toggleSliderDimensions as d } from './dimensions';
 import { Slider } from './slider';
+import { FullPlate } from './fullPlate';
+import { FullPlateGroup } from './fullPlateGroup';
 
 export default {
   basePlate: new BasePlate(),
   windowPlate: new WindowPlate(),
   slider: new Slider(),
-  plateDemo: new Union({
-    models: [
-      new BasePlate(),
-      new WindowPlate({
-        transforms: [
-          new Translation({ z: d.basePlateLengthZ }),
-        ],
-      }),
-    ],
+  fullPlate: new FullPlate(),
+  fullPlateGroupDemo: new FullPlateGroup({
+    count: 3,
   }),
   sliderDemo: new Union({
     models: [
