@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import { spawn } from 'child_process';
 import fs from 'fs';
+import { posix } from 'path';
 
 const [src] = process.argv.slice(2);
 
@@ -32,6 +33,12 @@ import(`../../${src}`).then(async (models) => {
     const modelName = modelNames[i];
 
     const outputPath = src.replace(/^src/, 'build/src').replace(/\.ts$/, `.${modelName}.stl`);
+    const outputDirPath = posix.dirname(outputPath);
+
+    if (!fs.existsSync(outputDirPath)) {
+      fs.mkdirSync(outputDirPath, { recursive: true });
+    }
+
     const command = ['npx.cmd', 'jscad', 'scripts/loadModel.js', '--filepath', `${src}`, '--model', `${modelName}`, '-o', `${outputPath}`];
 
     // eslint-disable-next-line no-await-in-loop
