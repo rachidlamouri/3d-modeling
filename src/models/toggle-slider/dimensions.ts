@@ -9,15 +9,24 @@ const dimensionNames = [
   'magnetHoleDiameter',
   'magnetHoleLengthZ',
 
+  'sliderBottomThickness',
+  'sliderWallThickness',
+  'sliderExtraGrabLengthZ',
+
+  'sliderLengthX',
+  'sliderLengthY',
+  'sliderLengthZ',
+  'sliderHoleLengthZ',
+
   'centerToCenterLength',
 
-  'openBorderLength',
-  'solidBorderLength',
+  'windowWallThickness',
 
   'windowPlateLengthX',
   'windowPlateLengthY',
   'windowPlateLengthZ',
 
+  'windowPlateHoleAllowanceXY',
   'windowPlateHoleLengthX',
   'windowPlateHoleLengthY',
   'windowPlateHoleLengthZ',
@@ -40,24 +49,34 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     magnetHoleDiameter: 'magnetDiameter + 2 * magnetDiameterTolerance',
     magnetHoleLengthZ: 'magnetLengthZ + 1.5 * magnetLengthZTolerance',
 
-    centerToCenterLength: '50',
+    sliderBottomThickness: '.6',
+    sliderWallThickness: '.8',
 
-    openBorderLength: '5',
-    solidBorderLength: 'openBorderLength',
+    sliderExtraGrabLengthZ: '2',
+
+    sliderLengthX: 'magnetHoleDiameter + 2 * sliderWallThickness',
+    sliderLengthY: 'sliderLengthX',
+    sliderLengthZ: 'sliderBottomThickness + magnetHoleLengthZ + sliderExtraGrabLengthZ',
+    sliderHoleLengthZ: 'sliderLengthZ',
+
+    centerToCenterLength: '20',
+
+    windowWallThickness: '.8',
+
+    windowPlateHoleAllowanceXY: '.5',
+    windowPlateHoleLengthX: 'sliderLengthX + centerToCenterLength + windowPlateHoleAllowanceXY',
+    windowPlateHoleLengthY: 'sliderLengthY + windowPlateHoleAllowanceXY',
+    windowPlateHoleLengthZ: 'windowPlateLengthZ',
+
+    windowPlateLengthX: 'windowPlateHoleLengthX + 2 * windowWallThickness',
+    windowPlateLengthY: 'windowPlateHoleLengthY + 2 * windowWallThickness',
+    windowPlateLengthZ: 'magnetLengthZ',
 
     basePlateTopThickness: '.6',
 
-    basePlateLengthX: '2 * solidBorderLength + 2 * openBorderLength + magnetDiameter + centerToCenterLength',
-    basePlateLengthY: '2 * solidBorderLength + 2 * openBorderLength + magnetDiameter',
+    basePlateLengthX: 'windowPlateLengthX',
+    basePlateLengthY: 'windowPlateLengthY',
     basePlateLengthZ: 'magnetHoleLengthZ + basePlateTopThickness',
-
-    windowPlateLengthX: 'basePlateLengthX',
-    windowPlateLengthY: 'basePlateLengthY',
-    windowPlateLengthZ: '1.5 * (magnetLengthZ + 2 * magnetLengthZTolerance)',
-
-    windowPlateHoleLengthX: 'windowPlateLengthX - 2 * solidBorderLength',
-    windowPlateHoleLengthY: 'windowPlateLengthY - 2 * solidBorderLength',
-    windowPlateHoleLengthZ: 'windowPlateLengthZ',
   },
 );
 
