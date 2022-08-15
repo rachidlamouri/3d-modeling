@@ -11,7 +11,6 @@ const dimensionNames = [
 
   'sliderBottomThickness',
   'sliderWallThickness',
-  'sliderExtraGrabLengthZ',
 
   'sliderLengthX',
   'sliderLengthY',
@@ -52,11 +51,9 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     sliderBottomThickness: '.6',
     sliderWallThickness: '.8',
 
-    sliderExtraGrabLengthZ: '2',
-
     sliderLengthX: 'magnetHoleDiameter + 2 * sliderWallThickness',
     sliderLengthY: 'sliderLengthX',
-    sliderLengthZ: 'sliderBottomThickness + magnetHoleLengthZ + sliderExtraGrabLengthZ',
+    sliderLengthZ: '1.8 * windowPlateLengthZ',
     sliderHoleLengthZ: 'sliderLengthZ',
 
     centerToCenterLength: '20',
@@ -70,7 +67,7 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
 
     windowPlateLengthX: 'windowPlateHoleLengthX + 2 * windowWallThickness',
     windowPlateLengthY: 'windowPlateHoleLengthY + 2 * windowWallThickness',
-    windowPlateLengthZ: 'magnetLengthZ',
+    windowPlateLengthZ: '2 * magnetLengthZ',
 
     basePlateTopThickness: '.6',
 
