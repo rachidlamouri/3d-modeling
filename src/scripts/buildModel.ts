@@ -39,7 +39,7 @@ import(`../../${src}`).then(async (models) => {
       fs.mkdirSync(outputDirPath, { recursive: true });
     }
 
-    const command = ['npx.cmd', 'jscad', 'scripts/loadModel.js', '--filepath', `${src}`, '--model', `${modelName}`, '-o', `${outputPath}`];
+    const command = ['npx', 'jscad', 'scripts/loadModel.js', '--filepath', `${src}`, '--model', `${modelName}`, '-o', `${outputPath}`];
 
     // eslint-disable-next-line no-await-in-loop
     await new Promise<void>((resolve) => {

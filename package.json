@@ -2,7 +2,7 @@
   "scripts": {
     "build:model": "nodemon --exec \"npx ts-node src/scripts/buildModel\"",
     "clean": "rm -r build/",
-    "compile:grammar": "rm -rf src/expressionParser/compiled/ && antlr4ts -visitor -o src/expressionParser/compiled/ src/expressionParser/DimensionScript.g4",
+    "compile:grammar": "rm -rf src/expressionParser/compiled/ && antlr4ts -visitor -o src/expressionParser/compiled src/expressionParser/DimensionScript.g4 && mv src/expressionParser/compiled/src/expressionParser/* src/expressionParser/compiled && rm -r src/expressionParser/compiled/src",
     "lint": "eslint --ext .js,.ts .",
     "postinstall": "npm run compile:grammar",
     "test": "mocha build/src/tests/**/*.test.js"
