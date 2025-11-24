@@ -24,7 +24,8 @@ Purpose: provide quick, actionable guidance so an AI can be immediately producti
 
 - **AI Codegen Rules**
   - Avoid emitting `as` type casts.
-    - Do not use `as` (for example `foo as Bar`) to silence type errors. Prefer:
+    - Do not use `as` (for example `const baz = foo as Bar`) to silence type errors. Prefer:
+      - put the type after the variable name (for example `const baz: Bar = foo`),
       - refine types with `instanceof` or custom type guards (type predicates),
       - add narrow, well-typed helper functions or overloaded signatures,
       - adjust interfaces/return types so the compiler understands the shape,
