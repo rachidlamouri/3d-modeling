@@ -53,15 +53,24 @@ export class FrameTemplate extends CompoundModel3D {
                 diameter: frameWallOuterDiameter,
                 axialLength: frameWingLengthY,
               }),
-              ..._.range(2).map((index) => new RectangularPrism({
-                origin: ['center', (index === 0 ? 'front' : 'back'), 'bottom'],
-                lengthX: frameWingspan,
-                lengthY: frameWingspan,
-                lengthZ: frameWingLengthY,
-                transforms: [
-                  new Translation({ y: (index === 0 ? -1 : 1) * (frameWingLengthZ / 2) }),
-                ],
-              })),
+              ..._.range(2).map(
+                (index) =>
+                  new RectangularPrism({
+                    origin: [
+                      'center',
+                      index === 0 ? 'front' : 'back',
+                      'bottom',
+                    ],
+                    lengthX: frameWingspan,
+                    lengthY: frameWingspan,
+                    lengthZ: frameWingLengthY,
+                    transforms: [
+                      new Translation({
+                        y: (index === 0 ? -1 : 1) * (frameWingLengthZ / 2),
+                      }),
+                    ],
+                  }),
+              ),
             ],
           }),
         ],

@@ -69,15 +69,15 @@ export class Support extends CompoundModel3D {
                       }),
                     ],
                     transforms: [
-                      new Translation({ z: supportMainHeight - supportMainOverlapHeight }),
+                      new Translation({
+                        z: supportMainHeight - supportMainOverlapHeight,
+                      }),
                     ],
                   }),
                 ],
               }),
             ],
-            transforms: [
-              new Translation({ z: supportBaseHeight }),
-            ],
+            transforms: [new Translation({ z: supportBaseHeight })],
           }),
         ],
       }),
@@ -111,11 +111,8 @@ export class SupportTopSliceTest extends CompoundModel3D {
 
 export class SupportBottomSliceTest extends CompoundModel3D {
   constructor() {
-    const {
-      supportMainOuterDiameter,
-      supportMainHeight,
-      lightBaseHeight,
-    } = projectorDimensions;
+    const { supportMainOuterDiameter, supportMainHeight, lightBaseHeight } =
+      projectorDimensions;
 
     super(
       new Subtraction({
@@ -126,9 +123,7 @@ export class SupportBottomSliceTest extends CompoundModel3D {
             origin: 'bottom',
             diameter: supportMainOuterDiameter,
             axialLength: supportMainHeight,
-            transforms: [
-              new Translation({ z: lightBaseHeight }),
-            ],
+            transforms: [new Translation({ z: lightBaseHeight })],
           }),
         ],
       }),

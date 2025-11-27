@@ -5,36 +5,39 @@ import { VariableLiterals, VariablesMap } from './statement';
 
 export type BinaryOperator = '*' | '/' | '+' | '-';
 
-type BinaryExpressionParams<VariableNames extends VariableLiterals> = Omit<ExpressionParams, 'input'> & {
+type BinaryExpressionParams<VariableNames extends VariableLiterals> = Omit<
+  ExpressionParams,
+  'input'
+> & {
   input?: string;
   leftExpression: Expression<VariableNames>;
   operator: BinaryOperator;
   rightExpression: Expression<VariableNames>;
-}
+};
 
-const isAdditionOrSubtraction = (operator: BinaryOperator): operator is UnaryOperator => operator === '+' || operator === '-';
-const isExpressionNegative = <VariableNames extends VariableLiterals>
-  (expression: Expression<VariableNames>): expression is UnaryExpression<VariableNames> => (
-    (expression instanceof UnaryExpression) && expression.isNegative()
-  );
+const isAdditionOrSubtraction = (
+  operator: BinaryOperator,
+): operator is UnaryOperator => operator === '+' || operator === '-';
+const isExpressionNegative = <VariableNames extends VariableLiterals>(
+  expression: Expression<VariableNames>,
+): expression is UnaryExpression<VariableNames> =>
+  expression instanceof UnaryExpression && expression.isNegative();
 
-export class BinaryExpression<VariableNames extends VariableLiterals> extends Expression<VariableNames> {
+export class BinaryExpression<
+  VariableNames extends VariableLiterals,
+> extends Expression<VariableNames> {
   leftExpression: Expression<VariableNames>;
   operator: BinaryOperator;
   rightExpression: Expression<VariableNames>;
 
   constructor(params: BinaryExpressionParams<VariableNames>) {
-    const {
-      input,
-      leftExpression,
-      operator,
-      rightExpression,
-    } = params;
+    const { input, leftExpression, operator, rightExpression } = params;
 
     super({
-      input: input !== undefined
-        ? input
-        : `(${leftExpression.input}) ${operator} (${rightExpression.input})`,
+      input:
+        input !== undefined
+          ? input
+          : `(${leftExpression.input}) ${operator} (${rightExpression.input})`,
     });
     this.leftExpression = leftExpression;
     this.operator = operator;
@@ -46,10 +49,14 @@ export class BinaryExpression<VariableNames extends VariableLiterals> extends Ex
     const rightValue = this.rightExpression.compute(variables);
 
     switch (this.operator) {
-      case '+': return leftValue + rightValue;
-      case '-': return leftValue - rightValue;
-      case '/': return leftValue / rightValue;
-      default: return leftValue * rightValue;
+      case '+':
+        return leftValue + rightValue;
+      case '-':
+        return leftValue - rightValue;
+      case '/':
+        return leftValue / rightValue;
+      default:
+        return leftValue * rightValue;
     }
   }
 
@@ -74,19 +81,26 @@ export class BinaryExpression<VariableNames extends VariableLiterals> extends Ex
     const isMultiplication = this.operator === '*';
     const isDivision = this.operator === '/';
 
-    const isLeftZero = (this.leftExpression instanceof ConstantExpression) && this.leftExpression.isZero();
-    const isRightZero = (this.rightExpression instanceof ConstantExpression) && this.rightExpression.isZero();
+    const isLeftZero =
+      this.leftExpression instanceof ConstantExpression &&
+      this.leftExpression.isZero();
+    const isRightZero =
+      this.rightExpression instanceof ConstantExpression &&
+      this.rightExpression.isZero();
 
-    const isLeftOne = (this.leftExpression instanceof ConstantExpression) && this.leftExpression.isOne();
-    const isRightOne = (this.rightExpression instanceof ConstantExpression) && this.rightExpression.isOne();
+    const isLeftOne =
+      this.leftExpression instanceof ConstantExpression &&
+      this.leftExpression.isOne();
+    const isRightOne =
+      this.rightExpression instanceof ConstantExpression &&
+      this.rightExpression.isOne();
 
     if (isAdditionOrSubtraction(this.operator) && isLeftZero) {
       return new UnaryExpression({
         input: this.input,
         operator: this.operator,
         expression: this.rightExpression,
-      })
-        .simplify();
+      }).simplify();
     }
 
     if (isAdditionOrSubtraction(this.operator) && isRightZero) {
@@ -99,25 +113,26 @@ export class BinaryExpression<VariableNames extends VariableLiterals> extends Ex
         leftExpression: this.leftExpression,
         operator: '+',
         rightExpression: this.rightExpression.expression,
-      })
-        .simplify();
+      }).simplify();
     }
 
     if (
-      (isMultiplication || isDivision)
-      && isExpressionNegative(this.leftExpression)
-      && isExpressionNegative(this.rightExpression)
+      (isMultiplication || isDivision) &&
+      isExpressionNegative(this.leftExpression) &&
+      isExpressionNegative(this.rightExpression)
     ) {
       return new BinaryExpression({
         input: this.input,
         leftExpression: this.leftExpression.invert(),
         operator: this.operator,
         rightExpression: this.rightExpression.invert(),
-      })
-        .simplify();
+      }).simplify();
     }
 
-    if ((isMultiplication || isDivision) && isExpressionNegative(this.leftExpression)) {
+    if (
+      (isMultiplication || isDivision) &&
+      isExpressionNegative(this.leftExpression)
+    ) {
       return new UnaryExpression({
         input: this.input,
         operator: '-',
@@ -126,11 +141,13 @@ export class BinaryExpression<VariableNames extends VariableLiterals> extends Ex
           operator: this.operator,
           rightExpression: this.rightExpression,
         }),
-      })
-        .simplify();
+      }).simplify();
     }
 
-    if ((isMultiplication || isDivision) && isExpressionNegative(this.rightExpression)) {
+    if (
+      (isMultiplication || isDivision) &&
+      isExpressionNegative(this.rightExpression)
+    ) {
       return new UnaryExpression({
         input: this.input,
         operator: '-',
@@ -139,8 +156,7 @@ export class BinaryExpression<VariableNames extends VariableLiterals> extends Ex
           operator: this.operator,
           rightExpression: this.rightExpression.invert(),
         }),
-      })
-        .simplify();
+      }).simplify();
     }
 
     if ((isMultiplication || isDivision) && isRightOne) {
@@ -160,6 +176,8 @@ export class BinaryExpression<VariableNames extends VariableLiterals> extends Ex
   }
 
   toString() {
-    return `(${this.leftExpression.toString()} ${this.operator} ${this.rightExpression.toString()})`;
+    return `(${this.leftExpression.toString()} ${
+      this.operator
+    } ${this.rightExpression.toString()})`;
   }
 }

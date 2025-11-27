@@ -4,13 +4,11 @@ import { Vector3D } from './vector';
 
 export type Point2D = [number, number];
 
-type ExtrudedPolygonParams =
-  CommonModel3DParams
-  & {
-    boundingBox: Vector3D;
-    points: Point2D[];
-    lengthZ: number;
-  }
+type ExtrudedPolygonParams = CommonModel3DParams & {
+  boundingBox: Vector3D;
+  points: Point2D[];
+  lengthZ: number;
+};
 
 export class ExtrudedPolygon extends PrimitiveModel3D {
   boundingBox: Vector3D;

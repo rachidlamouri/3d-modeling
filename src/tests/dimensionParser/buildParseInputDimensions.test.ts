@@ -1,5 +1,8 @@
 import { expect } from 'chai';
-import { AggregateParseInputDimensionError, buildParseInputDimensions } from '../../dimensionParser/buildParseInputDimensions';
+import {
+  AggregateParseInputDimensionError,
+  buildParseInputDimensions,
+} from '../../dimensionParser/buildParseInputDimensions';
 import { AggregateError } from '../../utils/error';
 
 describe('dimensionParser/buildInputDimensionParser', () => {
@@ -24,15 +27,12 @@ describe('dimensionParser/buildInputDimensionParser', () => {
         ] as const;
 
         try {
-          buildParseInputDimensions(
-            variableNames,
-            {
-              var1: 'abc',
-              var2: 'var1 + var4 + var2 + var1',
-              var4: '++',
-              var5: 'var3 + var1 + var3 + var1',
-            },
-          );
+          buildParseInputDimensions(variableNames, {
+            var1: 'abc',
+            var2: 'var1 + var4 + var2 + var1',
+            var4: '++',
+            var5: 'var3 + var1 + var3 + var1',
+          });
         } catch (e) {
           aggregateError = e as AggregateError;
         }
@@ -65,12 +65,7 @@ describe('dimensionParser/buildInputDimensionParser', () => {
 
       before(() => {
         result = buildParseInputDimensions(
-          [
-            'var1',
-            'var2',
-            'var3',
-            'var4',
-          ] as const,
+          ['var1', 'var2', 'var3', 'var4'] as const,
           {
             var2: 'var4 + var3',
             var4: 'var1 / 2',
@@ -85,13 +80,13 @@ describe('dimensionParser/buildInputDimensionParser', () => {
         expect(result).to.eql({
           var1: 4,
           var2: 10,
-          var3: 10 - (4 / 2),
+          var3: 10 - 4 / 2,
           var4: 4 / 2,
         });
       });
     });
 
-    context('when it can\'t derive all dimensions', () => {
+    context("when it can't derive all dimensions", () => {
       const variableNames = [
         'var1',
         'var2',
@@ -104,14 +99,11 @@ describe('dimensionParser/buildInputDimensionParser', () => {
 
       before(() => {
         try {
-          buildParseInputDimensions(
-            variableNames,
-            {
-              var2: 'var1 + var4',
-              var4: 'var1 + var3 + var5',
-              var5: 'var1 / 3',
-            },
-          )({
+          buildParseInputDimensions(variableNames, {
+            var2: 'var1 + var4',
+            var4: 'var1 + var3 + var5',
+            var5: 'var1 / 3',
+          })({
             var1: 12,
           });
         } catch (e) {
@@ -145,86 +137,76 @@ describe('dimensionParser/buildInputDimensionParser', () => {
       });
     });
 
-    context('when a derived dimension conflicts with an input dimension', () => {
-      it('throws an error with the input and derived value', () => {
-        const testFn = () => {
-          buildParseInputDimensions(
-            [
-              'var1',
-              'var2',
-              'var3',
-            ] as const,
-            {
+    context(
+      'when a derived dimension conflicts with an input dimension',
+      () => {
+        it('throws an error with the input and derived value', () => {
+          const testFn = () => {
+            buildParseInputDimensions(['var1', 'var2', 'var3'] as const, {
               var1: 'var2 + var3',
-            },
-          )({
-            var1: 10,
-            var2: 5,
-            var3: 4,
-          });
-        };
+            })({
+              var1: 10,
+              var2: 5,
+              var3: 4,
+            });
+          };
 
-        expect(testFn).to.throw('"var2" has mismatched input value "5" and computed value "6"');
-      });
-    });
+          expect(testFn).to.throw(
+            '"var2" has mismatched input value "5" and computed value "6"',
+          );
+        });
+      },
+    );
 
-    context('when a derived dimension conflicts with a previously derived dimension', () => {
-      it('throws an error with the input and derived value', () => {
-        const testFn = () => {
-          buildParseInputDimensions(
-            [
-              'var1',
-              'var2',
-              'var3',
-            ] as const,
-            {
+    context(
+      'when a derived dimension conflicts with a previously derived dimension',
+      () => {
+        it('throws an error with the input and derived value', () => {
+          const testFn = () => {
+            buildParseInputDimensions(['var1', 'var2', 'var3'] as const, {
               var1: 'var3',
               var2: 'var3',
-            },
-          )({
-            var1: 5,
-            var2: 4,
-          });
-        };
+            })({
+              var1: 5,
+              var2: 4,
+            });
+          };
 
-        expect(testFn).to.throw('"var3" has mismatched computed values "5" and "4"');
-      });
-    });
+          expect(testFn).to.throw(
+            '"var3" has mismatched computed values "5" and "4"',
+          );
+        });
+      },
+    );
 
-    context('when a derived dimension conflicts with an input dimension and a previously derived dimension', () => {
-      it('throws an error with the input and derived value', () => {
-        const testFn = () => {
-          buildParseInputDimensions(
-            [
-              'var1',
-              'var2',
-              'var3',
-            ] as const,
-            {
+    context(
+      'when a derived dimension conflicts with an input dimension and a previously derived dimension',
+      () => {
+        it('throws an error with the input and derived value', () => {
+          const testFn = () => {
+            buildParseInputDimensions(['var1', 'var2', 'var3'] as const, {
               var1: 'var3',
               var2: 'var3',
-            },
-          )({
-            var1: 5,
-            var2: 4,
-            var3: 5,
-          });
-        };
+            })({
+              var1: 5,
+              var2: 4,
+              var3: 5,
+            });
+          };
 
-        expect(testFn).to.throw('"var3" has mismatched input value "5" and computed values "5" and "4"');
-      });
-    });
+          expect(testFn).to.throw(
+            '"var3" has mismatched input value "5" and computed values "5" and "4"',
+          );
+        });
+      },
+    );
 
     context('when an input dimension is a formula', () => {
       let result: ParsedInput;
 
       before(() => {
         result = buildParseInputDimensions(
-          [
-            'var1',
-            'var2',
-            'var3',
-          ] as const,
+          ['var1', 'var2', 'var3'] as const,
           {},
         )({
           var1: 4,

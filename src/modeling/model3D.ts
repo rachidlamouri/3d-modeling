@@ -15,13 +15,13 @@ export type OrientationAxis = 'x' | 'y' | 'z';
 export type CommonModel3DParams = {
   name?: string;
   transforms?: Transform3D[];
-}
+};
 
 export type Model3DParams = {
   name: string;
   position: Vector3D;
   transforms: Transform3D[];
-}
+};
 
 export abstract class Model3D {
   readonly name: string;
@@ -29,11 +29,7 @@ export abstract class Model3D {
   readonly transforms: Transform3D[];
   private memoizedTransformStates?: TransformState[];
 
-  constructor({
-    name,
-    position,
-    transforms,
-  }: Model3DParams) {
+  constructor({ name, position, transforms }: Model3DParams) {
     this.name = name;
     this.position = position;
     this.transforms = transforms;
@@ -45,10 +41,11 @@ export abstract class Model3D {
       let nextPosition: Vector3D;
 
       this.memoizedTransformStates = this.transforms
-        .filter((transform) => (
-          !(transform instanceof NoTranslation)
-          && !(transform instanceof NoRotation)
-        ))
+        .filter(
+          (transform) =>
+            !(transform instanceof NoTranslation) &&
+            !(transform instanceof NoRotation),
+        )
         .map((transform) => {
           if (transform instanceof Translation) {
             nextPosition = previousPosition.add(transform.vector);
@@ -59,15 +56,18 @@ export abstract class Model3D {
               z: vec3.rotateZ,
             }[transform.axis];
             const nextPositionTuple: Vec3 = vec3.create();
-            const origin = transform.center === 'self'
-              ? previousPosition.tuple
-              : [0, 0, 0] as Vec3;
+            const origin =
+              transform.center === 'self'
+                ? previousPosition.tuple
+                : ([0, 0, 0] as Vec3);
             const angle = degToRad(transform.angle);
 
             rotate(nextPositionTuple, previousPosition.tuple, origin, angle);
             nextPosition = new Vector3D(...nextPositionTuple);
           } else {
-            throw Error(`Unhandled ${Transform3D.name}: ${transform.constructor.name}`);
+            throw Error(
+              `Unhandled ${Transform3D.name}: ${transform.constructor.name}`,
+            );
           }
 
           const transformState: TransformState = [previousPosition, transform];

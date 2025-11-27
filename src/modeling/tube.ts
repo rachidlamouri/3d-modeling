@@ -25,10 +25,8 @@ const parseInputDimensions = buildParseInputDimensions<DimensionNames>(
   },
 );
 
-type TubeParams =
-  CommonModel3DParams
-  & InputDimensions<DimensionNames>
-  & {
+type TubeParams = CommonModel3DParams &
+  InputDimensions<DimensionNames> & {
     axis: OrientationAxis;
     origin: CylinderOrigin;
   };
@@ -41,11 +39,8 @@ export class Tube extends CompoundModel3D {
     transforms = [],
     ...inputParams
   }: TubeParams) {
-    const {
-      innerDiameter,
-      outerDiameter,
-      axialLength,
-    } = parseInputDimensions(inputParams);
+    const { innerDiameter, outerDiameter, axialLength } =
+      parseInputDimensions(inputParams);
 
     const lengthZ = axis === 'z' ? axialLength : outerDiameter;
     const positionTransform = {

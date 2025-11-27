@@ -30,7 +30,8 @@ export class Reel extends CompoundModel3D {
       reelNotchLength,
     } = projectorDimensions;
 
-    const getOriginAngle = (index: number) => firstFrameAngle + index * frameAngleZ;
+    const getOriginAngle = (index: number) =>
+      firstFrameAngle + index * frameAngleZ;
 
     super(
       new Subtraction({
@@ -42,51 +43,57 @@ export class Reel extends CompoundModel3D {
             innerDiameter: reelInnerDiameter,
             axialLength: reelHeight,
           }),
-          ..._.range(frameCount).map((index) => (
-            new Cylinder({
-              axis: 'z',
-              origin: 'center',
-              diameter: frameImageHoleDiameter,
-              axialLength: frameImageHoleLengthY,
-              transforms: [
-                new Rotation({ x: 90 }, 'self'),
-                new Translation({
-                  y: frameImageHoleLengthY / 2,
-                  z: reelHeight / 2,
-                }),
-                new Rotation({ z: getOriginAngle(index) }, 'origin'),
-              ],
-            })
-          )),
-          ..._.range(frameCount).map((index) => (
-            new FrameHoleAssembly({
-              originAngleZ: getOriginAngle(index),
-              transforms: [
-                new Translation({
-                  y: reelInnerRadius + reelThicknessBuffer,
-                  z: reelHeight / 2,
-                }),
-                new Rotation({ z: getOriginAngle(index) }, 'origin'),
-              ],
-            })
-          )),
-          ..._.range(frameCount + 1).map((index) => (
-            new Cylinder({
-              axis: 'z',
-              origin: 'center',
-              radius: reelNotchRadius,
-              axialLength: reelNotchLength,
-              transforms: [
-                new Rotation({ x: 90 }, 'self'),
-                new Translation({ y: -reelNotchLength / 2 + reelOuterRadius }),
-                new Rotation({ z: index === 4 ? 180 : getOriginAngle(index) }, 'origin'),
-              ],
-            })
-          )),
+          ..._.range(frameCount).map(
+            (index) =>
+              new Cylinder({
+                axis: 'z',
+                origin: 'center',
+                diameter: frameImageHoleDiameter,
+                axialLength: frameImageHoleLengthY,
+                transforms: [
+                  new Rotation({ x: 90 }, 'self'),
+                  new Translation({
+                    y: frameImageHoleLengthY / 2,
+                    z: reelHeight / 2,
+                  }),
+                  new Rotation({ z: getOriginAngle(index) }, 'origin'),
+                ],
+              }),
+          ),
+          ..._.range(frameCount).map(
+            (index) =>
+              new FrameHoleAssembly({
+                originAngleZ: getOriginAngle(index),
+                transforms: [
+                  new Translation({
+                    y: reelInnerRadius + reelThicknessBuffer,
+                    z: reelHeight / 2,
+                  }),
+                  new Rotation({ z: getOriginAngle(index) }, 'origin'),
+                ],
+              }),
+          ),
+          ..._.range(frameCount + 1).map(
+            (index) =>
+              new Cylinder({
+                axis: 'z',
+                origin: 'center',
+                radius: reelNotchRadius,
+                axialLength: reelNotchLength,
+                transforms: [
+                  new Rotation({ x: 90 }, 'self'),
+                  new Translation({
+                    y: -reelNotchLength / 2 + reelOuterRadius,
+                  }),
+                  new Rotation(
+                    { z: index === 4 ? 180 : getOriginAngle(index) },
+                    'origin',
+                  ),
+                ],
+              }),
+          ),
         ],
-        transforms: [
-          translation,
-        ],
+        transforms: [translation],
       }),
     );
   }
@@ -94,12 +101,8 @@ export class Reel extends CompoundModel3D {
 
 export class ReelLowerSliceTest extends CompoundModel3D {
   constructor() {
-    const {
-      reelOuterDiameter,
-      reelHeight,
-      trackBaseHeight,
-      trackLipHeight,
-    } = projectorDimensions;
+    const { reelOuterDiameter, reelHeight, trackBaseHeight, trackLipHeight } =
+      projectorDimensions;
 
     super(
       new Subtraction({
@@ -146,7 +149,7 @@ export class ReelFrameHoleSliceTest extends CompoundModel3D {
               }),
               new RectangularPrism({
                 origin: ['center', 'back', 'bottom'],
-                lengthX: frameWingChannelDiameter + (2 * frameWingChannelBuffer),
+                lengthX: frameWingChannelDiameter + 2 * frameWingChannelBuffer,
                 lengthY: reelOuterRadius,
                 lengthZ: reelHeight,
                 transforms: [

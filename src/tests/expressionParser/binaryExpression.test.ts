@@ -155,7 +155,9 @@ describe('expressionParser/binaryExpression', () => {
       const simplifiedRightExpression = new MockSimplifiedRightExpression();
 
       sinon.stub(leftExpression, 'simplify').returns(simplifiedLeftExpression);
-      sinon.stub(rightExpression, 'simplify').returns(simplifiedRightExpression);
+      sinon
+        .stub(rightExpression, 'simplify')
+        .returns(simplifiedRightExpression);
 
       const expression = new BinaryExpression({
         leftExpression,
@@ -163,18 +165,22 @@ describe('expressionParser/binaryExpression', () => {
         rightExpression,
       });
 
-      expect(expression.simplify()).to.eql(new BinaryExpression({
-        input: '(mockLeftExpression) + (mockRightExpression)',
-        leftExpression: simplifiedLeftExpression,
-        operator: '+',
-        rightExpression: simplifiedRightExpression,
-      }));
+      expect(expression.simplify()).to.eql(
+        new BinaryExpression({
+          input: '(mockLeftExpression) + (mockRightExpression)',
+          leftExpression: simplifiedLeftExpression,
+          operator: '+',
+          rightExpression: simplifiedRightExpression,
+        }),
+      );
     });
 
     it('omits the 0 for (0 + rightExpression)', () => {
       const simplifiedRightExpression = new MockSimplifiedRightExpression();
       const rightExpression = new MockRightExpression();
-      sinon.stub(rightExpression, 'simplify').returns(simplifiedRightExpression);
+      sinon
+        .stub(rightExpression, 'simplify')
+        .returns(simplifiedRightExpression);
 
       const expression = new BinaryExpression({
         leftExpression: zeroLiteralExpression,
@@ -188,7 +194,9 @@ describe('expressionParser/binaryExpression', () => {
     it('omits the 0 for (0 - rightExpression)', () => {
       const simplifiedRightExpression = new MockSimplifiedRightExpression();
       const rightExpression = new MockRightExpression();
-      sinon.stub(rightExpression, 'simplify').returns(simplifiedRightExpression);
+      sinon
+        .stub(rightExpression, 'simplify')
+        .returns(simplifiedRightExpression);
 
       const expression = new BinaryExpression({
         leftExpression: zeroLiteralExpression,
@@ -196,11 +204,13 @@ describe('expressionParser/binaryExpression', () => {
         rightExpression,
       });
 
-      expect(expression.simplify()).to.eql(new UnaryExpression({
-        input: '(0) - (mockRightExpression)',
-        operator: '-',
-        expression: simplifiedRightExpression,
-      }));
+      expect(expression.simplify()).to.eql(
+        new UnaryExpression({
+          input: '(0) - (mockRightExpression)',
+          operator: '-',
+          expression: simplifiedRightExpression,
+        }),
+      );
     });
 
     it('omits the 0 for (leftExpression + 0)', () => {
@@ -236,10 +246,13 @@ describe('expressionParser/binaryExpression', () => {
       const rightSubexpression = new MockRightSubexpression();
 
       const simplifiedLeftExpression = new MockSimplifiedLeftExpression();
-      const simplifiedRightSubexpression = new MockSimplifiedRightSubexpression();
+      const simplifiedRightSubexpression =
+        new MockSimplifiedRightSubexpression();
 
       sinon.stub(leftExpression, 'simplify').returns(simplifiedLeftExpression);
-      sinon.stub(rightSubexpression, 'simplify').returns(simplifiedRightSubexpression);
+      sinon
+        .stub(rightSubexpression, 'simplify')
+        .returns(simplifiedRightSubexpression);
 
       const expression = new BinaryExpression({
         leftExpression,
@@ -250,12 +263,14 @@ describe('expressionParser/binaryExpression', () => {
         }),
       });
 
-      expect(expression.simplify()).to.eql(new BinaryExpression({
-        input: '(mockLeftExpression) - (-(mockRightSubexpression))',
-        leftExpression: simplifiedLeftExpression,
-        operator: '+',
-        rightExpression: simplifiedRightSubexpression,
-      }));
+      expect(expression.simplify()).to.eql(
+        new BinaryExpression({
+          input: '(mockLeftExpression) - (-(mockRightSubexpression))',
+          leftExpression: simplifiedLeftExpression,
+          operator: '+',
+          rightExpression: simplifiedRightSubexpression,
+        }),
+      );
     });
 
     it('cancels the negatives for ((-leftExpression) * (-rightExpression))', () => {
@@ -263,10 +278,15 @@ describe('expressionParser/binaryExpression', () => {
       const rightSubexpression = new MockRightSubexpression();
 
       const simplifiedLeftSubexpression = new MockSimplifiedLeftSubexpression();
-      const simplifiedRightSubexpression = new MockSimplifiedRightSubexpression();
+      const simplifiedRightSubexpression =
+        new MockSimplifiedRightSubexpression();
 
-      sinon.stub(leftSubexpression, 'simplify').returns(simplifiedLeftSubexpression);
-      sinon.stub(rightSubexpression, 'simplify').returns(simplifiedRightSubexpression);
+      sinon
+        .stub(leftSubexpression, 'simplify')
+        .returns(simplifiedLeftSubexpression);
+      sinon
+        .stub(rightSubexpression, 'simplify')
+        .returns(simplifiedRightSubexpression);
 
       const expression = new BinaryExpression({
         leftExpression: new UnaryExpression({
@@ -280,12 +300,14 @@ describe('expressionParser/binaryExpression', () => {
         }),
       });
 
-      expect(expression.simplify()).to.eql(new BinaryExpression({
-        input: '(-(mockLeftSubexpression)) * (-(mockRightSubexpression))',
-        leftExpression: simplifiedLeftSubexpression,
-        operator: '*',
-        rightExpression: simplifiedRightSubexpression,
-      }));
+      expect(expression.simplify()).to.eql(
+        new BinaryExpression({
+          input: '(-(mockLeftSubexpression)) * (-(mockRightSubexpression))',
+          leftExpression: simplifiedLeftSubexpression,
+          operator: '*',
+          rightExpression: simplifiedRightSubexpression,
+        }),
+      );
     });
 
     it('cancels the negatives for ((-leftExpression) / (-rightExpression))', () => {
@@ -293,10 +315,15 @@ describe('expressionParser/binaryExpression', () => {
       const rightSubexpression = new MockRightSubexpression();
 
       const simplifiedLeftSubexpression = new MockSimplifiedLeftSubexpression();
-      const simplifiedRightSubexpression = new MockSimplifiedRightSubexpression();
+      const simplifiedRightSubexpression =
+        new MockSimplifiedRightSubexpression();
 
-      sinon.stub(leftSubexpression, 'simplify').returns(simplifiedLeftSubexpression);
-      sinon.stub(rightSubexpression, 'simplify').returns(simplifiedRightSubexpression);
+      sinon
+        .stub(leftSubexpression, 'simplify')
+        .returns(simplifiedLeftSubexpression);
+      sinon
+        .stub(rightSubexpression, 'simplify')
+        .returns(simplifiedRightSubexpression);
 
       const expression = new BinaryExpression({
         leftExpression: new UnaryExpression({
@@ -310,12 +337,14 @@ describe('expressionParser/binaryExpression', () => {
         }),
       });
 
-      expect(expression.simplify()).to.eql(new BinaryExpression({
-        input: '(-(mockLeftSubexpression)) / (-(mockRightSubexpression))',
-        leftExpression: simplifiedLeftSubexpression,
-        operator: '/',
-        rightExpression: simplifiedRightSubexpression,
-      }));
+      expect(expression.simplify()).to.eql(
+        new BinaryExpression({
+          input: '(-(mockLeftSubexpression)) / (-(mockRightSubexpression))',
+          leftExpression: simplifiedLeftSubexpression,
+          operator: '/',
+          rightExpression: simplifiedRightSubexpression,
+        }),
+      );
     });
 
     it('factors the -1 for ((-leftExpression) * rightExpression)', () => {
@@ -325,8 +354,12 @@ describe('expressionParser/binaryExpression', () => {
       const simplifiedLeftSubexpression = new MockSimplifiedLeftSubexpression();
       const simplifiedRightExpression = new MockSimplifiedRightExpression();
 
-      sinon.stub(leftSubexpression, 'simplify').returns(simplifiedLeftSubexpression);
-      sinon.stub(rightExpression, 'simplify').returns(simplifiedRightExpression);
+      sinon
+        .stub(leftSubexpression, 'simplify')
+        .returns(simplifiedLeftSubexpression);
+      sinon
+        .stub(rightExpression, 'simplify')
+        .returns(simplifiedRightExpression);
 
       const expression = new BinaryExpression({
         leftExpression: new UnaryExpression({
@@ -337,16 +370,18 @@ describe('expressionParser/binaryExpression', () => {
         rightExpression,
       });
 
-      expect(expression.simplify()).to.eql(new UnaryExpression({
-        input: '(-(mockLeftSubexpression)) * (mockRightExpression)',
-        operator: '-',
-        expression: new BinaryExpression({
-          input: '(+(mockLeftSubexpression)) * (mockRightExpression)',
-          leftExpression: simplifiedLeftSubexpression,
-          operator: '*',
-          rightExpression: simplifiedRightExpression,
+      expect(expression.simplify()).to.eql(
+        new UnaryExpression({
+          input: '(-(mockLeftSubexpression)) * (mockRightExpression)',
+          operator: '-',
+          expression: new BinaryExpression({
+            input: '(+(mockLeftSubexpression)) * (mockRightExpression)',
+            leftExpression: simplifiedLeftSubexpression,
+            operator: '*',
+            rightExpression: simplifiedRightExpression,
+          }),
         }),
-      }));
+      );
     });
 
     it('factors the -1 for ((-leftExpression) / rightExpression)', () => {
@@ -356,8 +391,12 @@ describe('expressionParser/binaryExpression', () => {
       const simplifiedLeftSubexpression = new MockSimplifiedLeftSubexpression();
       const simplifiedRightExpression = new MockSimplifiedRightExpression();
 
-      sinon.stub(leftSubexpression, 'simplify').returns(simplifiedLeftSubexpression);
-      sinon.stub(rightExpression, 'simplify').returns(simplifiedRightExpression);
+      sinon
+        .stub(leftSubexpression, 'simplify')
+        .returns(simplifiedLeftSubexpression);
+      sinon
+        .stub(rightExpression, 'simplify')
+        .returns(simplifiedRightExpression);
 
       const expression = new BinaryExpression({
         leftExpression: new UnaryExpression({
@@ -368,16 +407,18 @@ describe('expressionParser/binaryExpression', () => {
         rightExpression,
       });
 
-      expect(expression.simplify()).to.eql(new UnaryExpression({
-        input: '(-(mockLeftSubexpression)) / (mockRightExpression)',
-        operator: '-',
-        expression: new BinaryExpression({
-          input: '(+(mockLeftSubexpression)) / (mockRightExpression)',
-          leftExpression: simplifiedLeftSubexpression,
-          operator: '/',
-          rightExpression: simplifiedRightExpression,
+      expect(expression.simplify()).to.eql(
+        new UnaryExpression({
+          input: '(-(mockLeftSubexpression)) / (mockRightExpression)',
+          operator: '-',
+          expression: new BinaryExpression({
+            input: '(+(mockLeftSubexpression)) / (mockRightExpression)',
+            leftExpression: simplifiedLeftSubexpression,
+            operator: '/',
+            rightExpression: simplifiedRightExpression,
+          }),
         }),
-      }));
+      );
     });
 
     it('factors the -1 for (leftExpression * (-rightExpression))', () => {
@@ -385,10 +426,13 @@ describe('expressionParser/binaryExpression', () => {
       const rightSubexpression = new MockRightSubexpression();
 
       const simplifiedLeftExpression = new MockSimplifiedLeftExpression();
-      const simplifiedRightSubexpression = new MockSimplifiedRightSubexpression();
+      const simplifiedRightSubexpression =
+        new MockSimplifiedRightSubexpression();
 
       sinon.stub(leftExpression, 'simplify').returns(simplifiedLeftExpression);
-      sinon.stub(rightSubexpression, 'simplify').returns(simplifiedRightSubexpression);
+      sinon
+        .stub(rightSubexpression, 'simplify')
+        .returns(simplifiedRightSubexpression);
 
       const expression = new BinaryExpression({
         leftExpression,
@@ -399,16 +443,18 @@ describe('expressionParser/binaryExpression', () => {
         }),
       });
 
-      expect(expression.simplify()).to.eql(new UnaryExpression({
-        input: '(mockLeftExpression) * (-(mockRightSubexpression))',
-        operator: '-',
-        expression: new BinaryExpression({
-          input: '(mockLeftExpression) * (+(mockRightSubexpression))',
-          leftExpression: simplifiedLeftExpression,
-          operator: '*',
-          rightExpression: simplifiedRightSubexpression,
+      expect(expression.simplify()).to.eql(
+        new UnaryExpression({
+          input: '(mockLeftExpression) * (-(mockRightSubexpression))',
+          operator: '-',
+          expression: new BinaryExpression({
+            input: '(mockLeftExpression) * (+(mockRightSubexpression))',
+            leftExpression: simplifiedLeftExpression,
+            operator: '*',
+            rightExpression: simplifiedRightSubexpression,
+          }),
         }),
-      }));
+      );
     });
 
     it('factors the -1 for (leftExpression / (-rightExpression))', () => {
@@ -416,10 +462,13 @@ describe('expressionParser/binaryExpression', () => {
       const rightSubexpression = new MockRightSubexpression();
 
       const simplifiedLeftExpression = new MockSimplifiedLeftExpression();
-      const simplifiedRightSubexpression = new MockSimplifiedRightSubexpression();
+      const simplifiedRightSubexpression =
+        new MockSimplifiedRightSubexpression();
 
       sinon.stub(leftExpression, 'simplify').returns(simplifiedLeftExpression);
-      sinon.stub(rightSubexpression, 'simplify').returns(simplifiedRightSubexpression);
+      sinon
+        .stub(rightSubexpression, 'simplify')
+        .returns(simplifiedRightSubexpression);
 
       const expression = new BinaryExpression({
         leftExpression,
@@ -430,16 +479,18 @@ describe('expressionParser/binaryExpression', () => {
         }),
       });
 
-      expect(expression.simplify()).to.eql(new UnaryExpression({
-        input: '(mockLeftExpression) / (-(mockRightSubexpression))',
-        operator: '-',
-        expression: new BinaryExpression({
-          input: '(mockLeftExpression) / (+(mockRightSubexpression))',
-          leftExpression: simplifiedLeftExpression,
-          operator: '/',
-          rightExpression: simplifiedRightSubexpression,
+      expect(expression.simplify()).to.eql(
+        new UnaryExpression({
+          input: '(mockLeftExpression) / (-(mockRightSubexpression))',
+          operator: '-',
+          expression: new BinaryExpression({
+            input: '(mockLeftExpression) / (+(mockRightSubexpression))',
+            leftExpression: simplifiedLeftExpression,
+            operator: '/',
+            rightExpression: simplifiedRightSubexpression,
+          }),
         }),
-      }));
+      );
     });
 
     it('omits the 1 for (leftExpression * 1)', () => {
@@ -473,7 +524,9 @@ describe('expressionParser/binaryExpression', () => {
     it('omits the 1 for (1 * rightExpression)', () => {
       const rightExpression = new MockLeftExpression();
       const simplifiedRightExpression = new MockSimplifiedRightExpression();
-      sinon.stub(rightExpression, 'simplify').returns(simplifiedRightExpression);
+      sinon
+        .stub(rightExpression, 'simplify')
+        .returns(simplifiedRightExpression);
 
       const expression = new BinaryExpression({
         leftExpression: oneLiteralExpression,

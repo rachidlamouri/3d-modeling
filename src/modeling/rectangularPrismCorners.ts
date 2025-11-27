@@ -10,8 +10,8 @@ import { Union } from './union';
 type CornerParams = {
   radius: number;
   lengthZ: number;
-  transforms : Transform3D[],
-}
+  transforms: Transform3D[];
+};
 
 class Corner extends CompoundModel3D {
   constructor({ radius, lengthZ, transforms }: CornerParams) {
@@ -37,18 +37,14 @@ class Corner extends CompoundModel3D {
             lengthX: lengthXY,
             lengthY: lengthXY / 2,
             lengthZ,
-            transforms: [
-              new Translation({ y: -lengthXY / 4 }),
-            ],
+            transforms: [new Translation({ y: -lengthXY / 4 })],
           }),
           new RectangularPrism({
             origin: ['center', 'center', 'bottom'],
             lengthX: lengthXY / 2,
             lengthY: lengthXY,
             lengthZ,
-            transforms: [
-              new Translation({ x: -lengthXY / 4 }),
-            ],
+            transforms: [new Translation({ x: -lengthXY / 4 })],
           }),
         ],
         transforms: [
@@ -64,16 +60,20 @@ class Corner extends CompoundModel3D {
 }
 
 export type RectangularPrismCornersParams = {
-  name?: string,
-  lengthX: number,
-  lengthY: number,
-  lengthZ: number,
-  cornerRadius: number,
-}
+  name?: string;
+  lengthX: number;
+  lengthY: number;
+  lengthZ: number;
+  cornerRadius: number;
+};
 
 export class RectangularPrismCorners extends CompoundModel3D {
   constructor({
-    name, lengthX, lengthY, lengthZ, cornerRadius,
+    name,
+    lengthX,
+    lengthY,
+    lengthZ,
+    cornerRadius,
   }: RectangularPrismCornersParams) {
     const translationX = lengthX / 2 - cornerRadius / 2;
     const translationY = lengthY / 2 - cornerRadius / 2;
@@ -89,7 +89,8 @@ export class RectangularPrismCorners extends CompoundModel3D {
               new Translation({
                 x: translationX,
                 y: translationY,
-              })],
+              }),
+            ],
           }),
           new Corner({
             radius: cornerRadius,

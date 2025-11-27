@@ -1,7 +1,10 @@
 import { expect } from 'chai';
 import { BinaryExpression } from '../../expressionParser/binaryExpression';
 import { ConstantExpression } from '../../expressionParser/constantExpression';
-import { ErrorExpression, ErrorVariableExpression } from '../../expressionParser/errorExpression';
+import {
+  ErrorExpression,
+  ErrorVariableExpression,
+} from '../../expressionParser/errorExpression';
 import { Expression } from '../../expressionParser/expression';
 import { parseExpression } from '../../expressionParser/parseExpression';
 import { UnaryExpression } from '../../expressionParser/unaryExpression';
@@ -143,9 +146,14 @@ describe('expressionParser/parseExpression', () => {
   context('with a mixed expression', () => {
     it('respects PEMDAS', () => {
       const variableNames = ['abc', 'def', 'ghi'] as const;
-      const result = parseExpression('1 + 2 / abc * (-3) + ((4 + def) / 5) * ghi', variableNames);
+      const result = parseExpression(
+        '1 + 2 / abc * (-3) + ((4 + def) / 5) * ghi',
+        variableNames,
+      );
       expect(result).to.be.an.instanceof(Expression);
-      expect(result.toString()).to.equal('((1 + ((2 / abc) * (-3))) + (((4 + def) / 5) * ghi))');
+      expect(result.toString()).to.equal(
+        '((1 + ((2 / abc) * (-3))) + (((4 + def) / 5) * ghi))',
+      );
     });
   });
 
@@ -184,39 +192,53 @@ describe('expressionParser/parseExpression', () => {
       });
 
       it('saves the UnaryExpression in the ErrorExpression', () => {
-        expect((result as ErrorExpression<never>).expression).to.be.instanceof(UnaryExpression);
+        expect((result as ErrorExpression<never>).expression).to.be.instanceof(
+          UnaryExpression,
+        );
       });
 
       it('saves the actual ErrorExpression within the UnaryExpression', () => {
-        const unaryExpression = (result as ErrorExpression<never>).expression as UnaryExpression<never>;
+        const unaryExpression = (result as ErrorExpression<never>)
+          .expression as UnaryExpression<never>;
         expect(unaryExpression.expression).to.be.instanceof(ErrorExpression);
       });
     });
 
-    context('with a binary expression with invalid left and right expressions', () => {
-      let result: Expression<never>;
+    context(
+      'with a binary expression with invalid left and right expressions',
+      () => {
+        let result: Expression<never>;
 
-      before(() => {
-        result = parseExpression('(🙂) * (🙂)', []);
-      });
+        before(() => {
+          result = parseExpression('(🙂) * (🙂)', []);
+        });
 
-      it('returns an ErrorExpression', () => {
-        expect(result).to.be.instanceof(ErrorExpression);
-      });
+        it('returns an ErrorExpression', () => {
+          expect(result).to.be.instanceof(ErrorExpression);
+        });
 
-      it('saves the BinaryExpression in the ErrorExpression', () => {
-        expect((result as ErrorExpression<never>).expression).to.be.instanceof(BinaryExpression);
-      });
+        it('saves the BinaryExpression in the ErrorExpression', () => {
+          expect(
+            (result as ErrorExpression<never>).expression,
+          ).to.be.instanceof(BinaryExpression);
+        });
 
-      it('saves an actual ErrorExpression within the BinaryExpressions leftExpression', () => {
-        const binaryExpression = (result as ErrorExpression<never>).expression as BinaryExpression<never>;
-        expect(binaryExpression.leftExpression).to.be.instanceof(ErrorExpression);
-      });
+        it('saves an actual ErrorExpression within the BinaryExpressions leftExpression', () => {
+          const binaryExpression = (result as ErrorExpression<never>)
+            .expression as BinaryExpression<never>;
+          expect(binaryExpression.leftExpression).to.be.instanceof(
+            ErrorExpression,
+          );
+        });
 
-      it('saves an actual ErrorExpression within the BinaryExpressions rightExpression', () => {
-        const binaryExpression = (result as ErrorExpression<never>).expression as BinaryExpression<never>;
-        expect(binaryExpression.rightExpression).to.be.instanceof(ErrorExpression);
-      });
-    });
+        it('saves an actual ErrorExpression within the BinaryExpressions rightExpression', () => {
+          const binaryExpression = (result as ErrorExpression<never>)
+            .expression as BinaryExpression<never>;
+          expect(binaryExpression.rightExpression).to.be.instanceof(
+            ErrorExpression,
+          );
+        });
+      },
+    );
   });
 });

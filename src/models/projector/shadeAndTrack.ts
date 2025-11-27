@@ -15,12 +15,12 @@ export class ShadeAndTrack extends CompoundModel3D {
     super(
       new Union({
         models: [
-          new Shade(new Translation({ z: projectorDimensions.trackBaseHeight })),
+          new Shade(
+            new Translation({ z: projectorDimensions.trackBaseHeight }),
+          ),
           new Track(),
         ],
-        transforms: [
-          translation,
-        ],
+        transforms: [translation],
       }),
     );
   }

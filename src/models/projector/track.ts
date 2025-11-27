@@ -47,9 +47,7 @@ export class Track extends CompoundModel3D {
                 outerDiameter: trackLipOuterDiameter,
                 innerDiameter: trackLipInnerDiameter,
                 axialLength: trackLipHeight,
-                transforms: [
-                  new Translation({ z: trackBaseHeight }),
-                ],
+                transforms: [new Translation({ z: trackBaseHeight })],
               }),
               new Subtraction({
                 models: [
@@ -58,9 +56,7 @@ export class Track extends CompoundModel3D {
                     origin: 'center',
                     radius: trackNubRadius,
                     axialLength: trackNubLength,
-                    transforms: [
-                      new Rotation({ x: 90 }, 'self'),
-                    ],
+                    transforms: [new Rotation({ x: 90 }, 'self')],
                   }),
                   new RectangularPrism({
                     origin: ['center', 'center', 'top'],
@@ -91,14 +87,16 @@ export class Track extends CompoundModel3D {
                 models: [
                   new RectangularPrism({
                     origin: ['center', 'center', 'bottom'],
-                    lengthX: supportMainGapLength - supportMainDiameterAllowance,
+                    lengthX:
+                      supportMainGapLength - supportMainDiameterAllowance,
                     lengthY: trackBaseOuterDiameter,
                     lengthZ: trackBaseHeight,
                   }),
                   new RectangularPrism({
                     origin: ['center', 'center', 'bottom'],
                     lengthX: trackBaseOuterDiameter,
-                    lengthY: supportMainGapLength - supportMainDiameterAllowance,
+                    lengthY:
+                      supportMainGapLength - supportMainDiameterAllowance,
                     lengthZ: trackBaseHeight,
                   }),
                 ],

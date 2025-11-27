@@ -12,7 +12,12 @@ import { projectorDimensions } from './dimensions';
 import { LithophaneParams, Lithophane } from '../lithophane/lithophane';
 
 export class Frame extends ModelCollection3D {
-  constructor(params: Omit<LithophaneParams, 'lengthX' | 'lengthY' | 'minLengthZ' | 'maxLengthZ'>) {
+  constructor(
+    params: Omit<
+      LithophaneParams,
+      'lengthX' | 'lengthY' | 'minLengthZ' | 'maxLengthZ'
+    >,
+  ) {
     const {
       frameImageDiameter,
       frameImageMinLengthY,
@@ -31,8 +36,8 @@ export class Frame extends ModelCollection3D {
       lengthY: frameImageDiameter,
       minLengthZ: frameImageMinLengthY,
       maxLengthZ: frameImageMaxLengthY,
-    })
-      .models.map((lithophaneSlice) => (
+    }).models.map(
+      (lithophaneSlice) =>
         new Union({
           models: [
             new Subtraction({
@@ -77,22 +82,29 @@ export class Frame extends ModelCollection3D {
                   diameter: frameWallOuterDiameter,
                   axialLength: frameWingLengthY,
                 }),
-                ..._.range(2).map((index) => (
-                  new RectangularPrism({
-                    origin: ['center', (index === 0 ? 'front' : 'back'), 'bottom'],
-                    lengthX: frameWingspan,
-                    lengthY: (frameWingspan - frameWingLengthZ) / 2,
-                    lengthZ: frameWingLengthY,
-                    transforms: [
-                      new Translation({ y: (index === 0 ? -1 : 1) * (frameWingLengthZ / 2) }),
-                    ],
-                  })
-                )),
+                ..._.range(2).map(
+                  (index) =>
+                    new RectangularPrism({
+                      origin: [
+                        'center',
+                        index === 0 ? 'front' : 'back',
+                        'bottom',
+                      ],
+                      lengthX: frameWingspan,
+                      lengthY: (frameWingspan - frameWingLengthZ) / 2,
+                      lengthZ: frameWingLengthY,
+                      transforms: [
+                        new Translation({
+                          y: (index === 0 ? -1 : 1) * (frameWingLengthZ / 2),
+                        }),
+                      ],
+                    }),
+                ),
               ],
             }),
           ],
-        })
-      ));
+        }),
+    );
 
     super(models);
   }

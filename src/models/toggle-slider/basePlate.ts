@@ -19,17 +19,20 @@ export class BasePlate extends CompoundModel3D {
             lengthY: d.basePlateLengthY,
             lengthZ: d.basePlateLengthZ,
           }),
-          ..._.range(2).map((index) => (
-            new Cylinder({
-              axis: 'z',
-              origin: 'bottom',
-              diameter: d.magnetHoleDiameter,
-              axialLength: d.magnetHoleLengthZ,
-              transforms: [
-                new Translation({ x: ((index === 0 ? -1 : 1) * d.centerToCenterLength) / 2 }),
-              ],
-            })
-          )),
+          ..._.range(2).map(
+            (index) =>
+              new Cylinder({
+                axis: 'z',
+                origin: 'bottom',
+                diameter: d.magnetHoleDiameter,
+                axialLength: d.magnetHoleLengthZ,
+                transforms: [
+                  new Translation({
+                    x: ((index === 0 ? -1 : 1) * d.centerToCenterLength) / 2,
+                  }),
+                ],
+              }),
+          ),
         ],
       }),
     );

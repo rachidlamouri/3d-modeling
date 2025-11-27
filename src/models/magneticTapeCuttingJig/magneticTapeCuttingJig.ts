@@ -88,7 +88,8 @@ const parseInputDimensions = buildParseInputDimensions(dimensionNames, {
 
   supportMagnetHoleRadius: 'supportMagnetRadius + supportMagnetRadiusAllowance',
   supportMagnetHoleDiameter: '2 * supportMagnetHoleRadius',
-  supportMagnetHoleLengthZ: 'supportMagnetLengthZ + supportMagnetLengthZAllowance',
+  supportMagnetHoleLengthZ:
+    'supportMagnetLengthZ + supportMagnetLengthZAllowance',
 
   magneticTapeCutoffLengthX: `${inchesToMm(2)}`,
   magneticTapeExcessLengthX: `${inchesToMm(1)}`,
@@ -96,7 +97,8 @@ const parseInputDimensions = buildParseInputDimensions(dimensionNames, {
   magneticTapeLengthXEndAllowance: '.4', // only one side is closed off
   magneticTapeLengthYTolerance: '1',
 
-  magneticTapeHoleLengthX: 'magneticTapeLengthXEndAllowance + magneticTapeCutoffLengthX + magneticTapeExcessLengthX',
+  magneticTapeHoleLengthX:
+    'magneticTapeLengthXEndAllowance + magneticTapeCutoffLengthX + magneticTapeExcessLengthX',
   magneticTapeHoleLengthY: 'magneticTapeLengthY + magneticTapeLengthYTolerance',
   magneticTapeHoleLengthZ: '8',
 
@@ -111,7 +113,8 @@ const parseInputDimensions = buildParseInputDimensions(dimensionNames, {
   baseLengthZ: 'supportMagnetHoleLengthZ + magneticBarrierLengthZ',
   smallestWallLengthXY: '.8',
   wallLengthX: 'smallestWallLengthXY',
-  wallLengthY: '(bladeHoleLengthY / 2) + smallestWallLengthXY - (magneticTapeHoleLengthY / 2)',
+  wallLengthY:
+    '(bladeHoleLengthY / 2) + smallestWallLengthXY - (magneticTapeHoleLengthY / 2)',
   wallLengthZ: 'magneticTapeHoleLengthZ',
 
   outerLengthX: 'wallLengthX + magneticTapeHoleLengthX',
@@ -120,18 +123,23 @@ const parseInputDimensions = buildParseInputDimensions(dimensionNames, {
 
   tableProtectionLengthZ: '.6',
   bladeHoleLengthZ: 'outerLengthZ - tableProtectionLengthZ',
-  bladeHoleOffsetX: 'magneticTapeLengthXEndAllowance + magneticTapeCutoffLengthX',
+  bladeHoleOffsetX:
+    'magneticTapeLengthXEndAllowance + magneticTapeCutoffLengthX',
   bladeHoleOffsetZ: 'tableProtectionLengthZ',
 
   supportMagnetWallOffsetXY: '1',
-  leftSupportMagnetOffsetX: 'supportMagnetHoleRadius + wallLengthX + supportMagnetWallOffsetXY',
-  rightSupportMagnetOffsetX: 'supportMagnetHoleRadius +  bladeHoleOffsetX - supportMagnetWallOffsetXY - supportMagnetHoleDiameter',
-  frontSupportMagnetOffsetY: '(outerLengthY / 2) - supportMagnetHoleRadius - wallLengthY - supportMagnetWallOffsetXY',
+  leftSupportMagnetOffsetX:
+    'supportMagnetHoleRadius + wallLengthX + supportMagnetWallOffsetXY',
+  rightSupportMagnetOffsetX:
+    'supportMagnetHoleRadius +  bladeHoleOffsetX - supportMagnetWallOffsetXY - supportMagnetHoleDiameter',
+  frontSupportMagnetOffsetY:
+    '(outerLengthY / 2) - supportMagnetHoleRadius - wallLengthY - supportMagnetWallOffsetXY',
   backSupportMagnetOffsetY: '-frontSupportMagnetOffsetY',
 
   magneticTapeOffsetZ: 'baseLengthZ',
 
-  firstCutJigLengthX: 'magneticTapeCutoffLengthX - 2 * supportMagnetWallOffsetXY - supportMagnetHoleDiameter',
+  firstCutJigLengthX:
+    'magneticTapeCutoffLengthX - 2 * supportMagnetWallOffsetXY - supportMagnetHoleDiameter',
   firstCutJigLengthY: 'magneticTapeLengthY',
   firstCutJigLengthZ: 'magneticBarrierLengthZ + supportMagnetHoleLengthZ',
   firstCutJigOffsetX: 'wallLengthX + magneticTapeLengthXEndAllowance',
@@ -150,12 +158,18 @@ type SupportMagnetHoleParams = {
   name: string;
   xType: 'left' | 'right';
   yType: 'front' | 'back';
-}
+};
 
 class SupportMagnetHole extends Cylinder {
   constructor({ name, xType, yType }: SupportMagnetHoleParams) {
-    const xOffset = xType === 'left' ? d.leftSupportMagnetOffsetX : d.rightSupportMagnetOffsetX;
-    const yOffset = yType === 'front' ? d.frontSupportMagnetOffsetY : d.backSupportMagnetOffsetY;
+    const xOffset =
+      xType === 'left'
+        ? d.leftSupportMagnetOffsetX
+        : d.rightSupportMagnetOffsetX;
+    const yOffset =
+      yType === 'front'
+        ? d.frontSupportMagnetOffsetY
+        : d.backSupportMagnetOffsetY;
 
     super({
       name,
@@ -282,9 +296,7 @@ class FirstCutJig extends CompoundModel3D {
             lengthX: d.firsCutJigHoldLengthX,
             lengthY: d.firsCutJigHoldLengthY,
             lengthZ: d.firsCutJigHoldLengthZ,
-            transforms: [
-              new Translation({ x: d.firsCutJigHoldOffsetX }),
-            ],
+            transforms: [new Translation({ x: d.firsCutJigHoldOffsetX })],
           }),
         ],
         transforms: [

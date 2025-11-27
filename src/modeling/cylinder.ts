@@ -8,11 +8,7 @@ import { CommonModel3DParams, OrientationAxis } from './model3D';
 import { Vector3D } from './vector';
 import { NoRotation, Rotation } from './rotation';
 
-const dimensionNames = [
-  'diameter',
-  'radius',
-  'axialLength',
-] as const;
+const dimensionNames = ['diameter', 'radius', 'axialLength'] as const;
 
 type DimensionNames = typeof dimensionNames;
 
@@ -25,10 +21,8 @@ const parseInputDimensions = buildParseInputDimensions<DimensionNames>(
 
 export type CylinderOrigin = 'bottom' | 'center' | 'top';
 
-type CylinderParams =
-  CommonModel3DParams
-  & InputDimensions<DimensionNames>
-  & {
+type CylinderParams = CommonModel3DParams &
+  InputDimensions<DimensionNames> & {
     axis: OrientationAxis;
     origin: CylinderOrigin;
   };
@@ -57,10 +51,7 @@ export class Cylinder extends PrimitiveModel3D {
   }: CylinderParams) {
     const dimensions = parseInputDimensions(inputParams);
 
-    const {
-      axialLength,
-      diameter,
-    } = dimensions;
+    const { axialLength, diameter } = dimensions;
 
     const lengthZ = axis === 'z' ? axialLength : diameter;
     const position = {
@@ -72,10 +63,7 @@ export class Cylinder extends PrimitiveModel3D {
     super({
       name,
       position,
-      transforms: [
-        Cylinder.getOrientationRotation(axis),
-        ...transforms,
-      ],
+      transforms: [Cylinder.getOrientationRotation(axis), ...transforms],
     });
 
     this.dimensions = dimensions;

@@ -10,30 +10,37 @@ type ComplexRectangularPrismParams = {
   lengthY: number;
   lengthZ: number;
   cornerRadius: number;
-  transforms?: Transform3D[]
-}
+  transforms?: Transform3D[];
+};
 
 export class ComplexRectangularPrism extends CompoundModel3D {
   constructor({
-    name, lengthX, lengthY, lengthZ, cornerRadius, transforms = [],
+    name,
+    lengthX,
+    lengthY,
+    lengthZ,
+    cornerRadius,
+    transforms = [],
   }: ComplexRectangularPrismParams) {
-    super(new Subtraction({
-      name,
-      models: [
-        new RectangularPrism({
-          origin: ['center', 'center', 'bottom'],
-          lengthX,
-          lengthY,
-          lengthZ,
-        }),
-        new RectangularPrismCorners({
-          lengthX,
-          lengthY,
-          lengthZ,
-          cornerRadius,
-        }),
-      ],
-      transforms,
-    }));
+    super(
+      new Subtraction({
+        name,
+        models: [
+          new RectangularPrism({
+            origin: ['center', 'center', 'bottom'],
+            lengthX,
+            lengthY,
+            lengthZ,
+          }),
+          new RectangularPrismCorners({
+            lengthX,
+            lengthY,
+            lengthZ,
+            cornerRadius,
+          }),
+        ],
+        transforms,
+      }),
+    );
   }
 }

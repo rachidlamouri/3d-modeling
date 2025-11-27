@@ -18,7 +18,10 @@ export default {
     models: [
       new Slider({
         transforms: [
-          new Translation({ x: -d.centerToCenterLength / 2, z: d.basePlateLengthZ }),
+          new Translation({
+            x: -d.centerToCenterLength / 2,
+            z: d.basePlateLengthZ,
+          }),
         ],
       }),
     ],

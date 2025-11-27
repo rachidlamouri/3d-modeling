@@ -3,7 +3,11 @@
 import { CommonTokenStream, CharStreams } from 'antlr4ts';
 import { AbstractParseTreeVisitor } from 'antlr4ts/tree/AbstractParseTreeVisitor';
 import { DimensionScriptLexer } from './compiled/DimensionScriptLexer';
-import { DimensionScriptParser, ExpressionContext, InputContext } from './compiled/DimensionScriptParser';
+import {
+  DimensionScriptParser,
+  ExpressionContext,
+  InputContext,
+} from './compiled/DimensionScriptParser';
 import { DimensionScriptVisitor } from './compiled/DimensionScriptVisitor';
 import { VariableLiteral, VariableLiterals } from './statement';
 import { Expression } from './expression';
@@ -15,12 +19,15 @@ import { ErrorExpression, ErrorVariableExpression } from './errorExpression';
 
 export type DimensionScript = string;
 
-type AggregateResult<VariableNames extends VariableLiterals>
-  = [hasError: boolean, expression: Expression<VariableNames>];
+type AggregateResult<VariableNames extends VariableLiterals> = [
+  hasError: boolean,
+  expression: Expression<VariableNames>,
+];
 
 class ExpressionVisitor<VariableNames extends VariableLiterals>
   extends AbstractParseTreeVisitor<AggregateResult<VariableNames>>
-  implements DimensionScriptVisitor<AggregateResult<VariableNames>> {
+  implements DimensionScriptVisitor<AggregateResult<VariableNames>>
+{
   #variableNames: VariableNames;
 
   constructor(variableNames: VariableNames) {
@@ -30,17 +37,22 @@ class ExpressionVisitor<VariableNames extends VariableLiterals>
 
   // eslint-disable-next-line class-methods-use-this
   defaultResult(): AggregateResult<VariableNames> {
-    throw Error('Cannot infer a default expression. Investigate why "visitInput" was not called instead.');
+    throw Error(
+      'Cannot infer a default expression. Investigate why "visitInput" was not called instead.',
+    );
   }
 
   visitInput(context: InputContext): AggregateResult<VariableNames> {
-    const [hasError, parsedExpression] = this.visitExpression(context._singleExpression);
-    const resultExpression = (hasError && !(parsedExpression instanceof ErrorExpression))
-      ? new ErrorExpression({
-        input: parsedExpression.input,
-        expression: parsedExpression,
-      })
-      : parsedExpression;
+    const [hasError, parsedExpression] = this.visitExpression(
+      context._singleExpression,
+    );
+    const resultExpression =
+      hasError && !(parsedExpression instanceof ErrorExpression)
+        ? new ErrorExpression({
+            input: parsedExpression.input,
+            expression: parsedExpression,
+          })
+        : parsedExpression;
 
     return [hasError, resultExpression];
   }
@@ -53,8 +65,12 @@ class ExpressionVisitor<VariableNames extends VariableLiterals>
         return this.visitExpression(context._parenthesizedExpression);
       }
       case '_leftExpression' in context: {
-        const [hasLeftError, leftExpression] = this.visitExpression(context._leftExpression);
-        const [hasRightError, rightExpression] = this.visitExpression(context._rightExpression);
+        const [hasLeftError, leftExpression] = this.visitExpression(
+          context._leftExpression,
+        );
+        const [hasRightError, rightExpression] = this.visitExpression(
+          context._rightExpression,
+        );
         return [
           hasLeftError || hasRightError,
           new BinaryExpression({
@@ -66,7 +82,9 @@ class ExpressionVisitor<VariableNames extends VariableLiterals>
         ];
       }
       case '_singleExpression' in context: {
-        const [hasError, expression] = this.visitExpression(context._singleExpression);
+        const [hasError, expression] = this.visitExpression(
+          context._singleExpression,
+        );
         return [
           hasError,
           new UnaryExpression({
@@ -77,7 +95,8 @@ class ExpressionVisitor<VariableNames extends VariableLiterals>
         ];
       }
       case '_variableLiteral' in context: {
-        const variableLiteral = context._variableLiteral.text as VariableLiteral;
+        const variableLiteral = context._variableLiteral
+          .text as VariableLiteral;
 
         const variableExpression = new VariableExpression({
           input,
@@ -87,15 +106,16 @@ class ExpressionVisitor<VariableNames extends VariableLiterals>
         const hasError = !this.#variableNames.includes(variableLiteral);
         const expression = hasError
           ? new ErrorVariableExpression({
-            input,
-            expression: variableExpression,
-          })
+              input,
+              expression: variableExpression,
+            })
           : variableExpression;
 
         return [hasError, expression];
       }
       case '_constantLiteral' in context: {
-        const constantLiteral = context._constantLiteral.text as ConstantLiteral;
+        const constantLiteral = context._constantLiteral
+          .text as ConstantLiteral;
 
         return [
           false,
@@ -107,18 +127,19 @@ class ExpressionVisitor<VariableNames extends VariableLiterals>
         ];
       }
       default: {
-        return [
-          true,
-          new ErrorExpression({ input, expression: null }),
-        ];
+        return [true, new ErrorExpression({ input, expression: null })];
       }
     }
   }
 }
 
-export const parseExpression = <VariableNames extends VariableLiterals>
-  (dimensionScript: DimensionScript, variableNames: VariableNames) => {
-  const lexer = new DimensionScriptLexer(CharStreams.fromString(dimensionScript));
+export const parseExpression = <VariableNames extends VariableLiterals>(
+  dimensionScript: DimensionScript,
+  variableNames: VariableNames,
+) => {
+  const lexer = new DimensionScriptLexer(
+    CharStreams.fromString(dimensionScript),
+  );
   const tokenStream = new CommonTokenStream(lexer);
   const parser = new DimensionScriptParser(tokenStream);
   const tree = parser.input();

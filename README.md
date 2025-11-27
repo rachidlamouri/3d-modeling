@@ -42,4 +42,3 @@ npm run format:check # checks files with Prettier (CI-friendly)
 npm run lint         # runs ESLint
 npm run lint:fix     # runs ESLint and attempts to auto-fix problems
 ```
-

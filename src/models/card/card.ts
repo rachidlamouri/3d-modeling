@@ -35,45 +35,49 @@ const cardCornerRadius = 3.18;
 
 class ChipCover extends CompoundModel3D {
   constructor() {
-    super(new Subtraction({
-      models: [
-        new ComplexRectangularPrism({
-          name: 'Chip Base',
-          lengthX: chipCoverLengthX,
-          lengthY: chipCoverLengthY,
-          lengthZ: chipCoverLengthZ,
-          cornerRadius: cardCornerRadius,
-        }),
-        new Union({
-          models: [
-            new Cylinder({
-              name: 'Center Punch',
-              axis: 'z',
-              axialLength: chipCoverDecorationLengthZ,
-              origin: 'bottom',
-              radius: 2,
-            }),
-            new ComplexRectangularPrism({
-              lengthX: 4,
-              lengthY: 1,
-              lengthZ: chipCoverDecorationLengthZ,
-              cornerRadius: 0.5,
-              transforms: [new Translation({ x: -6 })],
-            }),
-            new ComplexRectangularPrism({
-              lengthX: 4,
-              lengthY: 1,
-              lengthZ: chipCoverDecorationLengthZ,
-              cornerRadius: 0.5,
-              transforms: [new Translation({ x: 6 })],
-            }),
-          ],
-          transforms: [
-            new Translation({ z: chipCoverLengthZ - chipCoverDecorationLengthZ }),
-          ],
-        }),
-      ],
-    }));
+    super(
+      new Subtraction({
+        models: [
+          new ComplexRectangularPrism({
+            name: 'Chip Base',
+            lengthX: chipCoverLengthX,
+            lengthY: chipCoverLengthY,
+            lengthZ: chipCoverLengthZ,
+            cornerRadius: cardCornerRadius,
+          }),
+          new Union({
+            models: [
+              new Cylinder({
+                name: 'Center Punch',
+                axis: 'z',
+                axialLength: chipCoverDecorationLengthZ,
+                origin: 'bottom',
+                radius: 2,
+              }),
+              new ComplexRectangularPrism({
+                lengthX: 4,
+                lengthY: 1,
+                lengthZ: chipCoverDecorationLengthZ,
+                cornerRadius: 0.5,
+                transforms: [new Translation({ x: -6 })],
+              }),
+              new ComplexRectangularPrism({
+                lengthX: 4,
+                lengthY: 1,
+                lengthZ: chipCoverDecorationLengthZ,
+                cornerRadius: 0.5,
+                transforms: [new Translation({ x: 6 })],
+              }),
+            ],
+            transforms: [
+              new Translation({
+                z: chipCoverLengthZ - chipCoverDecorationLengthZ,
+              }),
+            ],
+          }),
+        ],
+      }),
+    );
   }
 }
 
@@ -96,7 +100,10 @@ class Card extends CompoundModel3D {
             lengthZ: chipHoleLengthZ,
             cornerRadius: cardCornerRadius,
             transforms: [
-              new Translation({ x: cardLengthX / 2 - chipLengthX / 2 - edgeToChipThickenss, z: baseToChipThickness }),
+              new Translation({
+                x: cardLengthX / 2 - chipLengthX / 2 - edgeToChipThickenss,
+                z: baseToChipThickness,
+              }),
             ],
           }),
         ],

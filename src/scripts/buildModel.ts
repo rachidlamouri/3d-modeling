@@ -22,8 +22,14 @@ if (!src || !/\.ts$/.test(src)) {
 }
 
 import(`../../${src}`).then(async (models) => {
-  if (!models.default || !_.isPlainObject(models.default) || Object.keys(models.default).length === 0) {
-    console.log(`"${src}" does not export a default object with at least one key`);
+  if (
+    !models.default ||
+    !_.isPlainObject(models.default) ||
+    Object.keys(models.default).length === 0
+  ) {
+    console.log(
+      `"${src}" does not export a default object with at least one key`,
+    );
     process.exit(1);
   }
 
@@ -32,14 +38,26 @@ import(`../../${src}`).then(async (models) => {
   for (let i = 0; i < modelNames.length; i += 1) {
     const modelName = modelNames[i];
 
-    const outputPath = src.replace(/^src/, 'build/src').replace(/\.ts$/, `.${modelName}.stl`);
+    const outputPath = src
+      .replace(/^src/, 'build/src')
+      .replace(/\.ts$/, `.${modelName}.stl`);
     const outputDirPath = posix.dirname(outputPath);
 
     if (!fs.existsSync(outputDirPath)) {
       fs.mkdirSync(outputDirPath, { recursive: true });
     }
 
-    const command = ['npx', 'jscad', 'scripts/loadModel.js', '--filepath', `${src}`, '--model', `${modelName}`, '-o', `${outputPath}`];
+    const command = [
+      'npx',
+      'jscad',
+      'scripts/loadModel.js',
+      '--filepath',
+      `${src}`,
+      '--model',
+      `${modelName}`,
+      '-o',
+      `${outputPath}`,
+    ];
 
     // eslint-disable-next-line no-await-in-loop
     await new Promise<void>((resolve) => {

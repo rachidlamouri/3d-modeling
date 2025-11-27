@@ -1,4 +1,8 @@
-import { buildParseInputDimensions, InputDimensions, Dimensions } from '../dimensionParser';
+import {
+  buildParseInputDimensions,
+  InputDimensions,
+  Dimensions,
+} from '../dimensionParser';
 import { PrimitiveModel3D } from './primitiveModel3D';
 import { CommonModel3DParams } from './model3D';
 import { Vector3D } from './vector';
@@ -8,22 +12,16 @@ type OriginY = 'back' | 'center' | 'front';
 type OriginZ = 'bottom' | 'center' | 'top';
 type OriginTuple = [OriginX, OriginY, OriginZ];
 
-const dimensionNames = [
-  'lengthX',
-  'lengthY',
-  'lengthZ',
-] as const;
+const dimensionNames = ['lengthX', 'lengthY', 'lengthZ'] as const;
 
 type DimensionNames = typeof dimensionNames;
 
 const parseInputDimensions = buildParseInputDimensions(dimensionNames, {});
 
-export type RectangularPrismParams =
-  CommonModel3DParams
-  & InputDimensions<DimensionNames>
-  & {
+export type RectangularPrismParams = CommonModel3DParams &
+  InputDimensions<DimensionNames> & {
     origin: OriginTuple;
-  }
+  };
 
 export class RectangularPrism extends PrimitiveModel3D {
   private dimensions: Dimensions<DimensionNames>;
@@ -37,11 +35,7 @@ export class RectangularPrism extends PrimitiveModel3D {
     const dimensions = parseInputDimensions(inputDimensions);
 
     const [originX, originY, originZ] = origin;
-    const {
-      lengthX,
-      lengthY,
-      lengthZ,
-    } = dimensions;
+    const { lengthX, lengthY, lengthZ } = dimensions;
 
     const positionX = {
       left: lengthX / 2,

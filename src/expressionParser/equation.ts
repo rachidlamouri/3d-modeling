@@ -11,20 +11,27 @@ import { ErrorExpression } from './errorExpression';
 type EquationParams<VariableNames extends VariableLiterals> = {
   leftExpression: Expression<VariableNames>;
   rightExpression: Expression<VariableNames>;
-}
+};
 
-export class Equation<VariableNames extends VariableLiterals> implements Statement<VariableNames> {
+export class Equation<VariableNames extends VariableLiterals>
+  implements Statement<VariableNames>
+{
   leftExpression: Expression<VariableNames>;
   rightExpression: Expression<VariableNames>;
 
-  constructor({ leftExpression, rightExpression }: EquationParams<VariableNames>) {
+  constructor({
+    leftExpression,
+    rightExpression,
+  }: EquationParams<VariableNames>) {
     this.leftExpression = leftExpression;
     this.rightExpression = rightExpression;
   }
 
   // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
   compute(variables: VariablesMap<VariableNames>): number {
-    throw Error('Not implemented. Did you mean to convert to a VariableEquation first?');
+    throw Error(
+      'Not implemented. Did you mean to convert to a VariableEquation first?',
+    );
   }
 
   getDuplicateVariableNames() {
@@ -49,8 +56,8 @@ export class Equation<VariableNames extends VariableLiterals> implements Stateme
 
   hasErrorExpression() {
     return (
-      this.leftExpression instanceof ErrorExpression
-      || this.rightExpression instanceof ErrorExpression
+      this.leftExpression instanceof ErrorExpression ||
+      this.rightExpression instanceof ErrorExpression
     );
   }
 
@@ -62,26 +69,36 @@ export class Equation<VariableNames extends VariableLiterals> implements Stateme
   }
 
   splitLeftExpression() {
-    if (this.leftExpression instanceof ConstantExpression || this.leftExpression instanceof VariableExpression) {
-      return [new Equation({
-        leftExpression: parseExpression('0', []),
-        rightExpression: new BinaryExpression({
-          leftExpression: this.rightExpression,
-          operator: '-',
-          rightExpression: this.leftExpression,
+    if (
+      this.leftExpression instanceof ConstantExpression ||
+      this.leftExpression instanceof VariableExpression
+    ) {
+      return [
+        new Equation({
+          leftExpression: parseExpression('0', []),
+          rightExpression: new BinaryExpression({
+            leftExpression: this.rightExpression,
+            operator: '-',
+            rightExpression: this.leftExpression,
+          }),
         }),
-      })];
+      ];
     }
 
     if (this.leftExpression instanceof UnaryExpression) {
-      return [new Equation({
-        leftExpression: this.leftExpression.expression,
-        rightExpression: new BinaryExpression({
-          leftExpression: this.rightExpression,
-          operator: '/',
-          rightExpression: parseExpression(`${this.leftExpression.getUnit()}`, []),
+      return [
+        new Equation({
+          leftExpression: this.leftExpression.expression,
+          rightExpression: new BinaryExpression({
+            leftExpression: this.rightExpression,
+            operator: '/',
+            rightExpression: parseExpression(
+              `${this.leftExpression.getUnit()}`,
+              [],
+            ),
+          }),
         }),
-      })];
+      ];
     }
 
     if (this.leftExpression instanceof BinaryExpression) {
@@ -132,13 +149,12 @@ export class Equation<VariableNames extends VariableLiterals> implements Stateme
         });
       }
 
-      return [
-        equationA,
-        equationB,
-      ];
+      return [equationA, equationB];
     }
 
-    throw Error(`Unhandled leftExpression "${this.leftExpression.constructor.name}"`);
+    throw Error(
+      `Unhandled leftExpression "${this.leftExpression.constructor.name}"`,
+    );
   }
 
   toInputString() {

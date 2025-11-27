@@ -5,8 +5,8 @@ const axes: OrientationAxis[] = ['x', 'y', 'z'];
 const origins: CylinderOrigin[] = ['bottom', 'center', 'top'];
 
 export default Object.fromEntries(
-  axes.flatMap((axis) => origins.map(
-    (origin) => [
+  axes.flatMap((axis) =>
+    origins.map((origin) => [
       `${axis}${_.upperFirst(origin)}`,
       new Tube({
         axis,
@@ -15,6 +15,6 @@ export default Object.fromEntries(
         wallThickness: 2,
         axialLength: 10,
       }),
-    ],
-  )),
+    ]),
+  ),
 );

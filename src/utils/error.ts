@@ -1,5 +1,5 @@
 export class AggregateError extends Error {
-  errors: Error[]
+  errors: Error[];
   messages: string[];
 
   constructor(errors: Error[]) {

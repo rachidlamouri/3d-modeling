@@ -2,18 +2,14 @@ import { Model3D, Model3DParams, CommonModel3DParams } from './model3D';
 
 type ModelList = [Model3D, ...Model3D[]];
 
-export type CommonOperation3DParams =
-  CommonModel3DParams
-  & {
-    models: ModelList;
-  };
+export type CommonOperation3DParams = CommonModel3DParams & {
+  models: ModelList;
+};
 
-type Operation3DParams<T> =
-  Omit<Model3DParams, 'position'>
-  & {
-    type: T;
-    models: ModelList;
-  }
+type Operation3DParams<T> = Omit<Model3DParams, 'position'> & {
+  type: T;
+  models: ModelList;
+};
 
 export abstract class Operation3D extends Model3D {
   type: typeof Operation3D;

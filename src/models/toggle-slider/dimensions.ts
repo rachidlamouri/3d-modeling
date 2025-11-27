@@ -61,7 +61,8 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     windowWallThickness: '.8',
 
     windowPlateHoleAllowanceXY: '.5',
-    windowPlateHoleLengthX: 'sliderLengthX + centerToCenterLength + windowPlateHoleAllowanceXY',
+    windowPlateHoleLengthX:
+      'sliderLengthX + centerToCenterLength + windowPlateHoleAllowanceXY',
     windowPlateHoleLengthY: 'sliderLengthY + windowPlateHoleAllowanceXY',
     windowPlateHoleLengthZ: 'windowPlateLengthZ',
 
@@ -79,4 +80,5 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
 
 type ToggleSliderDimensions = Dimensions<typeof dimensionNames>;
 
-export const toggleSliderDimensions: ToggleSliderDimensions = parseInputDimensions({});
+export const toggleSliderDimensions: ToggleSliderDimensions =
+  parseInputDimensions({});

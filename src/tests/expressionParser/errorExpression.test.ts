@@ -3,10 +3,8 @@ import { expect } from 'chai';
 import { getMockExpressionClasses } from './baseMockExpression';
 import { ErrorExpression } from '../../expressionParser/errorExpression';
 
-const {
-  MockExpression,
-  MockSimplifiedExpression,
-} = getMockExpressionClasses<never>();
+const { MockExpression, MockSimplifiedExpression } =
+  getMockExpressionClasses<never>();
 
 describe('expressionParser/errorExpression', () => {
   describe('compute', () => {
@@ -16,7 +14,9 @@ describe('expressionParser/errorExpression', () => {
         expression: null,
       });
 
-      expect(() => expression.compute()).to.throw('Cannot compute ErrorExpression: "MOCK_INPUT"');
+      expect(() => expression.compute()).to.throw(
+        'Cannot compute ErrorExpression: "MOCK_INPUT"',
+      );
     });
   });
 
@@ -51,10 +51,12 @@ describe('expressionParser/errorExpression', () => {
         expression: mockExpression,
       });
 
-      expect(expression.simplify()).to.eql(new ErrorExpression({
-        input: 'MOCK_INPUT',
-        expression: mockSimplifiedExpression,
-      }));
+      expect(expression.simplify()).to.eql(
+        new ErrorExpression({
+          input: 'MOCK_INPUT',
+          expression: mockSimplifiedExpression,
+        }),
+      );
     });
   });
 
@@ -77,7 +79,9 @@ describe('expressionParser/errorExpression', () => {
         expression: mockExpression,
       });
 
-      expect(expression.toString()).to.eq('[ErrorExpression: "mockExpression"]');
+      expect(expression.toString()).to.eq(
+        '[ErrorExpression: "mockExpression"]',
+      );
     });
   });
 });

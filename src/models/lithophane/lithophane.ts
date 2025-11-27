@@ -37,7 +37,8 @@ class LithophaneSlice extends ExtrudedPolygon {
         new Rotation({ x: 90 }, 'self'),
         new Translation({
           x: fullLengthX / 2 + (translation.x ?? 0),
-          y: -((sliceLengthY / 2) + (offsetY * sliceLengthY)) + (translation.y ?? 0),
+          y:
+            -(sliceLengthY / 2 + offsetY * sliceLengthY) + (translation.y ?? 0),
           z: maxHeight / 2 + (translation.z ?? 0),
         }),
       ],
@@ -85,51 +86,67 @@ export class Lithophane extends ModelCollection3D {
 
     const rgbaPixels = _.chunk(image.data, 4);
     const rgbPixels = rgbaPixels.map((rgbaPixel) => rgbaPixel.slice(0, 3));
-    const normalizedPixels = rgbPixels.map((rgbPixel) => _.mean(rgbPixel) / 255);
-    const negatedPixels = normalizedPixels.map((normalizedPixel) => Math.max(1 - normalizedPixel, normalizedMinValue));
+    const normalizedPixels = rgbPixels.map(
+      (rgbPixel) => _.mean(rgbPixel) / 255,
+    );
+    const negatedPixels = normalizedPixels.map((normalizedPixel) =>
+      Math.max(1 - normalizedPixel, normalizedMinValue),
+    );
     const pixelRows = _.chunk(negatedPixels, image.width)
       .slice(pixelStartY, pixelStartY + pixelLengthY)
       .map((row) => row.slice(pixelStartX, pixelStartX + pixelLengthX));
 
-    const models = pixelRows.map((rowPixels, row) => {
-      const points: Point2D[] = [
-        [0, 0],
-      ];
+    const models = pixelRows
+      .map((rowPixels, row) => {
+        const points: Point2D[] = [[0, 0]];
 
-      rowPixels.forEach((pixelValue, column) => {
-        const pixelNumber = row * pixelLengthX + column;
-        const percentProcessed = pixelNumber / totalSelectedPixels;
-        process.stdout.write(`\rProcessing "${filename}" ${image.width}x${image.height}: ${(percentProcessed * 100).toFixed(2)}`);
+        rowPixels.forEach((pixelValue, column) => {
+          const pixelNumber = row * pixelLengthX + column;
+          const percentProcessed = pixelNumber / totalSelectedPixels;
+          process.stdout.write(
+            `\rProcessing "${filename}" ${image.width}x${image.height}: ${(
+              percentProcessed * 100
+            ).toFixed(2)}`,
+          );
 
-        const lastPoint = _.last(points) as Point2D;
-        if (lastPoint[1] !== pixelValue) {
-          points.push([column, pixelValue]);
+          const lastPoint = _.last(points) as Point2D;
+          if (lastPoint[1] !== pixelValue) {
+            points.push([column, pixelValue]);
+          }
+
+          points.push([column + 1, pixelValue]);
+        });
+
+        if (row === rowPixels.length - 1) {
+          process.stdout.write('\n');
         }
 
-        points.push([(column + 1), pixelValue]);
-      });
+        points.push([pixelLengthX, 0]);
+        points.reverse();
 
-      if (row === rowPixels.length - 1) {
-        process.stdout.write('\n');
-      }
-
-      points.push([pixelLengthX, 0]);
-      points.reverse();
-
-      return points;
-    })
-      .map((points) => points.map(([x, z]) => [x * lengthPerPixelX, z * maxLengthZ]) as [number, number][])
-      .map((scaledPoints, index) => new LithophaneSlice({
-        fullLengthX: lengthX,
-        offsetY: index,
-        sliceLengthY: lengthPerPixelY,
-        maxHeight: maxLengthZ,
-        points: scaledPoints,
-        translation: {
-          x: -lengthX / 2,
-          y: lengthY / 2,
-        },
-      }));
+        return points;
+      })
+      .map(
+        (points) =>
+          points.map(([x, z]) => [x * lengthPerPixelX, z * maxLengthZ]) as [
+            number,
+            number,
+          ][],
+      )
+      .map(
+        (scaledPoints, index) =>
+          new LithophaneSlice({
+            fullLengthX: lengthX,
+            offsetY: index,
+            sliceLengthY: lengthPerPixelY,
+            maxHeight: maxLengthZ,
+            points: scaledPoints,
+            translation: {
+              x: -lengthX / 2,
+              y: lengthY / 2,
+            },
+          }),
+      );
 
     super(models);
   }

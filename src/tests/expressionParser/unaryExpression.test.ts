@@ -6,10 +6,8 @@ import { getMockExpressionClasses } from './baseMockExpression';
 const variableNames = ['var1', 'var2'] as const;
 type VariableNames = typeof variableNames;
 
-const {
-  MockExpression,
-  MockSimplifiedExpression,
-} = getMockExpressionClasses<VariableNames>();
+const { MockExpression, MockSimplifiedExpression } =
+  getMockExpressionClasses<VariableNames>();
 
 describe('expressionParser/unaryExpression', () => {
   describe('compute', () => {
@@ -77,10 +75,12 @@ describe('expressionParser/unaryExpression', () => {
         expression: mockExpression,
       });
 
-      expect(expression.invert()).to.eql(new UnaryExpression({
-        operator: '-',
-        expression: mockExpression,
-      }));
+      expect(expression.invert()).to.eql(
+        new UnaryExpression({
+          operator: '-',
+          expression: mockExpression,
+        }),
+      );
     });
 
     it('returns a positive unary expression for a negative unary expression', () => {
@@ -90,10 +90,12 @@ describe('expressionParser/unaryExpression', () => {
         expression: mockExpression,
       });
 
-      expect(expression.invert()).to.eql(new UnaryExpression({
-        operator: '+',
-        expression: mockExpression,
-      }));
+      expect(expression.invert()).to.eql(
+        new UnaryExpression({
+          operator: '+',
+          expression: mockExpression,
+        }),
+      );
     });
   });
 
@@ -156,11 +158,13 @@ describe('expressionParser/unaryExpression', () => {
         expression: mockExpression,
       });
 
-      expect(expression.simplify()).to.eql(new UnaryExpression({
-        input: '-(mockExpression)',
-        operator: '-',
-        expression: simplifiedMockExpression,
-      }));
+      expect(expression.simplify()).to.eql(
+        new UnaryExpression({
+          input: '-(mockExpression)',
+          operator: '-',
+          expression: simplifiedMockExpression,
+        }),
+      );
     });
   });
 

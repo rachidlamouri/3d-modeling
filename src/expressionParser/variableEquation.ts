@@ -2,7 +2,9 @@ import { Equation } from './equation';
 import { VariableExpression } from './variableExpression';
 import { VariableLiterals, VariablesMap } from './statement';
 
-export class VariableEquation<VariableNames extends VariableLiterals> extends Equation<VariableNames> {
+export class VariableEquation<
+  VariableNames extends VariableLiterals,
+> extends Equation<VariableNames> {
   leftExpression: VariableExpression<VariableNames>;
 
   constructor(equation: Equation<VariableNames>) {
@@ -25,7 +27,10 @@ export class VariableEquation<VariableNames extends VariableLiterals> extends Eq
 
   isTautology() {
     const rightVariableNames = this.rightExpression.getVariableNames();
-    return rightVariableNames.length === 1 && rightVariableNames[0] === this.variableName;
+    return (
+      rightVariableNames.length === 1 &&
+      rightVariableNames[0] === this.variableName
+    );
   }
 
   splitLeftVariableExpression(): Equation<VariableNames> {

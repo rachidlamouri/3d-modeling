@@ -10,7 +10,7 @@ import { WindowPlate } from './windowPlate';
 
 export type FullPlateParameter = {
   transforms?: Transform3D[];
-}
+};
 
 export class FullPlate extends CompoundModel3D {
   constructor({ transforms }: FullPlateParameter = {}) {
@@ -19,9 +19,7 @@ export class FullPlate extends CompoundModel3D {
         models: [
           new BasePlate(),
           new WindowPlate({
-            transforms: [
-              new Translation({ z: d.basePlateLengthZ }),
-            ],
+            transforms: [new Translation({ z: d.basePlateLengthZ })],
           }),
         ],
         transforms,

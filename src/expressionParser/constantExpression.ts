@@ -5,7 +5,7 @@ export type ConstantLiteral = string;
 type ConstantExpressionParams = ExpressionParams & {
   constantLiteral: ConstantLiteral;
   value: number;
-}
+};
 
 export class ConstantExpression extends Expression<never> {
   constantLiteral: ConstantLiteral;

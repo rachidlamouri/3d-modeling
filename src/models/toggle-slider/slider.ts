@@ -10,7 +10,7 @@ import { toggleSliderDimensions as d } from './dimensions';
 
 export type SliderParameter = {
   transforms?: Transform3D[];
-}
+};
 
 export class Slider extends CompoundModel3D {
   constructor({ transforms = [] }: SliderParameter = {}) {
@@ -28,9 +28,7 @@ export class Slider extends CompoundModel3D {
             origin: 'bottom',
             diameter: d.magnetHoleDiameter,
             axialLength: d.sliderHoleLengthZ,
-            transforms: [
-              new Translation({ z: d.sliderBottomThickness }),
-            ],
+            transforms: [new Translation({ z: d.sliderBottomThickness })],
           }),
         ],
         transforms,

@@ -44,9 +44,7 @@ export class Shade extends CompoundModel3D {
             ],
           }),
         ],
-        transforms: [
-          translation,
-        ],
+        transforms: [translation],
       }),
     );
   }
@@ -54,11 +52,8 @@ export class Shade extends CompoundModel3D {
 
 export class ShadeSliceTest extends CompoundModel3D {
   constructor() {
-    const {
-      shadeOuterDiameter,
-      shadeOuterRadius,
-      shadeHeight,
-    } = projectorDimensions;
+    const { shadeOuterDiameter, shadeOuterRadius, shadeHeight } =
+      projectorDimensions;
 
     super(
       new Subtraction({

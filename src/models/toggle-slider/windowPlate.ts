@@ -8,7 +8,7 @@ import { toggleSliderDimensions as d } from './dimensions';
 
 export type WindowPlateParameter = {
   transforms?: Transform3D[];
-}
+};
 
 export class WindowPlate extends CompoundModel3D {
   constructor({ transforms = [] }: WindowPlateParameter = {}) {

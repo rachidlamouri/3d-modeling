@@ -1,7 +1,12 @@
 import { Expression } from '../../expressionParser/expression';
-import { VariableLiterals, VariablesMap } from '../../expressionParser/statement';
+import {
+  VariableLiterals,
+  VariablesMap,
+} from '../../expressionParser/statement';
 
-class BaseMockExpression<VariableNames extends VariableLiterals> extends Expression<VariableNames> {
+class BaseMockExpression<
+  VariableNames extends VariableLiterals,
+> extends Expression<VariableNames> {
   constructor(input: string) {
     super({ input });
   }
@@ -26,35 +31,57 @@ class BaseMockExpression<VariableNames extends VariableLiterals> extends Express
   /* eslint-enable class-methods-use-this */
 }
 
-export const getMockExpressionClasses = <VariableNames extends VariableLiterals>() => ({
+export const getMockExpressionClasses = <
+  VariableNames extends VariableLiterals,
+>() => ({
   MockExpression: class extends BaseMockExpression<VariableNames> {
-    constructor() { super('mockExpression'); }
+    constructor() {
+      super('mockExpression');
+    }
   },
   MockSimplifiedExpression: class extends BaseMockExpression<VariableNames> {
-    constructor() { super('mockSimplifiedExpression'); }
+    constructor() {
+      super('mockSimplifiedExpression');
+    }
   },
   MockLeftExpression: class extends BaseMockExpression<VariableNames> {
-    constructor() { super('mockLeftExpression'); }
+    constructor() {
+      super('mockLeftExpression');
+    }
   },
   MockSimplifiedLeftExpression: class extends BaseMockExpression<VariableNames> {
-    constructor() { super('mockSimplifiedLeftExpression'); }
+    constructor() {
+      super('mockSimplifiedLeftExpression');
+    }
   },
   MockLeftSubexpression: class extends BaseMockExpression<VariableNames> {
-    constructor() { super('mockLeftSubexpression'); }
+    constructor() {
+      super('mockLeftSubexpression');
+    }
   },
   MockSimplifiedLeftSubexpression: class extends BaseMockExpression<VariableNames> {
-    constructor() { super('mockSimplifiedLeftSubexpression'); }
+    constructor() {
+      super('mockSimplifiedLeftSubexpression');
+    }
   },
   MockRightExpression: class extends BaseMockExpression<VariableNames> {
-    constructor() { super('mockRightExpression'); }
+    constructor() {
+      super('mockRightExpression');
+    }
   },
   MockSimplifiedRightExpression: class extends BaseMockExpression<VariableNames> {
-    constructor() { super('mockSimplifiedRightExpression'); }
+    constructor() {
+      super('mockSimplifiedRightExpression');
+    }
   },
   MockRightSubexpression: class extends BaseMockExpression<VariableNames> {
-    constructor() { super('mockRightSubexpression'); }
+    constructor() {
+      super('mockRightSubexpression');
+    }
   },
   MockSimplifiedRightSubexpression: class extends BaseMockExpression<VariableNames> {
-    constructor() { super('mockSimplifiedRightSubexpression'); }
+    constructor() {
+      super('mockSimplifiedRightSubexpression');
+    }
   },
 });

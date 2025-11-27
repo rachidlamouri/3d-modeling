@@ -2,12 +2,16 @@ import { Expression, ExpressionParams } from './expression';
 import { VariableLiterals } from './statement';
 import { VariableExpression } from './variableExpression';
 
-type NullableExpression<VariableNames extends VariableLiterals> = Expression<VariableNames> | null;
-type ErrorExpressionParams<VariableNames extends VariableLiterals> = ExpressionParams & {
-  expression: NullableExpression<VariableNames>;
-}
+type NullableExpression<VariableNames extends VariableLiterals> =
+  Expression<VariableNames> | null;
+type ErrorExpressionParams<VariableNames extends VariableLiterals> =
+  ExpressionParams & {
+    expression: NullableExpression<VariableNames>;
+  };
 
-export class ErrorExpression<VariableNames extends VariableLiterals> extends Expression<VariableNames> {
+export class ErrorExpression<
+  VariableNames extends VariableLiterals,
+> extends Expression<VariableNames> {
   expression: NullableExpression<VariableNames>;
 
   constructor(params: ErrorExpressionParams<VariableNames>) {
@@ -37,16 +41,20 @@ export class ErrorExpression<VariableNames extends VariableLiterals> extends Exp
   }
 
   toString() {
-    const toStringdExpression = this.expression === null ? this.input : this.expression.toString();
+    const toStringdExpression =
+      this.expression === null ? this.input : this.expression.toString();
     return `[${this.constructor.name}: "${toStringdExpression}"]`;
   }
 }
 
-type ErrorVariableExpressionParams<VariableNames extends VariableLiterals> = ExpressionParams & {
-  expression: VariableExpression<VariableNames>;
-}
+type ErrorVariableExpressionParams<VariableNames extends VariableLiterals> =
+  ExpressionParams & {
+    expression: VariableExpression<VariableNames>;
+  };
 
-export class ErrorVariableExpression<VariableNames extends VariableLiterals> extends ErrorExpression<VariableNames> {
+export class ErrorVariableExpression<
+  VariableNames extends VariableLiterals,
+> extends ErrorExpression<VariableNames> {
   // eslint-disable-next-line no-useless-constructor
   constructor(params: ErrorVariableExpressionParams<VariableNames>) {
     super(params);

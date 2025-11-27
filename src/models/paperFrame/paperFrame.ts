@@ -1,7 +1,5 @@
 import { buildParseInputDimensions } from '../../dimensionParser';
-import {
-  RectangularPrism, Subtraction, Translation,
-} from '../../modeling';
+import { RectangularPrism, Subtraction, Translation } from '../../modeling';
 
 const dimensionNames = [
   'paperLengthXY',
@@ -99,9 +97,7 @@ export default {
         lengthX: d.bottomInnerLengthXY,
         lengthY: d.bottomInnerLengthXY,
         lengthZ: d.bottomInnerLengthZ,
-        transforms: [
-          new Translation({ z: d.bottomInnerOffsetZ }),
-        ],
+        transforms: [new Translation({ z: d.bottomInnerOffsetZ })],
       }),
     ],
   }),
@@ -121,9 +117,7 @@ export default {
         lengthX: d.topInnerLengthXY,
         lengthY: d.topInnerLengthXY,
         lengthZ: d.topInnerLengthZ,
-        transforms: [
-          new Translation({ z: d.topInnerOffsetZ }),
-        ],
+        transforms: [new Translation({ z: d.topInnerOffsetZ })],
       }),
       new RectangularPrism({
         name: 'Hole',

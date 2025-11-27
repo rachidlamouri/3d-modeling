@@ -14,18 +14,14 @@ export default {
         origin: 'bottom',
         diameter: 10,
         axialLength: 4,
-        transforms: [
-          new Translation({ x: 2 }),
-        ],
+        transforms: [new Translation({ x: 2 })],
       }),
       new Cylinder({
         axis: 'z',
         origin: 'bottom',
         diameter: 10,
         axialLength: 4,
-        transforms: [
-          new Translation({ x: -2 }),
-        ],
+        transforms: [new Translation({ x: -2 })],
       }),
     ],
   }),

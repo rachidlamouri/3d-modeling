@@ -8,16 +8,12 @@ import {
 } from '../../modeling';
 import { projectorDimensions } from './dimensions';
 
-type FrameHoleAssemblyParams =
-  CommonModel3DParams
-  & {
-    originAngleZ: number;
-  };
+type FrameHoleAssemblyParams = CommonModel3DParams & {
+  originAngleZ: number;
+};
 
 export class FrameHoleAssembly extends CompoundModel3D {
-  constructor({
-    transforms,
-  }: FrameHoleAssemblyParams) {
+  constructor({ transforms }: FrameHoleAssemblyParams) {
     const {
       frameSlotLengthX,
       frameSlotLengthY,
@@ -46,9 +42,7 @@ export class FrameHoleAssembly extends CompoundModel3D {
             origin: 'bottom',
             diameter: frameWallChannelDiameter,
             axialLength: frameWallChannelLengthY,
-            transforms: [
-              new Rotation({ x: -90 }, 'origin'),
-            ],
+            transforms: [new Rotation({ x: -90 }, 'origin')],
           }),
           new Cylinder({
             axis: 'z',
@@ -62,7 +56,10 @@ export class FrameHoleAssembly extends CompoundModel3D {
           }),
           new RectangularPrism({
             origin: ['center', 'back', 'center'],
-            lengthX: frameWingCatchLengthX + frameWallChannelDiameter + frameWingCatchLengthX,
+            lengthX:
+              frameWingCatchLengthX +
+              frameWallChannelDiameter +
+              frameWingCatchLengthX,
             lengthY: frameWingCatchLengthY,
             lengthZ: frameWingCatchLengthZ,
           }),

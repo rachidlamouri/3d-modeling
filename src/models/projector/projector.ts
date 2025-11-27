@@ -11,7 +11,11 @@ import {
 } from './reel';
 import { Shade, ShadeSliceTest } from './shade';
 import { ShadeAndTrack, ShadeAndTrackLowerSliceTest } from './shadeAndTrack';
-import { Support, SupportBottomSliceTest, SupportTopSliceTest } from './support';
+import {
+  Support,
+  SupportBottomSliceTest,
+  SupportTopSliceTest,
+} from './support';
 import { Track } from './track';
 
 const {
@@ -45,6 +49,12 @@ export default {
 
   demoSupport: new Support(),
   demoLight: new Light(new Translation({ z: supportBaseHeight })),
-  demoShadeAndTrack: new ShadeAndTrack(new Translation({ z: supportBaseHeight + lightLightBottomHeight })),
-  demoReel: new Reel(new Translation({ z: lightLightBottomHeight + trackBaseHeight + reelHeightAllowance })),
+  demoShadeAndTrack: new ShadeAndTrack(
+    new Translation({ z: supportBaseHeight + lightLightBottomHeight }),
+  ),
+  demoReel: new Reel(
+    new Translation({
+      z: lightLightBottomHeight + trackBaseHeight + reelHeightAllowance,
+    }),
+  ),
 };

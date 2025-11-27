@@ -94,20 +94,29 @@ const parseModel3D = (model: Model3D): Geom3 => {
   parsedModel = model.transformStates
     .flatMap(([position, transform]) => {
       if (transform instanceof Translation) {
-        return (nextParsedModel: Geom3) => translate(transform.vector.tuple, nextParsedModel);
+        return (nextParsedModel: Geom3) =>
+          translate(transform.vector.tuple, nextParsedModel);
       }
 
       if (transform instanceof Rotation) {
-        const offset = transform.center === 'self' ? position : new Vector3D(0, 0, 0);
+        const offset =
+          transform.center === 'self' ? position : new Vector3D(0, 0, 0);
 
         return [
-          (nextParsedModel: Geom3) => translate(offset.invert().tuple, nextParsedModel),
-          (nextParsedModel: Geom3) => rotate(transform.angles.tuple.map((degToRad)) as Vec3, nextParsedModel),
+          (nextParsedModel: Geom3) =>
+            translate(offset.invert().tuple, nextParsedModel),
+          (nextParsedModel: Geom3) =>
+            rotate(
+              transform.angles.tuple.map(degToRad) as Vec3,
+              nextParsedModel,
+            ),
           (nextParsedModel: Geom3) => translate(offset.tuple, nextParsedModel),
         ];
       }
 
-      throw Error(`Unhandled ${Transform3D.name}: ${transform.constructor.name}`);
+      throw Error(
+        `Unhandled ${Transform3D.name}: ${transform.constructor.name}`,
+      );
     })
     .reduce(
       (nextParsedModel, transformation) => transformation(nextParsedModel),
@@ -117,7 +126,9 @@ const parseModel3D = (model: Model3D): Geom3 => {
   return parsedModel;
 };
 
-export const parseModel = (model: Model3D | ModelCollection3D): Geom3 | Geom3[] => {
+export const parseModel = (
+  model: Model3D | ModelCollection3D,
+): Geom3 | Geom3[] => {
   if (model instanceof ModelCollection3D) {
     return model.models.map((submodel) => parseModel3D(submodel));
   }

@@ -1,2 +1,6 @@
-export { buildParseInputDimensions, InputDimensions, Dimensions } from './buildParseInputDimensions';
+export {
+  buildParseInputDimensions,
+  InputDimensions,
+  Dimensions,
+} from './buildParseInputDimensions';
 export { buildDimensionDefinitions } from './buildDimensionDefinitions';

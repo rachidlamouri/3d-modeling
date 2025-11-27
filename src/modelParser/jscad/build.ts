@@ -6,7 +6,13 @@ export const getParameterDefinitions = () => [
   { name: 'model', type: 'text', initial: '' },
 ];
 
-export const main = ({ filepath, model }: { filepath: string, model :string }) => {
+export const main = ({
+  filepath,
+  model,
+}: {
+  filepath: string;
+  model: string;
+}) => {
   if (!filepath) {
     throw Error('"filepath" is required');
   }

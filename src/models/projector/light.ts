@@ -34,27 +34,21 @@ export class Light extends CompoundModel3D {
             origin: 'bottom',
             diameter: lightMidDiameter,
             axialLength: lightLightBottomHeight - lightBaseHeight,
-            transforms: [
-              new Translation({ z: lightBaseHeight }),
-            ],
+            transforms: [new Translation({ z: lightBaseHeight })],
           }),
           new Cylinder({
             axis: 'z',
             origin: 'bottom',
             diameter: lightLightDiameter,
             axialLength: lightLightTopHeight - lightLightBottomHeight,
-            transforms: [
-              new Translation({ z: lightLightBottomHeight }),
-            ],
+            transforms: [new Translation({ z: lightLightBottomHeight })],
           }),
           new Cylinder({
             axis: 'z',
             origin: 'bottom',
             diameter: lightMidDiameter,
             axialLength: (lightTopHeight - lightLightTopHeight) / 2,
-            transforms: [
-              new Translation({ z: lightLightTopHeight }),
-            ],
+            transforms: [new Translation({ z: lightLightTopHeight })],
           }),
           new Cylinder({
             axis: 'z',
@@ -62,13 +56,15 @@ export class Light extends CompoundModel3D {
             diameter: lightTopDiameter,
             axialLength: (lightTopHeight - lightLightTopHeight) / 2,
             transforms: [
-              new Translation({ z: lightLightTopHeight + ((lightTopHeight - lightLightTopHeight) / 2) }),
+              new Translation({
+                z:
+                  lightLightTopHeight +
+                  (lightTopHeight - lightLightTopHeight) / 2,
+              }),
             ],
           }),
         ],
-        transforms: [
-          translation,
-        ],
+        transforms: [translation],
       }),
     );
   }

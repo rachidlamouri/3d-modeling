@@ -1,8 +1,6 @@
 import { degToRad } from '@jscad/modeling/src/utils';
 import _ from 'lodash';
-import {
-  Cylinder, Translation, Union,
-} from '../../modeling';
+import { Cylinder, Translation, Union } from '../../modeling';
 
 // parameters
 const distanceFromCenter = 5;
@@ -37,31 +35,33 @@ const E = {
   y: B.y,
 };
 
-const createGroup = (height: number) => new Union({
-  models: [A, B, C, D, E].map((vector) => new Cylinder({
-    origin: 'bottom',
-    axis: 'z',
-    diameter,
-    axialLength,
-    transforms: [
-      new Translation(vector),
-    ],
-  })) as [Cylinder, ...Cylinder[]],
-  transforms: [
-    new Translation({ z: height }),
-  ],
-});
+const createGroup = (height: number) =>
+  new Union({
+    models: [A, B, C, D, E].map(
+      (vector) =>
+        new Cylinder({
+          origin: 'bottom',
+          axis: 'z',
+          diameter,
+          axialLength,
+          transforms: [new Translation(vector)],
+        }),
+    ) as [Cylinder, ...Cylinder[]],
+    transforms: [new Translation({ z: height })],
+  });
 
-const createColumn = (x: number) => new Union({
-  models: _.range(numberOfLayers).map((index) => createGroup(index * distanceBetweenLayers)) as [Union, ...Union[]],
-  transforms: [
-    new Translation({ x }),
-  ],
-});
+const createColumn = (x: number) =>
+  new Union({
+    models: _.range(numberOfLayers).map((index) =>
+      createGroup(index * distanceBetweenLayers),
+    ) as [Union, ...Union[]],
+    transforms: [new Translation({ x })],
+  });
 
 export default {
   diagram: new Union({
-    models: _.range(numberOfColumns)
-      .map((index) => createColumn(index * distanceBetweenColumns)) as [Union, ...Union[]],
+    models: _.range(numberOfColumns).map((index) =>
+      createColumn(index * distanceBetweenColumns),
+    ) as [Union, ...Union[]],
   }),
 };

@@ -1,4 +1,7 @@
-import { buildParseInputDimensions, InputDimensions } from '../../dimensionParser/buildParseInputDimensions';
+import {
+  buildParseInputDimensions,
+  InputDimensions,
+} from '../../dimensionParser/buildParseInputDimensions';
 import {
   RectangularPrism,
   Subtraction,
@@ -29,7 +32,8 @@ const parseInputDimensions = buildParseInputDimensions<DimensionNames>(
   dimensionNames,
   {
     carabinerHoleRadius: 'carabinerHoleDiameter / 2',
-    carabinerHoleOffsetX: 'lengthX / 2 - carabinerHoleRadius - carabinerHoleToEdgeMargin',
+    carabinerHoleOffsetX:
+      'lengthX / 2 - carabinerHoleRadius - carabinerHoleToEdgeMargin',
   },
 );
 

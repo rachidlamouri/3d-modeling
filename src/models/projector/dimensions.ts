@@ -157,7 +157,8 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     trackNubHoleRadius: 'trackNubRadius + trackNubRadiusAllowance',
     trackNubHoleDiameter: '2 * trackNubHoleRadius',
 
-    reelHeight: '2 * (trackNubHoleRadius + frameWingChannelBuffer) + frameWingChannelDiameter',
+    reelHeight:
+      '2 * (trackNubHoleRadius + frameWingChannelBuffer) + frameWingChannelDiameter',
     reelDiameterAllowance: '.5',
     reelRadiusAllowance: 'reelDiameterAllowance / 2',
     reelHeightAllowance: '.1',
@@ -194,7 +195,8 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
     supportMainThickness: '.8',
     supportMainDiameterAllowance: '.6',
     supportMainRadiusAllowance: 'supportMainDiameterAllowance / 2',
-    supportMainOuterRadius: '.5 * trackBaseInnerRadius + .5 * trackBaseOuterRadius + supportMainThickness / 2',
+    supportMainOuterRadius:
+      '.5 * trackBaseInnerRadius + .5 * trackBaseOuterRadius + supportMainThickness / 2',
     supportMainOuterDiameter: '2 * supportMainOuterRadius',
     supportMainInnerRadius: 'supportMainOuterRadius - supportMainThickness',
     supportMainInnerDiameter: '2 * supportMainInnerRadius',
@@ -219,16 +221,20 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
 
     trackBaseInnerRadius: 'shadeInnerRadius',
     trackBaseInnerDiameter: '2 * trackBaseInnerRadius',
-    trackLipInnerRadius: 'shadeOuterRadius + 2 * reelRadiusAllowance + reelThickness',
+    trackLipInnerRadius:
+      'shadeOuterRadius + 2 * reelRadiusAllowance + reelThickness',
     trackLipInnerDiameter: '2 * trackLipInnerRadius',
     trackLipOuterRadius: 'trackLipInnerRadius + trackLipThickness',
     trackLipOuterDiameter: '2 * trackLipOuterRadius',
     trackBaseOuterRadius: 'trackLipOuterRadius',
     trackBaseOuterDiameter: '2 * trackBaseOuterRadius',
     trackBaseSupportHoleHeightAllowance: '.5',
-    trackBaseHeight: 'supportMainOverlapHeight + trackBaseSupportHoleHeightAllowance',
-    trackBaseSupportHoleOuterRadius: 'supportMainOuterRadius + supportMainRadiusAllowance',
-    trackBaseSupportHoleThickness: 'supportMainThickness + 2 * supportMainRadiusAllowance',
+    trackBaseHeight:
+      'supportMainOverlapHeight + trackBaseSupportHoleHeightAllowance',
+    trackBaseSupportHoleOuterRadius:
+      'supportMainOuterRadius + supportMainRadiusAllowance',
+    trackBaseSupportHoleThickness:
+      'supportMainThickness + 2 * supportMainRadiusAllowance',
 
     trackNubLength: 'trackLipInnerRadius - trackBaseInnerRadius',
   },
@@ -236,4 +242,6 @@ const parseInputDimensions = buildParseInputDimensions<typeof dimensionNames>(
 
 type ProjectorDimensions = Dimensions<typeof dimensionNames>;
 
-export const projectorDimensions: ProjectorDimensions = parseInputDimensions({});
+export const projectorDimensions: ProjectorDimensions = parseInputDimensions(
+  {},
+);

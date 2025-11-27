@@ -2,7 +2,7 @@ export type Vector3DObject = {
   x: number;
   y: number;
   z: number;
-}
+};
 
 export type Vector3DTuple = [x: number, y: number, z: number];
 
@@ -26,11 +26,7 @@ export class Vector3D {
   }
 
   invert() {
-    return new Vector3D(
-      -this.#x,
-      -this.#y,
-      -this.#z,
-    );
+    return new Vector3D(-this.#x, -this.#y, -this.#z);
   }
 
   get object(): Vector3DObject {
@@ -42,10 +38,6 @@ export class Vector3D {
   }
 
   get tuple(): Vector3DTuple {
-    return [
-      this.#x,
-      this.#y,
-      this.#z,
-    ];
+    return [this.#x, this.#y, this.#z];
   }
 }

@@ -5,8 +5,8 @@ const axes: OrientationAxis[] = ['x', 'y', 'z'];
 const origins: CylinderOrigin[] = ['bottom', 'center', 'top'];
 
 export default Object.fromEntries(
-  axes.flatMap((axis) => origins.map(
-    (origin) => [
+  axes.flatMap((axis) =>
+    origins.map((origin) => [
       `${axis}${_.upperFirst(origin)}`,
       new Cylinder({
         axis,
@@ -14,6 +14,6 @@ export default Object.fromEntries(
         diameter: 10,
         axialLength: 20,
       }),
-    ],
-  )),
+    ]),
+  ),
 );
