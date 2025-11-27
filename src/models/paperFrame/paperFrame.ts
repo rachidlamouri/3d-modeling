@@ -1,6 +1,6 @@
 import { buildParseInputDimensions } from '../../dimensionParser';
 import {
-  RectangularPrism, Rotation, Subtraction, Translation,
+  RectangularPrism, Subtraction, Translation,
 } from '../../modeling';
 
 const dimensionNames = [
