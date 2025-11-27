@@ -14,6 +14,7 @@ Purpose: provide quick, actionable guidance so an AI can be immediately producti
   - Build a single model (creates STL): `npm run build:model src/models/<path-to-model-instance.ts>` (uses `ts-node`/`nodemon` and the `src/scripts/buildModel` script)
   - TypeScript compile (for tests or static checks): `npx tsc -p tsconfig.json` (outputs to `build/src` per `tsconfig.json`)
   - Run tests: first compile with `npx tsc -p tsconfig.json`, then `npm test` (mocha runs against `build/src/tests/**/*.test.js`)
+  - Formatting: use `npm run format` to apply Prettier formatting and `npm run format:check` to verify formatting in CI.
 
 - **Project-specific conventions & patterns**
   - Models: create classes that extend `Model3D` or `ModelCollection3D` from `src/modeling`. See `src/models/examples/widget/widget.ts`.

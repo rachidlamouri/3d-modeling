@@ -31,6 +31,7 @@ describe('expressionParser/constantExpression', () => {
         constantLiteral: '',
         value: 0,
       });
+      // eslint-disable-next-line no-unused-expressions
       expect(expression.isZero()).to.be.true;
     });
 
@@ -40,6 +41,7 @@ describe('expressionParser/constantExpression', () => {
         constantLiteral: '',
         value: 1,
       });
+      // eslint-disable-next-line no-unused-expressions
       expect(expression.isZero()).to.be.false;
     });
   });
@@ -51,6 +53,7 @@ describe('expressionParser/constantExpression', () => {
         constantLiteral: '',
         value: 1,
       });
+      // eslint-disable-next-line no-unused-expressions
       expect(expression.isOne()).to.be.true;
     });
 
@@ -60,6 +63,7 @@ describe('expressionParser/constantExpression', () => {
         constantLiteral: '',
         value: 0,
       });
+      // eslint-disable-next-line no-unused-expressions
       expect(expression.isOne()).to.be.false;
     });
   });

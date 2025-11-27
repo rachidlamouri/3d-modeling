@@ -104,6 +104,7 @@ describe('expressionParser/unaryExpression', () => {
         expression: new MockExpression(),
       });
 
+      // eslint-disable-next-line no-unused-expressions
       expect(expression.isNegative()).to.be.false;
     });
 
@@ -113,6 +114,7 @@ describe('expressionParser/unaryExpression', () => {
         expression: new MockExpression(),
       });
 
+      // eslint-disable-next-line no-unused-expressions
       expect(expression.isNegative()).to.be.true;
     });
   });

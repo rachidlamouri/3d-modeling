@@ -31,3 +31,15 @@ npm run build:model src/models/<path-to-model.ts>
 
 # open build/src/models/path_to_my_model_instance.*.stl in an stl viewer
 ```
+
+## Formatting & linting
+
+This repo uses Prettier and ESLint. Run formatting and linting with the following commands:
+
+```bash
+npm run format       # formats files with Prettier
+npm run format:check # checks files with Prettier (CI-friendly)
+npm run lint         # runs ESLint
+npm run lint:fix     # runs ESLint and attempts to auto-fix problems
+```
+
