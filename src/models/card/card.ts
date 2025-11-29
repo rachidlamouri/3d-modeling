@@ -6,7 +6,11 @@ import {
   Union,
 } from '../../modeling';
 import { ComplexRectangularPrism } from '../../modeling/complexRectangularPrism';
+import { Text3D } from '../../modeling/text3D';
 
+const layerHeight = 0.3;
+
+// standard card length x and y
 const cardLengthX = 85.6;
 const cardLengthY = 53.98;
 
@@ -15,23 +19,27 @@ const chipLengthY = 11;
 const chipLengthZ = 0.2;
 const chipToleranceXY = 1;
 
-const baseToChipThickness = 0.6;
+const baseToChipThickness = 2 * layerHeight;
 const edgeToChipThickenss = 4;
 
 const chipCoverLengthX = chipLengthX + chipToleranceXY;
 const chipCoverLengthY = chipLengthY + chipToleranceXY;
 const chipCoverLengthZ = 2;
 const chipCoverToleranceXY = 1;
-const chipCoverToleranceZ = 0.6;
-const chipCoverDecorationLengthZ = 0.6;
+const chipCoverToleranceZ = 2 * layerHeight;
+const chipCoverDecorationLengthZ = 2 * layerHeight;
 
 const chipHoleLengthX = chipCoverLengthX + chipCoverToleranceXY;
 const chipHoleLengthY = chipCoverLengthY + chipCoverToleranceXY;
-const chipHoleLengthZ = chipCoverLengthZ + chipCoverToleranceZ;
+const chipHoleLengthZ = chipLengthZ + chipCoverLengthZ + chipCoverToleranceZ;
 
-const cardLengthZ = baseToChipThickness + chipLengthZ + chipHoleLengthZ;
+const rawCardLengthZ = baseToChipThickness + chipHoleLengthZ;
+const cardLengthZ = Math.ceil(rawCardLengthZ / layerHeight) * layerHeight;
 
+// standard card corner radius
 const cardCornerRadius = 3.18;
+
+const letteringHeight = 2 * layerHeight;
 
 class ChipCover extends CompoundModel3D {
   constructor() {
@@ -46,6 +54,7 @@ class ChipCover extends CompoundModel3D {
             cornerRadius: cardCornerRadius,
           }),
           new Union({
+            name: 'Chip Cover Decoration',
             models: [
               new Cylinder({
                 name: 'Center Punch',
@@ -81,30 +90,72 @@ class ChipCover extends CompoundModel3D {
   }
 }
 
+type CardParams = {
+  name: string;
+  date: string;
+  brand: string;
+};
+
 class Card extends CompoundModel3D {
-  constructor() {
+  constructor({ name, date, brand }: CardParams) {
     super(
       new Subtraction({
         models: [
-          new ComplexRectangularPrism({
-            name: 'Base Rectangle',
-            lengthX: cardLengthX,
-            lengthY: cardLengthY,
-            lengthZ: cardLengthZ,
-            cornerRadius: cardCornerRadius,
-          }),
-          new ComplexRectangularPrism({
-            name: 'Chip Hole',
-            lengthX: chipHoleLengthX,
-            lengthY: chipHoleLengthY,
-            lengthZ: chipHoleLengthZ,
-            cornerRadius: cardCornerRadius,
-            transforms: [
-              new Translation({
-                x: cardLengthX / 2 - chipLengthX / 2 - edgeToChipThickenss,
-                z: baseToChipThickness,
+          new Union({
+            name: 'Base Card with Lettering',
+            models: [
+              new ComplexRectangularPrism({
+                name: 'Base Rectangle',
+                lengthX: cardLengthX,
+                lengthY: cardLengthY,
+                lengthZ: cardLengthZ,
+                cornerRadius: cardCornerRadius,
+              }),
+              new Text3D({
+                lengthZ: letteringHeight,
+                strokeWidth: 0.4,
+                text: name,
+                fontSize: 3,
+                transforms: [new Translation({ z: cardLengthZ })],
+              }),
+              new Text3D({
+                lengthZ: letteringHeight,
+                strokeWidth: 0.4,
+                text: date,
+                letterSpacing: 1,
+                fontSize: 2,
+                transforms: [new Translation({ y: -10, z: cardLengthZ })],
+              }),
+              new Text3D({
+                lengthZ: letteringHeight,
+                strokeWidth: 0.4,
+                text: brand,
+                letterSpacing: 1,
+                fontSize: 2,
+                transforms: [new Translation({ y: 10, z: cardLengthZ })],
+              }),
+              new ComplexRectangularPrism({
+                name: 'Chip Hole',
+                lengthX: chipHoleLengthX,
+                lengthY: chipHoleLengthY,
+                lengthZ: 50,
+                cornerRadius: cardCornerRadius,
+                transforms: [
+                  new Translation({
+                    x: cardLengthX / 2 - chipLengthX / 2 - edgeToChipThickenss,
+                    z: baseToChipThickness,
+                  }),
+                ],
               }),
             ],
+          }),
+
+          new Cylinder({
+            name: 'TEMP',
+            origin: 'bottom',
+            axis: 'z',
+            diameter: 2,
+            axialLength: 20,
           }),
         ],
       }),
@@ -113,6 +164,10 @@ class Card extends CompoundModel3D {
 }
 
 export default {
-  card: new Card(),
+  card: new Card({
+    name: 'Anna Kalton',
+    date: '12/26',
+    brand: 'Detritus Rx',
+  }),
   chip: new ChipCover(),
 };
