@@ -1,6 +1,6 @@
 import { Model3D, Model3DParams, CommonModel3DParams } from './model3D';
 
-type ModelList = [Model3D, ...Model3D[]];
+export type ModelList = [Model3D, ...Model3D[]];
 
 export type CommonOperation3DParams = CommonModel3DParams & {
   models: ModelList;

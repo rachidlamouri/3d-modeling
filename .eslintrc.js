@@ -40,6 +40,10 @@ module.exports = {
     'padded-blocks': 'off',
     'arrow-body-style': 'off',
     'object-curly-spacing': 'off',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': 'error',
+    'no-useless-constructor': 'off',
+    '@typescript-eslint/no-useless-constructor': 'error',
     'space-before-blocks': 'off',
     'no-trailing-spaces': 'off',
     'keyword-spacing': 'off',
@@ -47,6 +51,7 @@ module.exports = {
     '@typescript-eslint/indent': 'off',
     'eol-last': 'off',
     quotes: 'off',
+    'no-loop-func': 'off',
   },
   settings: {
     'import/extensions': ['.js', '.ts'],

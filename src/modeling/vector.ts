@@ -4,6 +4,10 @@ export type Vector3DObject = {
   z: number;
 };
 
+export type Point2D = [x: number, y: number];
+
+export type Vector2DTuple = [x: number, y: number];
+
 export type Vector3DTuple = [x: number, y: number, z: number];
 
 export class Vector3D {
