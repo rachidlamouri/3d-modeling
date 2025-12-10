@@ -1,12 +1,135 @@
-import { hersheySimplex, Vector2 } from '../vector-font/hersheySimplex';
+/**
+ * @file
+ *
+ * @note The word "point" in this file refers to an (x,y) coordinate in 2D
+ * space, and not the unit of measurement (1/72 of an inch).
+ */
+
+import { hersheySimplex } from '../vector-font/hersheySimplex';
 import { CompoundModel3D } from './compoundModel3D';
 import { Cylinder } from './cylinder';
 import { ExtrudedPolygon } from './extrudedPolygon';
 import { ModelList } from './operation3D';
+import { RectangularPrism } from './rectangularPrism';
 import { Transform3D } from './transform3D';
 import { Translation } from './translation';
 import { Union } from './union';
-import { Vector2DTuple, Vector3D } from './vector';
+import { Vector2D, Vector2DTuple, Vector3D } from './vector';
+
+const vectorFont = hersheySimplex;
+
+type ScaledCharacter = {
+  character: string;
+  offsetX: number;
+  scaledWidthStroked: number;
+  hasGeometry: boolean;
+  scaledPoints: Vector2D[];
+  scaledSegments: {
+    start: Vector2D;
+    end: Vector2D;
+  }[];
+  scaledPolygons: Vector2D[][];
+};
+
+type Text3DDimensionsParams = {
+  text: string;
+  fontSize: number;
+  strokeWidth: number;
+  letterSpacing: number;
+  lengthZ: number;
+};
+
+// TODO: stroke width affects font size and character width
+export class Text3DDimensions {
+  text: string;
+  strokeWidth: number;
+  characters: ScaledCharacter[];
+  descenderLengthY: number;
+  lengthX: number;
+  lengthY: number;
+  lengthZ: number;
+
+  constructor(params: Text3DDimensionsParams) {
+    /**
+     * Terminology
+     *   - <x>Unstroked: the measurement of "x" that does not account for stroke width
+     *   - <x>Stroked: the measurement of "x" that accounts for stroke width
+     */
+
+    const {
+      text,
+      fontSize: fontSizeStroked,
+      strokeWidth,
+      letterSpacing = 0,
+      lengthZ,
+    } = params;
+
+    const pointWidthStroked = strokeWidth;
+    const halfPointWidthStroked = pointWidthStroked / 2;
+
+    // The printed font size must account for the stroke width (half on top and half on bottom).
+    //    The point vectors should scale with fontSizeUnstroked so that when we add the stroke around them they match fontSizeStroked
+    const fontSizeUnstroked = fontSizeStroked - 2 * halfPointWidthStroked;
+
+    let accumulatedWidthStroked = 0;
+
+    const letterDimensions = text.split('').map((character, index) => {
+      const characterVector = vectorFont.characters[character];
+      if (characterVector === undefined) {
+        throw new Error(`Character "${character}" not found in vector font`);
+      }
+
+      const scaledWidthUnstroked = characterVector.width * fontSizeUnstroked;
+
+      const scaledWidthStroked =
+        halfPointWidthStroked + scaledWidthUnstroked + halfPointWidthStroked;
+
+      const scaledPoints = characterVector.points.map((point) => {
+        return point.scale(fontSizeUnstroked);
+      });
+
+      const scaledSegments = characterVector.segments.map((segment) => ({
+        start: segment.start.scale(fontSizeUnstroked),
+        end: segment.end.scale(fontSizeUnstroked),
+      }));
+
+      const scaledPolygons = characterVector.polygons.map((polygon) => {
+        return polygon.map((point) => point.scale(fontSizeUnstroked));
+      });
+
+      // letter spacing is agnositic to stroke width
+      const nextLetterSpacing = index === 0 ? 0 : letterSpacing;
+
+      // The distance from where the character is rendered by default to its final position as measured from the vector point (not the stroke edge).
+      //   For example, if we assume that the bottom left point of "A" renders at (0, 0) then xOffset would be halfPointWidthStroked
+      const offsetX =
+        accumulatedWidthStroked + nextLetterSpacing + halfPointWidthStroked;
+
+      accumulatedWidthStroked += nextLetterSpacing + scaledWidthStroked;
+
+      const letter: ScaledCharacter = {
+        character,
+        offsetX,
+        scaledWidthStroked,
+        hasGeometry: scaledPoints.length > 0,
+        scaledPoints,
+        scaledSegments,
+        scaledPolygons,
+      };
+
+      return letter;
+    });
+
+    this.text = text;
+    this.strokeWidth = strokeWidth;
+
+    this.characters = letterDimensions;
+    this.descenderLengthY = -vectorFont.descenderY * fontSizeUnstroked;
+    this.lengthX = accumulatedWidthStroked;
+    this.lengthY = fontSizeStroked;
+    this.lengthZ = lengthZ;
+  }
+}
 
 const lineToRectangleOutlinePath = (
   start: Vector2DTuple,
@@ -49,147 +172,133 @@ const lineToRectangleOutlinePath = (
 
 export type Text3DParams = {
   name?: string;
-  text: string;
-  strokeWidth: number;
-  letterSpacing?: number;
-  fontSize: number;
-  lengthZ: number;
+  precomputedDimensions: Text3DDimensions;
   transforms?: Transform3D[];
+  debug?: boolean;
 };
 
 // TODO: when we scale by font size we need to take the starting font size into consideration
 // TODO: make a helper function to compute width and height based on fontSize and letterSpacing
 // TODO: why is comma messed up but semicolon is fine
 export class Text3D extends CompoundModel3D {
-  readonly text: string;
-  readonly width: number;
   // TODO: figure out how to calculate height taking ascenders and descenders into consideration
   // TODO: make an "origin"-like parameter that determines if the baseline or bottom correspond to y=0
   // TODO: calculate line height, ascender, descender etc
   //   readonly height: number;
-  readonly strokeWidth: number;
-  readonly letterSpacing: number | undefined;
-  readonly fontSize: number;
-  readonly lengthZ: number;
 
   constructor({
     name = 'Text3D',
-    text,
-    strokeWidth,
-    letterSpacing = 0,
-    fontSize,
-    lengthZ,
+    precomputedDimensions: {
+      strokeWidth,
+      characters,
+      descenderLengthY,
+      lengthX,
+      lengthY,
+      lengthZ,
+    },
     transforms = [],
+    debug = false,
   }: Text3DParams) {
-    if (fontSize < hersheySimplex.minimumFontSize) {
-      throw new Error(
-        `fontSize must be at least ${hersheySimplex.minimumFontSize}, but received ${fontSize}`,
-      );
-    }
-
-    const scaleVector2 = (vector: Vector2): Vector2 => {
-      return [vector[0] * fontSize, vector[1] * fontSize];
-    };
-
-    let accumulatedWidth = 0;
-    const textMetadata = text.split('').map((character, index) => {
-      const characterVector = hersheySimplex.characters[character];
-      if (characterVector === undefined) {
-        throw new Error(`Character "${character}" not found in vector font`);
-      }
-
-      const scaledWidth = characterVector.width * fontSize;
-      const nextLetterSpacing = index === 0 ? 0 : letterSpacing;
-      const xOffset = accumulatedWidth + nextLetterSpacing;
-
-      accumulatedWidth += nextLetterSpacing + scaledWidth;
-
-      return {
-        characterVector,
-        xOffset,
-        scaledWidth,
-      };
-    });
-
     super(
       new Union({
         name,
-        models: textMetadata
-          .filter((metadata) => {
-            return metadata.characterVector.points.length > 0;
-          })
-          .map(({ characterVector, xOffset }) => {
-            const scaledPoints = characterVector.points.map((point) => {
-              return scaleVector2(point);
-            });
+        models: [
+          new Union({
+            name,
+            models: characters
+              .filter((character) => {
+                return character.hasGeometry;
+              })
+              .map(
+                ({
+                  character,
+                  scaledPoints,
+                  scaledSegments,
+                  scaledPolygons,
+                  offsetX,
+                }) => {
+                  return new Union({
+                    name: `Character "${character}"`,
+                    models: [
+                      ...scaledPoints.map((scaledPoint) => {
+                        return new Cylinder({
+                          name: `Point at (${scaledPoint.x}, ${scaledPoint.y})`,
+                          origin: 'bottom',
+                          axis: 'z',
+                          axialLength: lengthZ,
+                          diameter: strokeWidth,
+                          transforms: [
+                            new Translation({
+                              x: scaledPoint.x,
+                              y: scaledPoint.y,
+                            }),
+                          ],
+                        });
+                      }),
+                      ...scaledSegments.map((segment) => {
+                        const outlinePath = lineToRectangleOutlinePath(
+                          segment.start.tuple,
+                          segment.end.tuple,
+                          strokeWidth,
+                        );
 
-            const scaledSegments = characterVector.segments.map((segment) => ({
-              start: scaleVector2(segment.start),
-              end: scaleVector2(segment.end),
-            }));
-
-            const scaledPolygons = characterVector.polygons.map((polygon) => {
-              return polygon.map((point) => scaleVector2(point));
-            });
-
-            return new Union({
-              name: `Character "${characterVector.character}"`,
-              models: [
-                ...scaledPoints.map((scaledPoint) => {
-                  return new Cylinder({
-                    name: `Point at (${scaledPoint[0]}, ${scaledPoint[1]})`,
-                    origin: 'bottom',
-                    axis: 'z',
-                    axialLength: lengthZ,
-                    diameter: strokeWidth,
+                        return new ExtrudedPolygon({
+                          name: `Segment from (${segment.start.x}, ${segment.start.y}) to (${segment.end.x}, ${segment.end.y})`,
+                          boundingBox: new Vector3D(0, 0, 0),
+                          points: outlinePath,
+                          lengthZ,
+                        });
+                      }),
+                      ...scaledPolygons.flatMap((polygon, polygonIndex) => {
+                        return new ExtrudedPolygon({
+                          name: `Polygon ${polygonIndex}`,
+                          boundingBox: new Vector3D(0, 0, 0),
+                          points: polygon.map((point) => point.tuple),
+                          lengthZ,
+                        });
+                      }),
+                    ] as unknown as ModelList,
                     transforms: [
                       new Translation({
-                        x: scaledPoint[0],
-                        y: scaledPoint[1],
+                        x: offsetX,
                       }),
                     ],
                   });
+                },
+              ) as unknown as ModelList,
+            transforms: [
+              new Translation({
+                // adjusts the baseline to account for stroke width
+                y: strokeWidth / 2,
+              }),
+            ],
+          }),
+          ...(debug
+            ? [
+                new RectangularPrism({
+                  name: 'Text DebugBox Box',
+                  lengthX,
+                  lengthY,
+                  lengthZ,
+                  origin: ['left', 'back', 'bottom'],
+                  transforms: [
+                    new Translation({
+                      // move the rectangle down slightly so you can see the text
+                      z: -0.1,
+                      y: -descenderLengthY,
+                    }),
+                  ],
                 }),
-                ...scaledSegments.map((segment) => {
-                  const outlinePath = lineToRectangleOutlinePath(
-                    segment.start,
-                    segment.end,
-                    strokeWidth,
-                  );
-
-                  return new ExtrudedPolygon({
-                    boundingBox: new Vector3D(0, 0, 0),
-                    points: outlinePath,
-                    lengthZ,
-                  });
-                }),
-                ...scaledPolygons.flatMap((polygon, polygonIndex) => {
-                  return new ExtrudedPolygon({
-                    name: `Polygon ${polygonIndex} of character "${characterVector.character}"`,
-                    boundingBox: new Vector3D(0, 0, 0),
-                    points: polygon,
-                    lengthZ,
-                  });
-                }),
-              ] as unknown as ModelList,
-              transforms: [new Translation({ x: xOffset })],
-            });
-          }) as unknown as ModelList,
+              ]
+            : []),
+        ],
         transforms: [
           new Translation({
-            // adjusts the baseline to account for stroke width
-            y: strokeWidth / 2,
+            y: descenderLengthY,
           }),
           ...transforms,
         ],
       }),
     );
-
-    this.text = text;
-    this.width = accumulatedWidth;
-    this.strokeWidth = strokeWidth;
-    this.letterSpacing = letterSpacing;
-    this.fontSize = fontSize;
-    this.lengthZ = lengthZ;
   }
 }

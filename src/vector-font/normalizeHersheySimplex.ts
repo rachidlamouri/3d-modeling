@@ -114,7 +114,7 @@ const tittleConfig = new Set([
  * Gathers point, segment, and loop metadata to allow computing a minimum font size.
  */
 export const normalizeHersheySimplex = () => {
-  const entries = Object.entries(
+  const initialEntries = Object.entries(
     hersheySimplexVectorFontConfig.characterConfigByCharacterCode,
   )
     .map(([characterCodeText, inputConfig]) => {
@@ -434,8 +434,27 @@ export const normalizeHersheySimplex = () => {
       return [character, normalizedCharacter] as const;
     });
 
+  const yCoordinates = initialEntries.flatMap((entry) => {
+    const normalizedCharacter = entry[1];
+    return normalizedCharacter.points.map((point) => point[1]);
+  });
+
+  const maximumAscender = Math.max(...yCoordinates);
+  const minimumDescender = Math.min(...yCoordinates);
+
+  const initialFontSize = maximumAscender - minimumDescender;
+
+  // Scale all characters to have a consistent font size of 1 unit tall
+  const normalizedEntries = initialEntries.map(
+    ([character, normalizedCharacter]) => {
+      const scaleFactor = 1 / initialFontSize;
+      const scaledCharacter = normalizedCharacter.scale(scaleFactor);
+      return [character, scaledCharacter] as const;
+    },
+  );
+
   const result: {
     [character: string]: NormalizedHersheySimplexCharacter;
-  } = Object.fromEntries(entries);
+  } = Object.fromEntries(normalizedEntries);
   return result;
 };

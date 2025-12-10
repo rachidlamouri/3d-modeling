@@ -76,7 +76,7 @@ const minimumStrokeLength = 4 * minimumStrokeWidth;
  *  4 nozzle sized walls plus the stroke radius of the second point
  */
 const minimumPointDistance =
-  minimumStrokeWidth / 2 + 4 * nozzleLineThickness + minimumStrokeWidth / 2;
+  minimumStrokeWidth / 2 + 2 * nozzleLineThickness + minimumStrokeWidth / 2;
 
 /**
  * Minimum distance between the center of a closure loop (open hole) and its
@@ -87,7 +87,7 @@ const minimumPointDistance =
  * widths + half the minimum stroke width.
  */
 const minimumClosureRadius =
-  nozzleRadius + 7 * nozzleLineThickness + minimumStrokeWidth / 2;
+  nozzleRadius + 2 * nozzleLineThickness + minimumStrokeWidth / 2;
 
 /**
  * Minimum distance between the center of a tittle loop (filled dot) and its
@@ -95,7 +95,7 @@ const minimumClosureRadius =
  * points is a nozzle sized dot surrounded by 4 concentric circles each as thick
  * as the nozzle. So the radius is the nozzle radius, plus 4 nozzle widths.
  */
-const minimumTittleRadius = nozzleRadius + 4 * nozzleLineThickness;
+const minimumTittleRadius = nozzleRadius + 2 * nozzleLineThickness;
 
 let fontSize = 0;
 let issues: unknown[] = [];

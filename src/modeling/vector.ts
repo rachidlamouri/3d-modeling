@@ -10,6 +10,35 @@ export type Vector2DTuple = [x: number, y: number];
 
 export type Vector3DTuple = [x: number, y: number, z: number];
 
+export class Vector2D {
+  readonly x: number;
+  readonly y: number;
+
+  readonly tuple: Vector2DTuple;
+
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+
+    this.tuple = [x, y];
+  }
+
+  scale(factor: number): Vector2D {
+    return new Vector2D(this.x * factor, this.y * factor);
+  }
+}
+
+/**
+ * @note I tried using the iterator protocol on Vector2DTuple and Vector2D, but
+ * a class cannot define an iterator for a strongly typed tuple
+ */
+export class Vector2DLike {
+  value: Vector2DTuple;
+  constructor(vector: Vector2DTuple | Vector2D) {
+    this.value = vector instanceof Vector2D ? vector.tuple : vector;
+  }
+}
+
 export class Vector3D {
   #x: number;
   #y: number;
